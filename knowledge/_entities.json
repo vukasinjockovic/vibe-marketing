@@ -1,0 +1,335 @@
+{
+  "generated": "2026-02-10T19:57:24.261Z",
+  "entityCount": 25,
+  "domains": {
+    "nonfiction": 25
+  },
+  "entities": [
+    {
+      "name": "\"Often a Bridesmaid But Never a Bride\"",
+      "path": "nonfiction/anecdotes/often-a-bridesmaid.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Bridesmaid Ad",
+        "Listerine Halitosis Ad",
+        "Edna's Case"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "\"They Laughed When I Sat Down at the Piano\"",
+      "path": "nonfiction/anecdotes/they-laughed-piano.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Piano Ad",
+        "U.S. School of Music Ad",
+        "They Laughed Piano"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "38 Verbalization Techniques",
+      "path": "nonfiction/frameworks/thirty-eight-verbalization-techniques.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "38 Ways to Strengthen Your Headline",
+        "Verbalization",
+        "Headline Verbalization Techniques"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Architecture of Belief",
+      "path": "nonfiction/frameworks/architecture-of-belief.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "Gradualization Framework",
+        "Stream of Acceptances",
+        "Belief Architecture",
+        "Habit of Agreement"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Avis \"We Try Harder\" Campaign",
+      "path": "nonfiction/anecdotes/avis-we-try-harder.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Avis Campaign",
+        "We Try Harder",
+        "We're Only Number Two"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Believability-Bridge",
+      "path": "nonfiction/concepts/believability-bridge.md",
+      "domain": "nonfiction",
+      "type": "concept",
+      "status": "solid",
+      "aliases": [
+        "Believability Bridge",
+        "Believability-Chasm",
+        "Bridge of Ideas",
+        "Primary Image Bridge"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Chrysler 1948 Compact Car Failure",
+      "path": "nonfiction/anecdotes/chrysler-1948-failure.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Chrysler 1948",
+        "Chrysler Compact Car"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Cigarette Industry Sophistication Cycle",
+      "path": "nonfiction/anecdotes/cigarette-industry-cycle.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Cigarette Advertising History",
+        "Cigarette Industry Five Stages"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Claude Hopkins",
+      "path": "nonfiction/researchers/hopkins-claude.md",
+      "domain": "nonfiction",
+      "type": "researcher",
+      "status": "stub",
+      "aliases": [
+        "Claude C. Hopkins"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Edsel Failure",
+      "path": "nonfiction/anecdotes/edsel-failure.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Ford Edsel",
+        "Edsel"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Eugene M. Schwartz",
+      "path": "nonfiction/researchers/schwartz-eugene.md",
+      "domain": "nonfiction",
+      "type": "researcher",
+      "status": "solid",
+      "aliases": [
+        "Eugene Schwartz",
+        "Gene Schwartz",
+        "Gene"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Five Stages of Awareness",
+      "path": "nonfiction/frameworks/five-stages-of-awareness.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "State of Awareness",
+        "Awareness Scale",
+        "Awareness Stages",
+        "Customer Awareness Spectrum",
+        "Schwartz Awareness Levels"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Five Stages of Market Sophistication",
+      "path": "nonfiction/frameworks/five-stages-of-market-sophistication.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "State of Sophistication",
+        "Sophistication Scale",
+        "Market Sophistication Stages",
+        "Schwartz Sophistication Levels"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Ford Safety Campaign 1954",
+      "path": "nonfiction/anecdotes/ford-safety-1954.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Ford Safety Ads",
+        "Ford 1954"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Lifebuoy B.O. Campaign",
+      "path": "nonfiction/anecdotes/lifebuoy-bo-campaign.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Lifebuoy Soap",
+        "B.O. Campaign",
+        "Lifebuoy Redefinition"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Marlboro \"Virile Men\" Campaign",
+      "path": "nonfiction/anecdotes/marlboro-virile-men.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Marlboro Man",
+        "Marlboro Tattoo Ad",
+        "Marlboro Virility Campaign"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Mass Desire / The Channeling Principle",
+      "path": "nonfiction/concepts/mass-desire-channeling-principle.md",
+      "domain": "nonfiction",
+      "type": "concept",
+      "status": "solid",
+      "aliases": [
+        "Channeling Principle",
+        "Mass Desire",
+        "The Force That Makes Advertising Work",
+        "Amplification Effect"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Robert Collier Price-Cut Mechanism Ad",
+      "path": "nonfiction/anecdotes/robert-collier-price-cut-ad.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "Robert Collier Shirt Ad",
+        "Mill Overstock Ad",
+        "Madras Shirt Ad"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Seven Techniques of Breakthrough Copy",
+      "path": "nonfiction/frameworks/seven-techniques-of-breakthrough-copy.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "Seven Basic Techniques",
+        "Part 2 Techniques",
+        "Body Copy Techniques",
+        "Mechanisms of Persuasion"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "The Creative Gamble",
+      "path": "nonfiction/concepts/the-creative-gamble.md",
+      "domain": "nonfiction",
+      "type": "concept",
+      "status": "solid",
+      "aliases": [
+        "Creative Gamble",
+        "Headline Gamble"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Thirteen Intensification Techniques",
+      "path": "nonfiction/frameworks/thirteen-intensification-techniques.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "13 Ways to Strengthen Desire",
+        "Intensification Sub-Techniques",
+        "Desire-Building Techniques"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Three Dimensions of the Prospect's Mind",
+      "path": "nonfiction/concepts/three-dimensions-of-prospects-mind.md",
+      "domain": "nonfiction",
+      "type": "concept",
+      "status": "solid",
+      "aliases": [
+        "Three Dimensions",
+        "Desires-Identifications-Beliefs",
+        "D-I-B Framework"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Three Stages of Mechanization",
+      "path": "nonfiction/frameworks/three-stages-of-mechanization.md",
+      "domain": "nonfiction",
+      "type": "framework",
+      "status": "solid",
+      "aliases": [
+        "Mechanization Stages",
+        "Mechanism Copy Stages",
+        "How to Verbally Prove Your Product Works"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "TV Repair Manual Ad",
+      "path": "nonfiction/anecdotes/tv-repair-manual-ad.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "WHY HAVEN'T TV OWNERS BEEN TOLD THESE FACTS",
+        "TV Repair Book Ad",
+        "Television Repair Ad"
+      ],
+      "lastUpdated": "2026-02-10"
+    },
+    {
+      "name": "Volkswagen \"Think Small\" Campaign",
+      "path": "nonfiction/anecdotes/vw-think-small-campaign.md",
+      "domain": "nonfiction",
+      "type": "anecdote",
+      "status": "solid",
+      "aliases": [
+        "VW Think Small",
+        "Volkswagen Campaign",
+        "VW Lemon Ad",
+        "VW Building-Block Ads"
+      ],
+      "lastUpdated": "2026-02-10"
+    }
+  ]
+}
