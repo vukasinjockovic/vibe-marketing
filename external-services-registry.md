@@ -148,7 +148,7 @@ This is the core table that determines agent gating in the pipeline builder. If 
 | Agent | image_generation | templated_images | video_generation | ai_presenter | voice_synthesis | Free Minimum Path |
 |-------|-----------------|-----------------|-----------------|-------------|----------------|------------------|
 | vibe-image-director | -- | -- | -- | -- | -- | No external services required (creates prompts only) |
-| vibe-image-generator | REQUIRED | OPTIONAL | -- | -- | -- | FLUX Schnell via fal.ai ($0.003/img, near-free) |
+| vibe-image-generator | REQUIRED | OPTIONAL | -- | -- | -- | FLUX.2 [dev] Turbo via fal.ai ($0.008/img, near-free) |
 | vibe-video-generator | -- | -- | REQUIRED | OPTIONAL | OPTIONAL | Pika Labs free tier |
 
 ### Orchestration & Infrastructure
@@ -274,20 +274,20 @@ This is the core table that determines agent gating in the pipeline builder. If 
 
 | Priority | Service | Cost | Free Tier? | Self-Hosted? | Integration | MCP? | Install Method | Best For |
 |----------|---------|------|-----------|-------------|-------------|------|----------------|----------|
-| 1 | **FLUX Pro** (via fal.ai) | $0.05-0.10/img | No | No | Both | Community (`mcp-fal-ai-image` npm) | `npm install mcp-fal-ai-image` | Hero images, product shots |
-| 2 | **FLUX Schnell** (via fal.ai) | $0.003/img | No | No | Both | (same fal.ai MCP) | Same as above | Quick drafts, thumbnails |
-| 3 | **Ideogram 3.0** | $7-20/mo | No | No | Script | No | HTTP API (no install) | Text-in-images, infographics, social graphics |
-| 4 | **DALL-E 3** (OpenAI) | $0.04-0.08/img | No | No | Both | Community (`spartanz51/imagegen-mcp`) | `npm install imagegen-mcp` | General purpose |
-| 5 | **Midjourney** (via ImagineAPI) | $10-30/mo | No | No | Script | No | HTTP API (no install) | Artistic, brand imagery |
-| 6 | **Leonardo.ai** | Free tier + $10+/mo | Yes (limited) | No | Script | No | HTTP API (no install) | Character consistency |
-| 7 | **Recraft V3** | API access | No | No | Script | No | HTTP API (no install) | Vector, icon generation |
-| 8 | **Google Imagen 4** | Vertex AI pricing | No | No | Both | Community (`falahgs/imagen-3.0-generate-google-mcp-server`, via fal.ai) | `npm install imagen-mcp-server` or fal.ai MCP | Photorealism, realistic faces |
-| 9 | **Replicate** (multi-model) | Pay-per-use | No | No | Both | Community (`@gongrzhe/image-gen-server` npm, `awkoy/replicate-flux-mcp`) | `npm install @gongrzhe/image-gen-server` | Access to any model on Replicate |
+| 1 | **FLUX.2 [pro]** (via fal.ai) | $0.03/MP (~$0.03 for 1024x1024) | No | No | Both | Community (`fal-ai-mcp-server` npm v2.1) | `npx fal-ai-mcp-server` | Hero images, product shots, photorealism |
+| 2 | **FLUX.2 [dev] Turbo** (via fal.ai) | $0.008/MP (~$0.008 for 1024x1024) | No | No | Both | (same fal.ai MCP) | Same as above | Quick drafts, thumbnails, bulk generation |
+| 3 | **GPT Image 1.5** (OpenAI) | $0.009-0.17/img (low/med/high quality) | No | No | Both | Community (`SureScaleAI/openai-gpt-image-mcp`) | `npx openai-gpt-image-mcp` | General purpose, editing/inpainting, text rendering |
+| 4 | **Ideogram 3.0** | API: ~$0.04-0.05/img; Plans: $8-60/mo | Yes (10 slow/day, public) | No | Both | Community (`@sunwood-ai-labs/ideagram-mcp-server` npm) | `npx @sunwood-ai-labs/ideagram-mcp-server` | Text-in-images, infographics, multi-language text |
+| 5 | **Google Imagen 4** | $0.02-0.06/img (Fast/Standard/Ultra) | No | No | Both | Community (Google Genmedia MCP in preview) | Gemini API or Vertex AI SDK | Photorealism, 4K output, product photography |
+| 6 | **Recraft V3** | $0.04/raster, $0.08/vector; Plans: $10-48/mo | Yes (50 daily) | No | Both | Official (`recraft-ai/mcp-recraft-server`) | `npx @anthropic-ai/mcp-recraft-server` | Vector/SVG generation, icons, text positioning |
+| 7 | **Midjourney V7** (via ImagineAPI/PiAPI) | MJ: $10-120/mo + API proxy fee | No | No | Script | Community (3rd-party API: `z23cc/midjourney-mcp`) | HTTP API (no install) | Artistic, brand imagery, character consistency |
+| 8 | **Leonardo.ai Phoenix** | Free + $10-24/mo (API: $9-299/mo) | Yes (limited) | No | Both | Community (`ish-joshi/leonardo-mcp-server`, official docs) | HTTP API (no install) | Character consistency, prompt adherence |
+| 9 | **Replicate** (multi-model) | $0.003-0.055/img | No | No | Both | Official (hosted at `mcp.replicate.com`) | Remote MCP (OAuth) | Access to 600+ models (FLUX.2, Ideogram, Seedream, etc.) |
 
-**Recommendation:** FLUX Pro (via fal.ai MCP) as primary -- best quality/cost ratio. FLUX Schnell for drafts. Ideogram for anything with text in the image. DALL-E 3 as fallback. Google Imagen 4 for photorealistic shots where FLUX falls short. Midjourney/Leonardo only for specialized brand work.
+**Recommendation:** FLUX.2 [pro] (via fal.ai MCP) as primary -- best quality/cost ratio. FLUX.2 [dev] Turbo for drafts/bulk. GPT Image 1.5 for general purpose + editing/inpainting (replaces DALL-E 3, deprecated May 2026). Ideogram 3.0 for text-heavy designs (now with MCP). Google Imagen 4 for photorealistic shots (now on Gemini API, not just Vertex). Recraft V3 for vectors/icons (official MCP). Midjourney/Leonardo only for specialized brand work.
 
-**Scripts:** `scripts/services/images/flux_generate.py`, `scripts/services/images/ideogram_generate.py`, `scripts/services/images/dalle_generate.py`, `scripts/services/images/imagen_generate.py`
-**API keys:** `FAL_KEY` / `OPENAI_API_KEY` / `IDEOGRAM_API_KEY` / `GOOGLE_CLOUD_PROJECT` (for Vertex AI) / `REPLICATE_API_TOKEN` / `IMAGINEAPI_KEY` / `LEONARDO_API_KEY` / `RECRAFT_API_KEY`
+**Scripts:** `scripts/services/images/flux_generate.py`, `scripts/services/images/ideogram_generate.py`, `scripts/services/images/gpt_image_generate.py`, `scripts/services/images/imagen_generate.py`
+**API keys:** `FAL_KEY` / `OPENAI_API_KEY` / `IDEOGRAM_API_KEY` / `GOOGLE_CLOUD_PROJECT` (for Vertex AI) or `GOOGLE_API_KEY` (for Gemini API) / `REPLICATE_API_TOKEN` / `IMAGINEAPI_KEY` / `LEONARDO_API_KEY` / `RECRAFT_API_KEY`
 
 ### templated_images
 
@@ -852,9 +852,9 @@ Complete `.mcp.json` with ALL MCP servers. Each entry uses `${ENV_VAR}` placehol
 
 | Status | Count | Services |
 |--------|-------|----------|
-| **Official MCP** | 16 | Firecrawl, Brave Search, Perplexity, Ahrefs, SEMrush, GA4, Mailgun, Slack, WordPress, Webflow, ElevenLabs, Google Ads, Stripe, Cloudflare, Vercel, GitHub |
-| **Community MCP** | 17 | DataForSEO, GSC, Reddit, X/Twitter, LinkedIn, YouTube, SendGrid, Telegram, Discord, Ghost, DALL-E, Replicate, fal.ai, Runway, Meta Ads, Google Imagen, Google Veo |
-| **No MCP** | 12 | Google Keyword Planner, AnswerThePublic, Bing Webmaster, Crawl4AI, ScraperAPI, Apify, PhantomBuster, ProxyCurl, Copyscape, LanguageTool, Buffer, Bannerbear/Placid |
+| **Official MCP** | 18 | Firecrawl, Brave Search, Perplexity, Ahrefs, SEMrush, GA4, Mailgun, Slack, WordPress, Webflow, ElevenLabs, Google Ads, Stripe, Cloudflare, Vercel, GitHub, Recraft, Replicate |
+| **Community MCP** | 17 | DataForSEO, GSC, Reddit, X/Twitter, LinkedIn, YouTube, SendGrid, Telegram, Discord, Ghost, GPT Image (OpenAI), fal.ai, Runway, Meta Ads, Google Imagen, Google Veo, Ideogram |
+| **No MCP** | 10 | Google Keyword Planner, AnswerThePublic, Bing Webmaster, Crawl4AI, ScraperAPI, Apify, PhantomBuster, ProxyCurl, Copyscape, LanguageTool, Buffer, Bannerbear/Placid |
 | **Local tools** | 3 | Pandoc, Calibre, Puppeteer |
 
 ---
@@ -924,7 +924,7 @@ def get_agent_state(agent):
 | vibe-image-director | **ALWAYS ENABLED** | Creates image prompts only, does not call APIs. |
 | vibe-audience-parser | **ALWAYS ENABLED** | Parses uploaded documents, no external services. |
 | vibe-keyword-researcher | DISABLED if no `seo_keywords` provider active | "Requires: seo_keywords. Configure DataForSEO, Ahrefs, or SEMrush in Settings -> Services." |
-| vibe-image-generator | DISABLED if no `image_generation` provider active | "Requires: image_generation. Configure FLUX, DALL-E, or other in Settings -> Services." |
+| vibe-image-generator | DISABLED if no `image_generation` provider active | "Requires: image_generation. Configure FLUX.2, GPT Image, or other in Settings -> Services." |
 | vibe-video-generator | DISABLED if no `video_generation` provider active | "Requires: video_generation. Configure Runway, Pika, or other in Settings -> Services." |
 | vibe-twitter-scout | DISABLED if no `social_scraping_x` provider active | "Requires: social_scraping_x. Configure X API v2 in Settings -> Services." |
 | vibe-reddit-scout | DISABLED if no `social_scraping_reddit` provider active | "Requires: social_scraping_reddit. Configure Reddit API in Settings -> Services." |
@@ -1098,7 +1098,7 @@ The absolute cheapest way to enable each agent, using self-hosted services and f
 | vibe-audience-enricher | Brave Search (free) | Brave | $0 |
 | vibe-linkedin-scout | PhantomBuster or ProxyCurl | No free option | **$69/mo** (PhantomBuster) |
 | vibe-plagiarism-checker | Copyscape | No free option | **~$3/mo** (100 checks) |
-| vibe-image-generator | FLUX Schnell via fal.ai | Sign up at fal.ai | **~$1/mo** (300 images) |
+| vibe-image-generator | FLUX.2 [dev] Turbo via fal.ai | Sign up at fal.ai | **~$2.40/mo** (300 images) |
 | vibe-video-generator | Pika Labs free tier | Sign up at pika.art | $0 (limited) |
 
 ### Summary
@@ -1144,8 +1144,8 @@ Everything in Free Tier, plus:
 |----------|---------|------|-------------|
 | SEO | DataForSEO | $50 deposit (pay-as-go) | Full keyword + SERP + competitor data |
 | Web Scraping | Firecrawl paid | $19/mo | 5,000+ pages, LLM-ready markdown |
-| Images | FLUX Pro (fal.ai) | ~$5-10/mo | High-quality hero images |
-| Images | Ideogram 3.0 | $7/mo | Text-in-image graphics |
+| Images | FLUX.2 [pro] (fal.ai) | ~$3-9/mo | High-quality hero images |
+| Images | Ideogram 3.0 | $8/mo | Text-in-image graphics |
 | Quality | Copyscape | ~$3/mo | Plagiarism detection |
 | Voice | ElevenLabs | $5/mo | Basic voiceover |
 
@@ -1421,7 +1421,7 @@ External Service --> Service Registry (Convex) --> resolve_service.py --> Skill 
 1. vibe-image-generator gets task (pipeline dispatch)
 2. Loads image-generation-procedures/SKILL.md
 3. SKILL.md says: "Run scripts/resolve_service.py image_generation hero_images"
-4. resolve_service.py --> FLUX Pro (fal.ai) is #1 for hero_images
+4. resolve_service.py --> FLUX.2 [pro] (fal.ai) is #1 for hero_images
 5. Agent calls fal.ai MCP tool OR runs flux_generate.py
 6. Gets image URL --> downloads to campaign assets folder
 ```

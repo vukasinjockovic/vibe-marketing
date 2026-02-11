@@ -1,0 +1,195 @@
+{
+  "$schema": "Focus Group Schema — matches Convex focusGroups table",
+  "description": "Required and optional fields for a focus group profile. Agents use this as a reference for what to extract from documents.",
+  "required_fields": {
+    "name": {
+      "type": "string",
+      "description": "Primary name of the focus group (e.g., 'Fat Loss Seekers')"
+    },
+    "nickname": {
+      "type": "string",
+      "description": "Short alias in quotes (e.g., 'The Scale Watchers')"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category grouping (e.g., 'Physical Transformation Desires')"
+    },
+    "overview": {
+      "type": "string",
+      "description": "1-3 sentence description of who this audience is"
+    },
+    "demographics": {
+      "type": "object",
+      "properties": {
+        "ageRange": { "type": "string", "example": "25-55, peaks at 35-45" },
+        "gender": { "type": "string", "example": "60% female, 40% male" },
+        "income": { "type": "string", "example": "Middle to upper-middle class" },
+        "lifestyle": { "type": "string", "example": "Sedentary to moderately active, often desk jobs" },
+        "triggers": { "type": "array", "items": "string", "example": ["Photos of themselves", "upcoming events", "doctor visits"] }
+      }
+    },
+    "psychographics": {
+      "type": "object",
+      "properties": {
+        "values": { "type": "array", "items": "string", "example": ["Health", "appearance", "self-control"] },
+        "beliefs": { "type": "array", "items": "string", "example": ["Weight loss = willpower", "calories in/out is simple math"] },
+        "lifestyle": { "type": "string", "example": "Busy professionals, parents" },
+        "identity": { "type": "string", "example": "See themselves as someone who 'used to be fit'" }
+      }
+    },
+    "coreDesires": {
+      "type": "array",
+      "items": "string",
+      "description": "What they deeply want (emotional drivers)"
+    },
+    "painPoints": {
+      "type": "array",
+      "items": "string",
+      "description": "What frustrates them (problems to solve)"
+    },
+    "fears": {
+      "type": "array",
+      "items": "string",
+      "description": "What they're afraid of"
+    },
+    "beliefs": {
+      "type": "array",
+      "items": "string",
+      "description": "Their worldview and assumptions"
+    },
+    "objections": {
+      "type": "array",
+      "items": "string",
+      "description": "Why they hesitate to buy"
+    },
+    "emotionalTriggers": {
+      "type": "array",
+      "items": "string",
+      "description": "What activates their buying desire"
+    },
+    "languagePatterns": {
+      "type": "array",
+      "items": "string",
+      "description": "Exact phrases they use (for copy)"
+    },
+    "ebookAngles": {
+      "type": "array",
+      "items": "string",
+      "description": "Ebook title/positioning ideas"
+    },
+    "marketingHooks": {
+      "type": "array",
+      "items": "string",
+      "description": "Headlines and hooks that resonate"
+    },
+    "transformationPromise": {
+      "type": "string",
+      "description": "The before -> after journey statement"
+    }
+  },
+  "enrichment_fields": {
+    "_note": "These are NOT expected in uploaded documents. They are added by enrichment agents after import.",
+    "awarenessStage": {
+      "type": "enum",
+      "values": ["unaware", "problem_aware", "solution_aware", "product_aware", "most_aware"],
+      "weight": 15,
+      "description": "Schwartz awareness stage classification"
+    },
+    "sophisticationLevel": {
+      "type": "enum",
+      "values": ["stage1", "stage2", "stage3", "stage4", "stage5"],
+      "weight": 10,
+      "description": "Market sophistication level"
+    },
+    "contentPreferences": {
+      "type": "object",
+      "weight": 10,
+      "properties": {
+        "preferredFormats": { "type": "array", "items": "string" },
+        "attentionSpan": { "type": "string" },
+        "tonePreference": { "type": "string" }
+      }
+    },
+    "influenceSources": {
+      "type": "object",
+      "weight": 10,
+      "properties": {
+        "trustedVoices": { "type": "array", "items": "string" },
+        "mediaConsumption": { "type": "array", "items": "string" },
+        "socialPlatforms": { "type": "array", "items": "string" }
+      }
+    },
+    "purchaseBehavior": {
+      "type": "object",
+      "weight": 15,
+      "properties": {
+        "buyingTriggers": { "type": "array", "items": "string" },
+        "priceRange": { "type": "string" },
+        "decisionProcess": { "type": "string" },
+        "objectionHistory": { "type": "array", "items": "string" }
+      }
+    },
+    "competitorContext": {
+      "type": "object",
+      "weight": 10,
+      "properties": {
+        "currentSolutions": { "type": "array", "items": "string" },
+        "switchMotivators": { "type": "array", "items": "string" }
+      }
+    },
+    "communicationStyle": {
+      "type": "object",
+      "weight": 10,
+      "properties": {
+        "formalityLevel": { "type": "string" },
+        "humorReceptivity": { "type": "string" },
+        "storyPreference": { "type": "string" },
+        "dataPreference": { "type": "string" }
+      }
+    },
+    "seasonalContext": {
+      "type": "object",
+      "weight": 5,
+      "properties": {
+        "peakInterestPeriods": { "type": "array", "items": "string" },
+        "lifeEvents": { "type": "array", "items": "string" },
+        "cyclicalBehaviors": { "type": "array", "items": "string" }
+      }
+    },
+    "negativeTriggers": {
+      "type": "object",
+      "weight": 10,
+      "properties": {
+        "dealBreakers": { "type": "array", "items": "string" },
+        "offensiveTopics": { "type": "array", "items": "string" },
+        "toneAversions": { "type": "array", "items": "string" }
+      }
+    },
+    "awarenessSignals": {
+      "type": "object",
+      "weight": 5,
+      "properties": {
+        "beliefsSignal": { "type": "string" },
+        "objectionsSignal": { "type": "string" },
+        "languageSignal": { "type": "string" }
+      }
+    }
+  },
+  "staging_meta_fields": {
+    "_note": "These are added by the parser during staging, not extracted from the document.",
+    "matchStatus": {
+      "type": "enum",
+      "values": ["create_new", "enrich_existing", "possible_match", "skip"]
+    },
+    "matchedFocusGroupId": { "type": "id", "table": "focusGroups", "optional": true },
+    "matchConfidence": { "type": "number", "min": 0, "max": 1 },
+    "matchReason": { "type": "string" },
+    "reviewStatus": {
+      "type": "enum",
+      "values": ["pending_review", "approved", "rejected", "edited", "imported"]
+    },
+    "completenessScore": { "type": "number", "min": 0, "max": 100 },
+    "missingFields": { "type": "array", "items": "string" },
+    "needsEnrichment": { "type": "boolean" }
+  }
+}

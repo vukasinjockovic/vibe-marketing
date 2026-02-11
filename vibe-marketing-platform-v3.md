@@ -716,7 +716,7 @@ The Settings → Services page in the dashboard is the central hub for managing 
 │   │   ├── ebook-procedures/                  ← Ebook/lead magnet creation
 │   │   ├── video-script-guide/                ← Video script creation (8 formats)
 │   │   ├── competitor-procedures/             ← Competitor intelligence
-│   │   ├── image-direction-procedures/        ← Image prompt engineering
+│   │   ├── image-prompt-engineering/           ← Image prompt engineering
 │   │   ├── image-generation-procedures/       ← Image generation via services
 │   │   │
 │   │   ├── humanizer/                         ← FROM skills.sh — AI pattern detection
@@ -1098,11 +1098,19 @@ Use @all for everyone. Use @human for Telegram notification to owner.
 
 ## 7. MCP Server Configuration
 
-All MCP servers the platform can use are declared in `.mcp.json`. Each has env var placeholders -- they are installed but inactive until API keys are provided:
+> **Source of truth**: `external-services-registry.md` section 7 has the full 30+ server config with detailed per-service notes. This section is a summary. `setup.sh` reads from the registry when installing.
+
+All MCP servers are declared in `.mcp.json`. Each has env var placeholders — installed but inactive until API keys are provided. During development, only `playwright` is active. `setup.sh` populates the full config on first run.
 
 ```json
 {
   "mcpServers": {
+    // ── Dev Tools (active during development) ──
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--headless"]
+    },
+
     // ── Search ──
     "brave-search": {
       "command": "npx",
@@ -1133,8 +1141,18 @@ All MCP servers the platform can use are declared in `.mcp.json`. Each has env v
       "env": { "DATAFORSEO_LOGIN": "${DATAFORSEO_LOGIN}", "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}" }
     },
     "ahrefs": {
-      "url": "https://mcp.ahrefs.com/v1/sse",
+      "command": "npx",
+      "args": ["-y", "ahrefs-mcp-server"],
       "env": { "AHREFS_API_KEY": "${AHREFS_API_KEY}" }
+    },
+    "semrush": {
+      "url": "https://api.semrush.com/mcp/v1",
+      "env": { "SEMRUSH_API_KEY": "${SEMRUSH_API_KEY}" }
+    },
+    "google-search-console": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-gsc"],
+      "env": { "GSC_SERVICE_ACCOUNT_JSON": "${GSC_SERVICE_ACCOUNT_JSON}" }
     },
 
     // ── Social ──
@@ -1145,22 +1163,52 @@ All MCP servers the platform can use are declared in `.mcp.json`. Each has env v
     },
     "youtube": {
       "command": "npx",
-      "args": ["-y", "@kirbah/mcp-youtube"],
+      "args": ["-y", "youtube-mcp-server"],
       "env": { "YOUTUBE_API_KEY": "${YOUTUBE_API_KEY}" }
     },
+    "linkedin": {
+      "command": "npx",
+      "args": ["-y", "linkedin-mcp-server"],
+      "env": { "LINKEDIN_ACCESS_TOKEN": "${LINKEDIN_ACCESS_TOKEN}" }
+    },
 
-    // ── Images ──
+    // ── Images (updated from registry research) ──
     "fal-ai": {
       "command": "npx",
-      "args": ["-y", "mcp-fal-ai-image"],
+      "args": ["-y", "fal-ai-mcp-server"],
       "env": { "FAL_KEY": "${FAL_KEY}" }
+    },
+    "openai-image": {
+      "command": "npx",
+      "args": ["-y", "openai-gpt-image-mcp"],
+      "env": { "OPENAI_API_KEY": "${OPENAI_API_KEY}" }
+    },
+    "ideogram": {
+      "command": "npx",
+      "args": ["-y", "@sunwood-ai-labs/ideagram-mcp-server"],
+      "env": { "IDEOGRAM_API_KEY": "${IDEOGRAM_API_KEY}" }
+    },
+    "recraft": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-recraft-server"],
+      "env": { "RECRAFT_API_KEY": "${RECRAFT_API_KEY}" }
+    },
+    "replicate": {
+      "command": "npx",
+      "args": ["-y", "@gongrzhe/image-gen-server"],
+      "env": { "REPLICATE_API_TOKEN": "${REPLICATE_API_TOKEN}" }
     },
 
     // ── Video ──
     "runway": {
-      "command": "npx",
-      "args": ["-y", "wheattoast11/mcp-video-gen"],
+      "command": "node",
+      "args": ["node_modules/mcp-video-gen/dist/index.js"],
       "env": { "RUNWAY_API_KEY": "${RUNWAY_API_KEY}" }
+    },
+    "veo": {
+      "command": "node",
+      "args": ["node_modules/mcp-veo2/dist/index.js"],
+      "env": { "GOOGLE_CLOUD_PROJECT": "${GOOGLE_CLOUD_PROJECT}" }
     },
 
     // ── Voice ──
@@ -1171,21 +1219,31 @@ All MCP servers the platform can use are declared in `.mcp.json`. Each has env v
     },
 
     // ── Email ──
-    "mailgun": {
+    "sendgrid": {
       "command": "npx",
-      "args": ["-y", "mailgun/mailgun-mcp-server"],
+      "args": ["-y", "sendgrid-mcp"],
+      "env": { "SENDGRID_API_KEY": "${SENDGRID_API_KEY}" }
+    },
+    "mailgun": {
+      "command": "node",
+      "args": ["node_modules/mailgun-mcp-server/dist/index.js"],
       "env": { "MAILGUN_API_KEY": "${MAILGUN_API_KEY}", "MAILGUN_DOMAIN": "${MAILGUN_DOMAIN}" }
     },
 
     // ── CMS ──
     "wordpress": {
       "command": "npx",
-      "args": ["-y", "WordPress/mcp-adapter"],
+      "args": ["-y", "wordpress-mcp-adapter"],
       "env": { "WORDPRESS_URL": "${WORDPRESS_URL}", "WORDPRESS_APP_PASSWORD": "${WORDPRESS_APP_PASSWORD}" }
+    },
+    "ghost": {
+      "command": "npx",
+      "args": ["-y", "@fanyangmeng/ghost-mcp"],
+      "env": { "GHOST_API_URL": "${GHOST_API_URL}", "GHOST_ADMIN_API_KEY": "${GHOST_ADMIN_API_KEY}" }
     },
     "webflow": {
       "command": "npx",
-      "args": ["-y", "webflow/mcp-server"],
+      "args": ["-y", "webflow-mcp-server"],
       "env": { "WEBFLOW_API_TOKEN": "${WEBFLOW_API_TOKEN}" }
     },
 
@@ -1195,27 +1253,54 @@ All MCP servers the platform can use are declared in `.mcp.json`. Each has env v
       "args": ["-y", "@modelcontextprotocol/server-slack"],
       "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}" }
     },
+    "telegram": {
+      "command": "python",
+      "args": ["-m", "telegram_mcp"],
+      "env": { "TELEGRAM_BOT_TOKEN": "${TELEGRAM_BOT_TOKEN}", "TELEGRAM_CHAT_ID": "${TELEGRAM_CHAT_ID}" }
+    },
+    "discord": {
+      "command": "npx",
+      "args": ["-y", "mcp-discord"],
+      "env": { "DISCORD_WEBHOOK_URL": "${DISCORD_WEBHOOK_URL}" }
+    },
 
     // ── Analytics ──
-    "google-search-console": {
+    "google-analytics": {
       "command": "npx",
-      "args": ["-y", "mcp-server-gsc"],
-      "env": { "GSC_SERVICE_ACCOUNT_JSON": "${GSC_SERVICE_ACCOUNT_JSON}" }
+      "args": ["-y", "google-analytics-mcp"],
+      "env": { "GA4_PROPERTY_ID": "${GA4_PROPERTY_ID}", "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}" }
+    },
+    "google-ads": {
+      "command": "python",
+      "args": ["-m", "google_ads_mcp"],
+      "env": { "GOOGLE_ADS_DEVELOPER_TOKEN": "${GOOGLE_ADS_DEVELOPER_TOKEN}", "GOOGLE_ADS_CUSTOMER_ID": "${GOOGLE_ADS_CUSTOMER_ID}" }
+    },
+    "meta-ads": {
+      "command": "node",
+      "args": ["node_modules/meta-ads-mcp/dist/index.js"],
+      "env": { "META_ADS_ACCESS_TOKEN": "${META_ADS_ACCESS_TOKEN}" }
+    },
+    "stripe": {
+      "url": "https://mcp.stripe.com",
+      "env": { "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}" }
     },
 
     // ── Infrastructure ──
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}" }
     },
-    "filesystem": {
+    "cloudflare": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/deploy/vibe-marketing"]
+      "args": ["-y", "@cloudflare/mcp-server-cloudflare"],
+      "env": { "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}" }
     }
   }
 }
 ```
+
+**MCP count**: 35 servers (18 official + 17 community). See `external-services-registry.md` section 7 for availability matrix and per-service notes.
 
 **Note on Convex**: No dedicated MCP server needed. Agents access Convex via bash:
 ```bash
@@ -1229,8 +1314,6 @@ A thin wrapper at `scripts/cx.sh` simplifies:
 # Usage: ./scripts/cx.sh tasks:listByAgent '{"agentName":"scout"}'
 npx convex run "$1" "$2" --url http://localhost:3210 2>/dev/null
 ```
-
-Additional MCP servers (like a postgres MCP for direct analytics queries) can be added later as Convex backing-store access if needed.
 
 ---
 
@@ -4002,7 +4085,7 @@ The `agents.dynamicSkillIds` field is configured in the dashboard (`/agents/:nam
 | `vibe-audience-parser` | audience | audience-analyzer (section 10) | — |
 | `vibe-audience-researcher` | audience | audience-researcher (section 10), psychographic-frameworks | — |
 | `vibe-audience-enricher` | audience | audience-enricher (section 10) | — |
-| `vibe-content-reviewer` | quality | content-quality-rubric | — (FUTURE: quality_rubric) |
+| `vibe-content-reviewer` | quality | content-review-procedures | — (FUTURE: quality_rubric) |
 | `vibe-fact-checker` | quality | claim-investigation (community skill) | — |
 | `vibe-plagiarism-checker` | quality | plagiarism-check-procedures | — |
 | `vibe-image-director` | media | image-prompt-engineering | — (FUTURE: visual_style) |

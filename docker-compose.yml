@@ -1,0 +1,74 @@
+services:
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:latest
+    ports:
+      - "3210:3210"
+      - "3211:3211"
+    volumes:
+      - convex-data:/convex/data
+    environment:
+      - POSTGRES_URL=postgresql://convex:${CONVEX_DB_PASSWORD}@postgres:5432
+      - DO_NOT_REQUIRE_SSL=1
+      - INSTANCE_NAME=vibe-marketing
+      - INSTANCE_SECRET=${CONVEX_INSTANCE_SECRET}
+      - CONVEX_CLOUD_ORIGIN=http://localhost:3210
+      - CONVEX_SITE_ORIGIN=http://localhost:3211
+      - DISABLE_BEACON=true
+      - REDACT_LOGS_TO_CLIENT=false
+      - DATA_DIR=/convex/data
+      - RUST_LOG=info
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3210/version || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  convex-init:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - CONVEX_SELF_HOSTED_URL=http://convex-backend:3210
+      - CONVEX_SELF_HOSTED_ADMIN_KEY=${CONVEX_SELF_HOSTED_ADMIN_KEY}
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "npm install --prefer-offline --no-audit 2>/dev/null && npx convex deploy --url http://convex-backend:3210 --admin-key $CONVEX_SELF_HOSTED_ADMIN_KEY && npx convex run seed:run --url http://convex-backend:3210 --admin-key $CONVEX_SELF_HOSTED_ADMIN_KEY"]
+    restart: "no"
+    profiles: ["init"]
+
+  convex-dashboard:
+    image: ghcr.io/get-convex/convex-dashboard:latest
+    ports:
+      - "6791:6791"
+    environment:
+      - CONVEX_BACKEND_URL=http://convex-backend:3210
+    depends_on:
+      - convex-backend
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./scripts/docker/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
+    environment:
+      - POSTGRES_PASSWORD=${CONVEX_DB_PASSWORD}
+      - POSTGRES_DB=convex_self_hosted
+      - POSTGRES_USER=convex
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U convex -d convex_self_hosted"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  convex-data:
+  pg-data:

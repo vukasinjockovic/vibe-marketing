@@ -1,0 +1,17 @@
+[project]
+name = "vibe-marketing"
+version = "0.1.0"
+description = "AI marketing automation platform"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+pdf = ["pymupdf>=1.24"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+    ".claude/skills/audience-analysis-procedures/scripts",
+    ".claude/skills/audience-enrichment-procedures/scripts",
+]

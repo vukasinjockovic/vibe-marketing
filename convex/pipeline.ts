@@ -1,0 +1,274 @@
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
+
+const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+/**
+ * Map a pipeline step's outputDir to the corresponding task status.
+ * Falls back to the current task status if no mapping exists.
+ */
+function outputDirToStatus(
+  outputDir: string | undefined,
+  currentStatus: string
+): string {
+  const mapping: Record<string, string> = {
+    research: "researched",
+    briefs: "briefed",
+    drafts: "drafted",
+    reviewed: "reviewed",
+    final: "humanized",
+  };
+  if (outputDir && mapping[outputDir]) {
+    return mapping[outputDir];
+  }
+  return currentStatus;
+}
+
+// ═══════════════════════════════════════════
+// acquireLock — Attempt to lock a task for an agent
+// ═══════════════════════════════════════════
+
+export const acquireLock = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    agentName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+
+    const now = Date.now();
+
+    // Check if locked by someone else recently (non-stale)
+    if (
+      task.lockedBy &&
+      task.lockedBy !== args.agentName &&
+      task.lockedAt &&
+      now - task.lockedAt < TEN_MINUTES_MS
+    ) {
+      return { acquired: false, lockedBy: task.lockedBy };
+    }
+
+    // Not locked, or lock is stale, or we already hold the lock — acquire
+    await ctx.db.patch(args.taskId, {
+      lockedBy: args.agentName,
+      lockedAt: now,
+    });
+
+    return { acquired: true };
+  },
+});
+
+// ═══════════════════════════════════════════
+// releaseLock — Release a task lock (only if we own it)
+// ═══════════════════════════════════════════
+
+export const releaseLock = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    agentName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+
+    if (task.lockedBy !== args.agentName) {
+      return { released: false, reason: "Lock held by different agent" };
+    }
+
+    await ctx.db.patch(args.taskId, {
+      lockedBy: undefined,
+      lockedAt: undefined,
+    });
+
+    return { released: true };
+  },
+});
+
+// ═══════════════════════════════════════════
+// completeStep — Advance task through its pipeline
+// This is the ONLY way to advance a task.
+// ═══════════════════════════════════════════
+
+export const completeStep = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    agentName: v.string(),
+    qualityScore: v.optional(v.number()),
+    outputPath: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+
+    // Verify the caller holds the lock
+    if (task.lockedBy !== args.agentName) {
+      throw new Error(
+        `Lock mismatch: task locked by "${task.lockedBy}", caller is "${args.agentName}"`
+      );
+    }
+
+    const currentStepIndex = task.pipelineStep;
+    const pipeline = [...task.pipeline];
+
+    // Validate current step exists
+    if (currentStepIndex < 0 || currentStepIndex >= pipeline.length) {
+      throw new Error(
+        `Invalid pipeline step ${currentStepIndex} (pipeline has ${pipeline.length} steps)`
+      );
+    }
+
+    // Mark current step as completed
+    pipeline[currentStepIndex] = {
+      ...pipeline[currentStepIndex],
+      status: "completed",
+    };
+
+    const nextStepIndex = currentStepIndex + 1;
+    const hasNextStep = nextStepIndex < pipeline.length;
+
+    let newStatus: string;
+
+    if (hasNextStep) {
+      // Mark next step as in_progress
+      pipeline[nextStepIndex] = {
+        ...pipeline[nextStepIndex],
+        status: "in_progress",
+      };
+
+      // Derive task status from the completed step's outputDir
+      newStatus = outputDirToStatus(
+        pipeline[currentStepIndex].outputDir,
+        task.status
+      );
+    } else {
+      // No more steps — task is completed
+      newStatus = "completed";
+    }
+
+    // Build the patch
+    const patch: Record<string, unknown> = {
+      pipeline,
+      pipelineStep: hasNextStep ? nextStepIndex : currentStepIndex,
+      status: newStatus,
+      lockedBy: undefined,
+      lockedAt: undefined,
+    };
+
+    if (args.qualityScore !== undefined) {
+      patch.qualityScore = args.qualityScore;
+    }
+
+    await ctx.db.patch(args.taskId, patch);
+
+    return {
+      completed: true,
+      nextStep: hasNextStep ? nextStepIndex : null,
+      newStatus,
+    };
+  },
+});
+
+// ═══════════════════════════════════════════
+// requestRevision — Send task back to an earlier step
+// ═══════════════════════════════════════════
+
+export const requestRevision = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    notes: v.string(),
+    targetStep: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+
+    const pipeline = [...task.pipeline];
+
+    if (args.targetStep < 0 || args.targetStep >= pipeline.length) {
+      throw new Error(
+        `Invalid target step ${args.targetStep} (pipeline has ${pipeline.length} steps)`
+      );
+    }
+
+    // Reset all steps from targetStep onward to "pending"
+    for (let i = args.targetStep; i < pipeline.length; i++) {
+      pipeline[i] = { ...pipeline[i], status: "pending" };
+    }
+
+    await ctx.db.patch(args.taskId, {
+      status: "revision_needed",
+      pipelineStep: args.targetStep,
+      pipeline,
+      rejectionNotes: args.notes,
+      revisionCount: (task.revisionCount ?? 0) + 1,
+    });
+
+    return { revised: true };
+  },
+});
+
+// ═══════════════════════════════════════════
+// getTaskPipelineStatus — Full pipeline view for a task
+// ═══════════════════════════════════════════
+
+export const getTaskPipelineStatus = query({
+  args: { taskId: v.id("tasks") },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+
+    return {
+      _id: task._id,
+      title: task.title,
+      status: task.status,
+      pipelineStep: task.pipelineStep,
+      pipeline: task.pipeline,
+      lockedBy: task.lockedBy,
+      lockedAt: task.lockedAt,
+      qualityScore: task.qualityScore,
+      revisionCount: task.revisionCount,
+      rejectionNotes: task.rejectionNotes,
+    };
+  },
+});
+
+// ═══════════════════════════════════════════
+// listReadyTasks — Tasks available for agents to pick up
+// ═══════════════════════════════════════════
+
+export const listReadyTasks = query({
+  args: { projectId: v.optional(v.id("projects")) },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+
+    let tasks;
+    if (args.projectId) {
+      tasks = await ctx.db
+        .query("tasks")
+        .withIndex("by_project", (q) => q.eq("projectId", args.projectId!))
+        .collect();
+    } else {
+      tasks = await ctx.db.query("tasks").collect();
+    }
+
+    // Filter: not completed/cancelled/blocked, and not actively locked
+    return tasks.filter((task) => {
+      // Exclude terminal / blocked statuses
+      if (["completed", "cancelled", "blocked"].includes(task.status)) {
+        return false;
+      }
+
+      // Exclude actively locked tasks (non-stale)
+      if (
+        task.lockedBy &&
+        task.lockedAt &&
+        now - task.lockedAt < TEN_MINUTES_MS
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  },
+});

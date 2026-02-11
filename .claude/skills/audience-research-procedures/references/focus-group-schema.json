@@ -1,0 +1,369 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FocusGroup",
+  "description": "Schema for focus group profiles matching the Convex focusGroups table. Required fields are marked. Optional enrichment fields should be populated when research data supports them.",
+  "type": "object",
+  "required": [
+    "projectId",
+    "productId",
+    "number",
+    "name",
+    "nickname",
+    "category",
+    "overview",
+    "demographics",
+    "psychographics",
+    "coreDesires",
+    "painPoints",
+    "fears",
+    "beliefs",
+    "objections",
+    "emotionalTriggers",
+    "languagePatterns",
+    "ebookAngles",
+    "marketingHooks",
+    "transformationPromise",
+    "source"
+  ],
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "description": "Convex ID reference to projects table"
+    },
+    "productId": {
+      "type": "string",
+      "description": "Convex ID reference to products table"
+    },
+    "number": {
+      "type": "number",
+      "description": "Sequential group number (1-based)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Descriptive name, e.g., 'Fat Loss Seekers'"
+    },
+    "nickname": {
+      "type": "string",
+      "description": "Catchy shorthand, e.g., 'The Scale Watchers'"
+    },
+    "category": {
+      "type": "string",
+      "description": "Parent category grouping, e.g., 'Physical Transformation Desires'"
+    },
+    "overview": {
+      "type": "string",
+      "description": "1-2 paragraph overview of this audience segment"
+    },
+    "demographics": {
+      "type": "object",
+      "required": ["ageRange", "gender", "income", "lifestyle", "triggers"],
+      "properties": {
+        "ageRange": {
+          "type": "string",
+          "description": "Age range with peak, e.g., '25-55, peaks at 35-45'"
+        },
+        "gender": {
+          "type": "string",
+          "description": "Gender distribution, e.g., '60% female, 40% male'"
+        },
+        "income": {
+          "type": "string",
+          "description": "Income range/description, e.g., 'Middle to upper-middle class'"
+        },
+        "lifestyle": {
+          "type": "string",
+          "description": "Lifestyle description, e.g., 'Sedentary to moderately active, desk jobs'"
+        },
+        "triggers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 3,
+          "description": "Events or moments that activate this persona"
+        }
+      }
+    },
+    "psychographics": {
+      "type": "object",
+      "required": ["values", "beliefs", "lifestyle", "identity"],
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 3,
+          "description": "What they value most"
+        },
+        "beliefs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 3,
+          "description": "What they believe about the world/problem"
+        },
+        "lifestyle": {
+          "type": "string",
+          "description": "Day-to-day lifestyle description"
+        },
+        "identity": {
+          "type": "string",
+          "description": "How they see themselves"
+        }
+      }
+    },
+    "coreDesires": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "What they deeply want (emotional, not just logical)"
+    },
+    "painPoints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "What frustrates them -- use their language"
+    },
+    "fears": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "What they are afraid of regarding this problem"
+    },
+    "beliefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "Their worldview beliefs about the problem/solution"
+    },
+    "objections": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "Why they hesitate to buy -- in their voice"
+    },
+    "emotionalTriggers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "Events or moments that activate buying desire"
+    },
+    "languagePatterns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 5,
+      "description": "EXACT phrases they use -- must come from real research data, not invented"
+    },
+    "ebookAngles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "description": "Title/positioning ideas for ebooks targeting this group"
+    },
+    "marketingHooks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "description": "Headlines that would make this group stop scrolling"
+    },
+    "transformationPromise": {
+      "type": "string",
+      "description": "The before-to-after journey this group wants"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["uploaded", "researched", "manual"],
+      "description": "How this focus group was created. Use 'researched' for agent-generated."
+    },
+    "lastEnriched": {
+      "type": "number",
+      "description": "Timestamp of last enrichment (optional)"
+    },
+    "enrichmentNotes": {
+      "type": "string",
+      "description": "Notes about enrichment history (optional)"
+    },
+    "awarenessStage": {
+      "type": "string",
+      "enum": ["unaware", "problem_aware", "solution_aware", "product_aware", "most_aware"],
+      "description": "Schwartz awareness stage for this group"
+    },
+    "awarenessConfidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Confidence level in the awareness stage assignment"
+    },
+    "awarenessStageSource": {
+      "type": "string",
+      "enum": ["auto", "manual"],
+      "description": "Whether awareness was auto-assessed or manually set. Use 'auto' for agent."
+    },
+    "awarenessSignals": {
+      "type": "object",
+      "properties": {
+        "beliefsSignal": {
+          "type": "string",
+          "description": "What their beliefs tell us about awareness"
+        },
+        "objectionsSignal": {
+          "type": "string",
+          "description": "What their objections tell us about awareness"
+        },
+        "languageSignal": {
+          "type": "string",
+          "description": "What their language tells us about awareness"
+        }
+      },
+      "description": "Evidence supporting the awareness stage assignment"
+    },
+    "contentPreferences": {
+      "type": "object",
+      "properties": {
+        "preferredFormats": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Content formats they prefer (blog, video, podcast, etc.)"
+        },
+        "attentionSpan": {
+          "type": "string",
+          "description": "short / medium / long"
+        },
+        "tonePreference": {
+          "type": "string",
+          "description": "casual / professional / authoritative / friendly"
+        }
+      },
+      "description": "How this group prefers to consume content (optional)"
+    },
+    "influenceSources": {
+      "type": "object",
+      "properties": {
+        "trustedVoices": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "People, publications, or brands they trust"
+        },
+        "mediaConsumption": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Where they get information"
+        },
+        "socialPlatforms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Which platforms they are most active on"
+        }
+      },
+      "description": "Who and what influences this group (optional)"
+    },
+    "purchaseBehavior": {
+      "type": "object",
+      "properties": {
+        "buyingTriggers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What events lead to purchase"
+        },
+        "priceRange": {
+          "type": "string",
+          "description": "Expected price sensitivity"
+        },
+        "decisionProcess": {
+          "type": "string",
+          "description": "How they make purchase decisions"
+        },
+        "objectionHistory": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Past objections they have had"
+        }
+      },
+      "description": "How this group buys (optional)"
+    },
+    "competitorContext": {
+      "type": "object",
+      "properties": {
+        "currentSolutions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What they currently use to solve this problem"
+        },
+        "switchMotivators": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What would make them switch from current solution"
+        }
+      },
+      "description": "Competitive context for this group (optional)"
+    },
+    "sophisticationLevel": {
+      "type": "string",
+      "enum": ["stage1", "stage2", "stage3", "stage4", "stage5"],
+      "description": "Market sophistication level (Schwartz model)"
+    },
+    "communicationStyle": {
+      "type": "object",
+      "properties": {
+        "formalityLevel": {
+          "type": "string",
+          "description": "How formal they expect communication"
+        },
+        "humorReceptivity": {
+          "type": "string",
+          "description": "How receptive to humor"
+        },
+        "storyPreference": {
+          "type": "string",
+          "description": "Preference for narrative vs. data"
+        },
+        "dataPreference": {
+          "type": "string",
+          "description": "How much they want data/evidence"
+        }
+      },
+      "description": "Communication preferences (optional)"
+    },
+    "seasonalContext": {
+      "type": "object",
+      "properties": {
+        "peakInterestPeriods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "When interest peaks (e.g., 'January', 'Back to school')"
+        },
+        "lifeEvents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Life events that trigger interest"
+        },
+        "cyclicalBehaviors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Recurring behavioral patterns"
+        }
+      },
+      "description": "Timing and seasonal patterns (optional)"
+    },
+    "negativeTriggers": {
+      "type": "object",
+      "properties": {
+        "dealBreakers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What would instantly kill a sale"
+        },
+        "offensiveTopics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Topics to avoid"
+        },
+        "toneAversions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Communication tones they dislike"
+        }
+      },
+      "description": "What to avoid with this group (optional)"
+    },
+    "researchNotes": {
+      "type": "string",
+      "description": "Free-text notes about research quality, sources, and confidence (optional)"
+    }
+  }
+}

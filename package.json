@@ -1,0 +1,26 @@
+{
+  "name": "vibe-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:convex\" \"npm run dev:dashboard\"",
+    "dev:convex": "npx convex dev --url http://localhost:3210",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "deploy:convex": "npx convex deploy --url http://localhost:3210",
+    "setup": "bash scripts/setup.sh",
+    "cx": "bash scripts/cx.sh"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "convex": "^1.21.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "concurrently": "^9.1.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

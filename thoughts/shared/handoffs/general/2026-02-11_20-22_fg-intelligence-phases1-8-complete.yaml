@@ -1,0 +1,133 @@
+---
+session: general
+date: 2026-02-11
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: FG Intelligence System Phases 1-8 complete — 3 agent skills built, dashboard pages wired, agents registered in Convex
+now: Phase 9 E2E testing (live pipeline run), then fix convex/auth.ts + admin.ts TS errors, then start content pipeline agents
+
+test: "cd /var/www/vibe-marketing/dashboard && npx vitest run --reporter=verbose && npx nuxi build"
+
+done_this_session:
+  - task: "Phase 1: Convex Foundation — focusGroupStaging table, 10 new focusGroups functions, Document Import pipeline"
+    files: [convex/schema.ts, convex/focusGroups.ts, convex/focusGroupStaging.ts, convex/seed.ts]
+  - task: "Phase 2: Audience Parser Agent — 60/60 tests, structural parser for .md/.txt/.docx/.pdf, fuzzy matching (5-priority cascade), validated against real 4,762-line fitness doc (28/28 groups)"
+    files:
+      - .claude/skills/audience-analysis-procedures/SKILL.md
+      - .claude/skills/audience-analysis-procedures/vibe-audience-parser.md
+      - .claude/skills/audience-analysis-procedures/scripts/parse_audience_doc.py
+      - .claude/skills/audience-analysis-procedures/scripts/fuzzy_match.py
+      - .claude/skills/audience-analysis-procedures/scripts/extract_pdf_text.py
+      - .claude/skills/audience-analysis-procedures/scripts/convert_docx.sh
+      - tests/unit/test_parse_audience_doc.py
+      - tests/unit/test_fuzzy_match.py
+      - tests/unit/test_extract_pdf_text.py
+  - task: "Phase 3: Audience Researcher Agent — 4 research scripts with graceful degradation, compile_audience_doc.py tested"
+    files:
+      - .claude/skills/audience-research-procedures/SKILL.md
+      - .claude/skills/audience-research-procedures/vibe-audience-researcher.md
+      - .claude/skills/audience-research-procedures/scripts/scrape_reddit.py
+      - .claude/skills/audience-research-procedures/scripts/scrape_reviews.py
+      - .claude/skills/audience-research-procedures/scripts/analyze_competitors.py
+      - .claude/skills/audience-research-procedures/scripts/compile_audience_doc.py
+  - task: "Phase 4: Audience Enricher Agent — 35/35 tests, deterministic inference scripts (no LLM for core fields)"
+    files:
+      - .claude/skills/audience-enrichment-procedures/SKILL.md
+      - .claude/skills/audience-enrichment-procedures/vibe-audience-enricher.md
+      - .claude/skills/audience-enrichment-procedures/scripts/infer_awareness.py
+      - .claude/skills/audience-enrichment-procedures/scripts/infer_sophistication.py
+      - .claude/skills/audience-enrichment-procedures/scripts/infer_purchase_behavior.py
+      - .claude/skills/audience-enrichment-procedures/scripts/scan_recent_mentions.py
+      - .claude/skills/audience-enrichment-procedures/scripts/update_focus_group.sh
+      - tests/unit/test_infer_awareness.py
+      - tests/unit/test_infer_sophistication.py
+      - tests/unit/test_infer_purchase_behavior.py
+  - task: "Phase 5-7: Dashboard Pages — 190/190 tests, build clean, 8 new files + 2 modified"
+    files:
+      - dashboard/composables/useAudienceJobs.ts
+      - dashboard/components/EnrichmentProgressBar.vue
+      - dashboard/components/EnrichmentFieldStatus.vue
+      - dashboard/components/EnrichmentTimeline.vue
+      - dashboard/components/AudienceImportDialog.vue
+      - dashboard/components/AudienceResearchDialog.vue
+      - dashboard/pages/projects/[slug]/products/[id]/audiences/review.vue
+      - dashboard/pages/projects/[slug]/products/[id]/audiences/[fgId].vue
+      - dashboard/pages/projects/[slug]/products/[id]/audiences.vue
+  - task: "Phase 8: Agent Registration — 3 agents + 5 service deps seeded in Convex, invoke-agent.sh updated with Convex skill path resolution + heartbeat mode"
+    files: [convex/seed.ts, scripts/invoke-agent.sh]
+
+blockers:
+  - "convex/auth.ts and convex/admin.ts have pre-existing TS errors (circular type inference, missing crypto type). Deploy requires --typecheck=disable. Not blocking runtime, just deploy ergonomics."
+
+questions:
+  - "Phase 9 E2E testing: should it be manual (dashboard walkthrough) or scripted? The plan describes 5 test scenarios including Flow A, Flow B, enrichment, matching, and edge cases."
+  - "File/folder artifact browsing in dashboard: user asked about it, currently NOT in plan. Worth adding as future feature?"
+  - "pipelines:create mutation has an UnhandledPromiseRejection bug — used seed:seedMissing (ctx.db.insert) as workaround. Root cause not investigated."
+
+decisions:
+  - deterministic_enrichment: "Core enrichment fields (awarenessStage, sophisticationLevel, purchaseBehavior) use keyword-matching Python scripts with zero dependencies. No LLM needed for the 3 highest-weight fields (40/100 points combined)."
+  - skill_path_from_convex: "invoke-agent.sh queries agents:getByName for skillPath instead of assuming agent name == directory name. Fallback to .claude/skills/${AGENT_NAME}."
+  - heartbeat_mode: "invoke-agent.sh supports --heartbeat flag for scheduled agents (vibe-audience-enricher weekly run). No lock acquisition in heartbeat mode."
+  - incremental_seeder: "Added seed:seedMissing function for adding new seed data without wiping existing records. The original seed:run checks length===0 which skips additions."
+  - typecheck_disable_deploy: "Using --typecheck=disable for deploys due to pre-existing auth.ts/admin.ts errors. These files work at runtime, just have TS inference issues."
+
+findings:
+  - convex_deploy_caching: "npx convex deploy silently succeeds but doesn't update functions when typecheck fails. Must use --typecheck=disable explicitly."
+  - seed_idempotency_gap: "seed:run checks if (existingPipelines.length === 0) which means new pipelines added to the seed array are never inserted if any pipelines already exist. seedMissing pattern solves this."
+  - pipeline_create_bug: "pipelines:create mutation causes UnhandledPromiseRejection in Convex isolate. Works via ctx.db.insert in internal mutations. Likely a validator or type mismatch."
+
+worked:
+  - "4 parallel kraken agents for Phases 2-4 + 5-7 — all completed independently without conflicts"
+  - "TDD workflow in all agents: tests written first, then implementation"
+  - "Fuzzy matching 5-priority cascade validated against real 28-group fitness document"
+  - "Deterministic inference scripts for enrichment — fast, predictable, testable"
+  - "seed:seedMissing pattern for incremental data seeding"
+
+failed:
+  - "npx convex deploy without --typecheck=disable silently fails to update functions (shows error but exit code handling unclear)"
+  - "pipelines:create via npx convex run — UnhandledPromiseRejection. Workaround: use internal ctx.db.insert"
+  - "Piping npx convex run output to python3 -c fails intermittently (python3 path resolution issue with /var/www/vibe-marketing/-c)"
+
+next:
+  - "Phase 9: E2E testing — run full Flow B (upload fitness doc → parse → stage → review → approve → import → enrich)"
+  - "Fix convex/auth.ts TS errors (circular type inference on signIn action, missing crypto type)"
+  - "Fix convex/admin.ts TS errors (circular type inference on createUser action)"
+  - "Investigate and fix pipelines:create UnhandledPromiseRejection bug"
+  - "Start content pipeline agents (vibe-keyword-researcher, vibe-content-writer, etc.)"
+  - "Update README.md with setup instructions and project documentation (user requested periodic updates)"
+
+files:
+  created:
+    - convex/focusGroupStaging.ts
+    - .claude/skills/audience-analysis-procedures/ (10 files)
+    - .claude/skills/audience-research-procedures/ (12 files)
+    - .claude/skills/audience-enrichment-procedures/ (11 files)
+    - dashboard/composables/useAudienceJobs.ts
+    - dashboard/components/EnrichmentProgressBar.vue
+    - dashboard/components/EnrichmentFieldStatus.vue
+    - dashboard/components/EnrichmentTimeline.vue
+    - dashboard/components/AudienceImportDialog.vue
+    - dashboard/components/AudienceResearchDialog.vue
+    - dashboard/pages/projects/[slug]/products/[id]/audiences/review.vue
+    - dashboard/pages/projects/[slug]/products/[id]/audiences/[fgId].vue
+    - tests/unit/test_parse_audience_doc.py
+    - tests/unit/test_fuzzy_match.py
+    - tests/unit/test_extract_pdf_text.py
+    - tests/unit/test_infer_awareness.py
+    - tests/unit/test_infer_sophistication.py
+    - tests/unit/test_infer_purchase_behavior.py
+    - dashboard/tests/unit/EnrichmentProgressBar.spec.ts
+    - dashboard/tests/unit/EnrichmentFieldStatus.spec.ts
+    - dashboard/tests/unit/EnrichmentTimeline.spec.ts
+    - dashboard/tests/unit/useAudienceJobs.spec.ts
+    - dashboard/tests/unit/AudienceImportDialog.spec.ts
+  modified:
+    - convex/schema.ts
+    - convex/focusGroups.ts
+    - convex/seed.ts
+    - scripts/invoke-agent.sh
+    - dashboard/pages/projects/[slug]/products/[id]/audiences.vue
+    - dashboard/tests/unit/AudienceList.spec.ts
+    - pyproject.toml

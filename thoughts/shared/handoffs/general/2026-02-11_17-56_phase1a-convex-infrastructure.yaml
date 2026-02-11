@@ -1,0 +1,108 @@
+---
+session: general
+date: 2026-02-11
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Phase 1a complete — Convex self-hosted running with full schema, auth, seed data, domain routing, Playwright MCP
+now: Finish rest of Phase 1 (pipeline engine, agent invocation, Telegram) then start Phase 2 (Nuxt dashboard). Update README.md periodically as documentation.
+
+test: "sudo docker compose ps && curl -s http://localhost:3210/version && npx convex run projects:list --url http://localhost:3210 --admin-key $(grep CONVEX_SELF_HOSTED_ADMIN_KEY .env | cut -d= -f2-)"
+
+done_this_session:
+  - task: Updated v3 spec section 7 MCP config (18→35 servers, added registry reference, new image gen MCPs)
+    files: [vibe-marketing-platform-v3.md]
+  - task: Set up nginx for vibe-marketing.businesspress.dev → port 3000 (Nuxt) with Convex proxy routes
+    files: [/etc/nginx/sites-enabled/vibe-marketing.businesspress.dev]
+  - task: Installed Playwright MCP (@playwright/mcp, headless mode) for browser-based testing during dev
+    files: [.mcp.json]
+  - task: Created project scaffolding (package.json, docker-compose.yml, .env.example, .gitignore, CLAUDE.md)
+    files: [package.json, docker-compose.yml, .env.example, .gitignore, CLAUDE.md]
+  - task: Created Convex schema (27 tables, 58 indexes — users, sessions, projects, products, focusGroups, pipelines, campaigns, tasks, agents, skills, skillCategories, messages, activities, notifications, documents, revisions, serviceCategories, services, agentServiceDeps, agentRuns, keywordClusters, contentMetrics, mediaAssets, reports)
+    files: [convex/schema.ts]
+  - task: Created auth system — signIn as action (bcrypt in Node.js runtime), getUserByEmail as internalQuery (no passwordHash leak), createSession as internalMutation, signOut mutation, validateSession/me queries
+    files: [convex/auth.ts]
+  - task: Created admin user creation (internalAction with bcrypt + internalMutation)
+    files: [convex/admin.ts]
+  - task: Created projects CRUD (list, getBySlug, create, update, archive, updateStats)
+    files: [convex/projects.ts]
+  - task: Created idempotent seed script (21 service categories, 9 skill categories, 5 preset pipelines)
+    files: [convex/seed.ts]
+  - task: Created Docker auto-init (PG creates vibe_marketing DB on first boot, convex-init profile for schema deploy + seed)
+    files: [scripts/docker/init-postgres.sh, docker-compose.yml]
+  - task: Created self-hosted services compose (Crawl4AI :11235, LanguageTool :8081)
+    files: [scripts/docker-compose.services.yml]
+  - task: Created Convex CLI shortcut
+    files: [scripts/cx.sh]
+  - task: Deployed schema and seed data to running Convex instance, created admin user vuk@businesspress.dev
+    files: []
+
+blockers: []
+
+questions:
+  - User wants README.md updated periodically as documentation during build — needs to be done as each phase completes
+  - Should setup.sh be implemented next (before dashboard) or can it wait?
+  - The convex-init Docker profile needs testing on a clean clone — healthcheck endpoint /version may not exist on all Convex versions
+
+decisions:
+  - action_based_auth: signIn uses Convex action (not mutation) because bcrypt requires Node.js runtime. Action does bcrypt, calls internalMutation for session creation.
+  - internal_query_for_credentials: getUserByEmail is internalQuery to prevent passwordHash exposure via public API.
+  - do_not_require_ssl: Convex self-hosted needs DO_NOT_REQUIRE_SSL=1 env var for PG without TLS. Neither PGSSLMODE=disable nor ?sslmode=disable in URL works.
+  - postgres_url_no_dbname: Convex creates its own DB from INSTANCE_NAME. POSTGRES_URL must NOT contain a database name.
+  - seed_idempotent: convex/seed.ts checks for existing data before inserting. Safe to run multiple times.
+  - docker_init_profile: convex-init service uses profiles:["init"] so it only runs when explicitly invoked, not on every docker compose up.
+  - playwright_for_testing: "'@playwright/mcp' (official Microsoft, 25k+ stars) chosen over community alternatives. Headless mode for server."
+
+findings:
+  - convex_pg_setup: Convex derives DB name from INSTANCE_NAME (vibe-marketing → vibe_marketing). Must pre-create this DB in PG.
+  - convex_deprecated_vars: DATABASE_URL is deprecated in latest Convex — use POSTGRES_URL instead.
+  - no_port_conflict: Host PG runs in continuous-claude-postgres Docker container, doesn't expose 5432. Convex PG is internal Docker network only.
+  - server_ip: 167.235.188.171 (Hetzner)
+  - wildcard_cert: /etc/nginx/ssl/businesspress.dev/ covers *.businesspress.dev
+  - convex_admin_key: vibe-marketing|01e1d758fd927fe44af2ff687b832f06daced8a846e79af6edbe985cb5d3ea5e2a79716862 (stored in .env)
+
+worked:
+  - Parallel kraken agents for scaffolding + Convex schema simultaneously
+  - Oracle agent for Playwright MCP research returned comprehensive comparison
+  - Convex deploy + seed worked cleanly after Docker config fixes
+  - Init-postgres.sh via docker-entrypoint-initdb.d for automatic DB creation
+
+failed:
+  - PGSSLMODE=disable env var not picked up by Convex Rust PG driver
+  - sslmode=disable in POSTGRES_URL query string not parsed by Convex
+  - DATABASE_URL deprecated — caused confusing warning before the real TLS error
+  - Including DB name in POSTGRES_URL caused "cluster url already contains db name" error
+
+next:
+  - Update README.md with setup instructions and project documentation
+  - Finish Phase 1 remaining items - pipeline engine (acquireLock, completeStep, requestRevision, dispatchAgent) in convex/pipeline.ts
+  - Build invoke-agent.sh wrapper script
+  - Build setup-crons.sh for agent heartbeat scheduling
+  - Build scripts/resolve_service.py (service registry fallback chain resolver)
+  - Set up Telegram bot for notifications + notify.py
+  - Test minimal pipeline end-to-end (keyword-researcher → content-writer → content-reviewer → humanizer)
+  - Start Phase 2 — Nuxt 3 dashboard (nuxt.config.ts, login page, auth middleware, project selector)
+  - User asked to update README.md periodically as things are built
+
+files:
+  created:
+    - package.json
+    - docker-compose.yml
+    - .env.example
+    - .env
+    - .gitignore
+    - .mcp.json
+    - CLAUDE.md
+    - convex/schema.ts
+    - convex/auth.ts
+    - convex/admin.ts
+    - convex/projects.ts
+    - convex/tsconfig.json
+    - convex/seed.ts
+    - scripts/cx.sh
+    - scripts/docker/init-postgres.sh
+    - scripts/docker-compose.services.yml
+    - /etc/nginx/sites-enabled/vibe-marketing.businesspress.dev
+  modified:
+    - vibe-marketing-platform-v3.md
