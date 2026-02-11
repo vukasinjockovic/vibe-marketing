@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { X } from 'lucide-vue-next'
 
 const props = defineProps<{
   modelValue: string[]
@@ -36,21 +37,21 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="border rounded-md px-2 py-1.5 flex flex-wrap gap-1.5 items-center focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 bg-white min-h-[38px]">
+  <div class="flex h-auto min-h-10 w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 flex-wrap gap-1.5 items-center">
     <span
       v-for="(chip, idx) in modelValue"
       :key="idx"
-      class="inline-flex items-center gap-1 bg-primary-100 text-primary-800 text-xs px-2 py-0.5 rounded-full"
+      class="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-medium"
     >
       {{ chip }}
-      <button type="button" class="hover:text-primary-600" @click="remove(idx)">
-        <span class="i-heroicons-x-mark text-xs" />
+      <button type="button" class="hover:text-primary/70" @click="remove(idx)">
+        <X :size="12" />
       </button>
     </span>
     <input
       v-model="inputValue"
       :placeholder="modelValue.length === 0 ? (placeholder || 'Type and press Enter') : ''"
-      class="flex-1 min-w-[120px] text-sm outline-none bg-transparent"
+      class="flex-1 min-w-[120px] text-sm outline-none bg-transparent placeholder:text-muted-foreground"
       @keydown="onKeydown"
     />
   </div>

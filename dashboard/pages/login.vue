@@ -32,45 +32,50 @@ async function handleLogin() {
 <template>
   <div class="w-full max-w-sm mx-auto">
     <div class="text-center mb-8">
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white text-lg font-bold">
+          V
+        </div>
+      </div>
       <h1 class="text-3xl font-bold text-white">Vibe Marketing</h1>
-      <p class="text-gray-400 mt-2">AI Content Platform</p>
+      <p class="text-muted-foreground/60 mt-2">AI Content Platform</p>
     </div>
 
-    <form class="bg-white rounded-lg shadow-xl p-8" @submit.prevent="handleLogin">
+    <form class="rounded-lg border bg-card text-card-foreground shadow-lg p-8" @submit.prevent="handleLogin">
       <h2 class="text-xl font-semibold mb-6">Sign in</h2>
 
-      <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+      <div v-if="error" class="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
         {{ error }}
       </div>
 
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email</label>
+      <div class="mb-4 space-y-1.5">
+        <label class="block text-sm font-medium text-foreground" for="email">Email</label>
         <input
           id="email"
           v-model="email"
           type="email"
           required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           placeholder="you@example.com"
         />
       </div>
 
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1" for="password">Password</label>
+      <div class="mb-6 space-y-1.5">
+        <label class="block text-sm font-medium text-foreground" for="password">Password</label>
         <input
           id="password"
           v-model="password"
           type="password"
           required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          placeholder="••••••••"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          placeholder="Enter password"
         />
       </div>
 
       <button
         type="submit"
         :disabled="loading"
-        class="w-full bg-primary-600 text-white py-2 px-4 rounded-md font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+        class="w-full inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
       >
         {{ loading ? 'Signing in...' : 'Sign in' }}
       </button>

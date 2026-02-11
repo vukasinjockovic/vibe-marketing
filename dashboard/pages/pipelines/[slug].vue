@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../../convex/_generated/api'
+import { ArrowLeft, HardDriveDownload } from 'lucide-vue-next'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
@@ -31,25 +32,13 @@ async function fork() {
     forking.value = false
   }
 }
-
-function stepIcon(step: any) {
-  const agent = step.agent || ''
-  if (agent.includes('researcher')) return 'i-heroicons-magnifying-glass'
-  if (agent.includes('strategist')) return 'i-heroicons-light-bulb'
-  if (agent.includes('writer') || agent.includes('copywriter')) return 'i-heroicons-pencil-square'
-  if (agent.includes('editor') || agent.includes('reviewer')) return 'i-heroicons-eye'
-  if (agent.includes('humanizer')) return 'i-heroicons-user'
-  if (agent.includes('image') || agent.includes('designer')) return 'i-heroicons-photo'
-  if (agent.includes('seo')) return 'i-heroicons-chart-bar'
-  return 'i-heroicons-cog-6-tooth'
-}
 </script>
 
 <template>
   <div>
-    <div v-if="loading" class="text-gray-500">Loading pipeline...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading pipeline...</div>
 
-    <div v-else-if="!pipeline" class="text-gray-500">Pipeline not found.</div>
+    <div v-else-if="!pipeline" class="text-muted-foreground">Pipeline not found.</div>
 
     <template v-else>
       <!-- Header -->
@@ -58,11 +47,11 @@ function stepIcon(step: any) {
           <div class="flex items-center gap-3">
             <NuxtLink
               to="/pipelines"
-              class="text-gray-400 hover:text-gray-600 transition-colors"
+              class="text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span class="i-heroicons-arrow-left text-lg" />
+              <ArrowLeft :size="18" />
             </NuxtLink>
-            <h1 class="text-2xl font-bold text-gray-900">{{ pipeline.name }}</h1>
+            <h1 class="text-2xl font-bold text-foreground">{{ pipeline.name }}</h1>
             <span
               class="text-xs font-medium px-2 py-0.5 rounded-full"
               :class="pipeline.type === 'preset'
@@ -72,12 +61,12 @@ function stepIcon(step: any) {
               {{ pipeline.type }}
             </span>
           </div>
-          <p v-if="pipeline.description" class="text-sm text-gray-500 mt-1 ml-9">
+          <p v-if="pipeline.description" class="text-sm text-muted-foreground mt-1 ml-9">
             {{ pipeline.description }}
           </p>
         </div>
         <button
-          class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
+          class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           :disabled="forking"
           @click="fork"
         >
@@ -87,16 +76,16 @@ function stepIcon(step: any) {
 
       <!-- Summary cards -->
       <div class="grid grid-cols-3 gap-4 mb-8">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Main Steps</h3>
-          <p class="text-2xl font-bold text-gray-900">{{ pipeline.mainSteps?.length || 0 }}</p>
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <h3 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Main Steps</h3>
+          <p class="text-2xl font-bold text-foreground">{{ pipeline.mainSteps?.length || 0 }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-          <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Parallel Branches</h3>
-          <p class="text-2xl font-bold text-gray-900">{{ pipeline.parallelBranches?.length || 0 }}</p>
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <h3 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Parallel Branches</h3>
+          <p class="text-2xl font-bold text-foreground">{{ pipeline.parallelBranches?.length || 0 }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-          <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">On Complete</h3>
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <h3 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">On Complete</h3>
           <div class="flex gap-2 mt-1">
             <span
               v-if="pipeline.onComplete?.telegram"
@@ -121,8 +110,8 @@ function stepIcon(step: any) {
       </div>
 
       <!-- Main pipeline flow -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-6">Main Pipeline</h2>
+      <div class="rounded-lg border bg-card shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-foreground mb-6">Main Pipeline</h2>
 
         <div class="relative">
           <div
@@ -132,32 +121,29 @@ function stepIcon(step: any) {
           >
             <!-- Timeline line -->
             <div class="flex flex-col items-center">
-              <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold flex-shrink-0">
                 {{ step.order ?? idx + 1 }}
               </div>
               <div
                 v-if="idx < (pipeline.mainSteps?.length || 0) - 1"
-                class="w-0.5 flex-1 bg-primary-200 mt-2 min-h-8"
+                class="w-0.5 flex-1 bg-primary/20 mt-2 min-h-8"
               />
             </div>
 
             <!-- Step content -->
             <div class="flex-1 pt-1.5">
               <div class="flex items-center gap-3 mb-1">
-                <span :class="stepIcon(step)" class="text-lg text-gray-400" />
-                <h3 class="font-semibold text-gray-900">{{ step.label }}</h3>
+                <h3 class="font-semibold text-foreground">{{ step.label }}</h3>
               </div>
-              <p v-if="step.description" class="text-sm text-gray-600 mb-2">{{ step.description }}</p>
+              <p v-if="step.description" class="text-sm text-muted-foreground mb-2">{{ step.description }}</p>
               <div class="flex flex-wrap gap-2">
                 <span v-if="step.agent" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
-                  <span class="i-heroicons-cpu-chip text-xs mr-0.5" />
                   {{ step.agent }}
                 </span>
-                <span v-if="step.model" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                <span v-if="step.model" class="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
                   {{ step.model }}
                 </span>
                 <span v-if="step.outputDir" class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
-                  <span class="i-heroicons-folder text-xs mr-0.5" />
                   {{ step.outputDir }}/
                 </span>
               </div>
@@ -193,11 +179,11 @@ function stepIcon(step: any) {
           <!-- Convergence point -->
           <div v-if="pipeline.convergenceStep" class="flex items-start gap-4 pt-4 border-t border-dashed mt-4">
             <div class="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0">
-              <span class="i-heroicons-arrow-down-on-square text-lg" />
+              <HardDriveDownload :size="18" />
             </div>
             <div class="pt-1.5">
-              <h3 class="font-semibold text-gray-900">Convergence Point</h3>
-              <p class="text-sm text-gray-600">
+              <h3 class="font-semibold text-foreground">Convergence Point</h3>
+              <p class="text-sm text-muted-foreground">
                 All parallel branches merge back at step {{ pipeline.convergenceStep }}
               </p>
             </div>
@@ -206,7 +192,7 @@ function stepIcon(step: any) {
       </div>
 
       <!-- Forked from info -->
-      <div v-if="pipeline.forkedFrom" class="text-sm text-gray-500 text-center">
+      <div v-if="pipeline.forkedFrom" class="text-sm text-muted-foreground text-center">
         Forked from another pipeline template
       </div>
     </template>

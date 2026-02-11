@@ -5,7 +5,7 @@ import { internal } from "./_generated/api";
 // Sign in: action runs bcrypt (Node.js runtime), then calls mutation to create session
 export const signIn = action({
   args: { email: v.string(), password: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ token: string; user: { _id: string; email: string; name: string; role: string } }> => {
     const bcrypt = await import("bcryptjs");
 
     const user = await ctx.runQuery(internal.auth.getUserByEmail, {
@@ -55,8 +55,8 @@ export const getUserByEmail = internalQuery({
 // Internal mutation: create session + update last login
 export const createSession = internalMutation({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    const token = crypto.randomUUID();
+  handler: async (ctx, args): Promise<{ token: string }> => {
+    const token = (globalThis as any).crypto.randomUUID() as string;
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
 
     await ctx.db.insert("sessions", {

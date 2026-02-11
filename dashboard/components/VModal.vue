@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onUnmounted } from 'vue'
+import { X } from 'lucide-vue-next'
 
 const props = defineProps<{
   modelValue: boolean
@@ -51,18 +52,18 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="onBackdrop">
-        <div class="bg-white rounded-lg shadow-xl w-full mx-4" :class="sizeClass" @click.stop>
+      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80" @click="onBackdrop">
+        <div class="bg-background rounded-lg shadow-xl w-full mx-4 border" :class="sizeClass" @click.stop>
           <div class="flex items-center justify-between px-6 py-4 border-b">
-            <h2 class="text-lg font-semibold">{{ title }}</h2>
-            <button class="text-gray-400 hover:text-gray-600 transition-colors" @click="close">
-              <span class="i-heroicons-x-mark text-xl" />
+            <h2 class="text-lg font-semibold text-foreground">{{ title }}</h2>
+            <button class="text-muted-foreground hover:text-foreground transition-colors rounded-sm opacity-70 hover:opacity-100" @click="close">
+              <X :size="18" />
             </button>
           </div>
           <div class="px-6 py-4">
             <slot />
           </div>
-          <div v-if="$slots.footer" class="px-6 py-3 border-t bg-gray-50 rounded-b-lg flex justify-end gap-3">
+          <div v-if="$slots.footer" class="px-6 py-3 border-t bg-muted/50 rounded-b-lg flex justify-end gap-3">
             <slot name="footer" />
           </div>
         </div>

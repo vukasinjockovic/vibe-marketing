@@ -75,28 +75,28 @@ async function submit() {
   <VModal :model-value="modelValue" title="Research Audiences" size="lg" @update:model-value="$emit('update:modelValue', $event)">
     <div class="space-y-5">
       <!-- Product Context (read-only) -->
-      <div class="bg-gray-50 rounded-lg p-4 space-y-3">
-        <h4 class="text-sm font-semibold text-gray-900">Product Context</h4>
+      <div class="bg-muted/50 rounded-lg p-4 space-y-3">
+        <h4 class="text-sm font-semibold text-foreground">Product Context</h4>
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <span class="text-xs font-medium text-gray-500 uppercase">What It Is</span>
-            <p class="text-gray-900 mt-0.5">{{ product?.context?.whatItIs || 'Not set' }}</p>
+            <span class="text-xs font-medium text-muted-foreground uppercase">What It Is</span>
+            <p class="text-foreground mt-0.5">{{ product?.context?.whatItIs || 'Not set' }}</p>
           </div>
           <div>
-            <span class="text-xs font-medium text-gray-500 uppercase">Target Market</span>
-            <p class="text-gray-900 mt-0.5">{{ product?.context?.targetMarket || 'Not set' }}</p>
+            <span class="text-xs font-medium text-muted-foreground uppercase">Target Market</span>
+            <p class="text-foreground mt-0.5">{{ product?.context?.targetMarket || 'Not set' }}</p>
           </div>
           <div>
-            <span class="text-xs font-medium text-gray-500 uppercase">Website</span>
-            <p class="text-gray-900 mt-0.5">{{ product?.context?.website || 'Not set' }}</p>
+            <span class="text-xs font-medium text-muted-foreground uppercase">Website</span>
+            <p class="text-foreground mt-0.5">{{ product?.context?.website || 'Not set' }}</p>
           </div>
           <div v-if="product?.context?.competitors?.length">
-            <span class="text-xs font-medium text-gray-500 uppercase">Competitors</span>
+            <span class="text-xs font-medium text-muted-foreground uppercase">Competitors</span>
             <div class="flex flex-wrap gap-1 mt-0.5">
               <span
                 v-for="c in product.context.competitors"
                 :key="c"
-                class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full"
+                class="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full"
               >
                 {{ c }}
               </span>
@@ -107,43 +107,43 @@ async function submit() {
 
       <!-- Research Options -->
       <div class="space-y-3">
-        <h4 class="text-sm font-semibold text-gray-900">Research Options</h4>
+        <h4 class="text-sm font-semibold text-foreground">Research Options</h4>
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             v-model="includeReddit"
             type="checkbox"
-            class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            class="rounded border-border text-primary focus:ring-ring"
           />
-          <span class="text-sm text-gray-700">Include Reddit research</span>
+          <span class="text-sm text-muted-foreground">Include Reddit research</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             v-model="includeCompetitors"
             type="checkbox"
-            class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            class="rounded border-border text-primary focus:ring-ring"
           />
-          <span class="text-sm text-gray-700">Include competitor scraping</span>
+          <span class="text-sm text-muted-foreground">Include competitor scraping</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             v-model="autoEnrich"
             type="checkbox"
-            class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            class="rounded border-border text-primary focus:ring-ring"
           />
-          <span class="text-sm text-gray-700">Auto-enrich after discovery</span>
+          <span class="text-sm text-muted-foreground">Auto-enrich after discovery</span>
         </label>
       </div>
     </div>
 
     <template #footer>
       <button
-        class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+        class="px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors rounded-md"
         @click="close"
       >
         Cancel
       </button>
       <button
-        class="px-4 py-2 text-sm text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors disabled:opacity-50"
+        class="px-4 py-2 text-sm text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50"
         :disabled="submitting"
         @click="submit"
       >

@@ -141,7 +141,7 @@ function reviewStatusColor(status: string) {
     case 'rejected': return 'bg-red-100 text-red-700'
     case 'edited': return 'bg-blue-100 text-blue-700'
     case 'imported': return 'bg-purple-100 text-purple-700'
-    default: return 'bg-gray-100 text-gray-600'
+    default: return 'bg-muted text-muted-foreground'
   }
 }
 
@@ -162,9 +162,11 @@ const backUrl = computed(() => {
     <div class="flex items-center gap-2 mb-4">
       <NuxtLink
         :to="backUrl"
-        class="text-sm text-gray-500 hover:text-gray-700"
+        class="text-sm text-muted-foreground hover:text-muted-foreground inline-flex items-center gap-1"
       >
-        <span class="i-heroicons-arrow-left text-sm mr-1" />
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
         Back to Audiences
       </NuxtLink>
     </div>
@@ -172,13 +174,13 @@ const backUrl = computed(() => {
     <VPageHeader title="Review Staged Audiences" description="Review and approve parsed focus groups before importing">
       <template #actions>
         <button
-          class="border border-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          class="border border-border text-muted-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 transition-colors"
           @click="approveAllNew"
         >
           Approve All New
         </button>
         <button
-          class="border border-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          class="border border-border text-muted-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 transition-colors"
           @click="approveAll"
         >
           Approve All
@@ -193,66 +195,78 @@ const backUrl = computed(() => {
     </VPageHeader>
 
     <!-- Summary Bar -->
-    <div v-if="stagingSummary" class="mb-6 bg-white rounded-lg shadow p-4">
+    <div v-if="stagingSummary" class="mb-6 rounded-lg border bg-card shadow-sm p-4">
       <div class="grid grid-cols-5 gap-4 text-center">
         <div>
-          <p class="text-2xl font-bold text-gray-900">{{ stagingSummary.total }}</p>
-          <p class="text-xs text-gray-500">Total</p>
+          <p class="text-2xl font-bold text-foreground">{{ stagingSummary.total }}</p>
+          <p class="text-xs text-muted-foreground">Total</p>
         </div>
         <div>
-          <p class="text-2xl font-bold text-gray-600">{{ stagingSummary.pending }}</p>
-          <p class="text-xs text-gray-500">Pending</p>
+          <p class="text-2xl font-bold text-muted-foreground">{{ stagingSummary.pending }}</p>
+          <p class="text-xs text-muted-foreground">Pending</p>
         </div>
         <div>
           <p class="text-2xl font-bold text-green-600">{{ stagingSummary.approved }}</p>
-          <p class="text-xs text-gray-500">Approved</p>
+          <p class="text-xs text-muted-foreground">Approved</p>
         </div>
         <div>
           <p class="text-2xl font-bold text-red-600">{{ stagingSummary.rejected }}</p>
-          <p class="text-xs text-gray-500">Rejected</p>
+          <p class="text-xs text-muted-foreground">Rejected</p>
         </div>
         <div>
           <p class="text-2xl font-bold text-amber-600">{{ stagingSummary.needsEnrichment }}</p>
-          <p class="text-xs text-gray-500">Needs Enrichment</p>
+          <p class="text-xs text-muted-foreground">Needs Enrichment</p>
         </div>
       </div>
     </div>
 
-    <div v-if="loading" class="text-gray-500">Loading staging records...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading staging records...</div>
 
     <VEmptyState
       v-else-if="!taskId"
-      icon="i-heroicons-document-magnifying-glass"
       title="No staging task found"
       description="Start a research or import task to populate staging records."
-    />
+    >
+      <template #icon>
+        <svg class="w-6 h-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+      </template>
+    </VEmptyState>
 
     <VEmptyState
       v-else-if="!stagingRecords?.length"
-      icon="i-heroicons-inbox"
       title="No staged records"
       description="The task has not produced any staging records yet."
-    />
+    >
+      <template #icon>
+        <svg class="w-6 h-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+        </svg>
+      </template>
+    </VEmptyState>
 
     <template v-else>
       <!-- New Groups Section -->
       <div v-if="newGroups.length" class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <span class="i-heroicons-plus-circle text-green-500" />
+        <h3 class="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
           New Groups
-          <span class="text-sm font-normal text-gray-500">({{ newGroups.length }})</span>
+          <span class="text-sm font-normal text-muted-foreground">({{ newGroups.length }})</span>
         </h3>
         <div class="space-y-3">
           <div
             v-for="record in newGroups"
             :key="record._id"
-            class="bg-white rounded-lg shadow overflow-hidden"
+            class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <h4 class="font-medium text-gray-900">{{ record.name }}</h4>
-                  <span class="text-xs text-gray-400">{{ record.nickname || '' }}</span>
+                  <h4 class="font-medium text-foreground">{{ record.name }}</h4>
+                  <span class="text-xs text-muted-foreground/60">{{ record.nickname || '' }}</span>
                   <span
                     class="text-xs px-2 py-0.5 rounded-full font-medium"
                     :class="reviewStatusColor(record.reviewStatus)"
@@ -279,16 +293,16 @@ const backUrl = computed(() => {
                     Reject
                   </button>
                   <button
-                    class="px-2 py-1 text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     @click="togglePreview(record._id)"
                   >
                     {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
                   </button>
                 </div>
               </div>
-              <p v-if="record.overview" class="text-sm text-gray-600 mt-1 line-clamp-2">{{ record.overview }}</p>
+              <p v-if="record.overview" class="text-sm text-muted-foreground mt-1 line-clamp-2">{{ record.overview }}</p>
               <div v-if="record.missingFields?.length" class="mt-2">
-                <span class="text-xs text-gray-500">Missing:</span>
+                <span class="text-xs text-muted-foreground">Missing:</span>
                 <span
                   v-for="f in record.missingFields"
                   :key="f"
@@ -300,34 +314,34 @@ const backUrl = computed(() => {
             </div>
 
             <!-- Preview Expansion -->
-            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-gray-50 space-y-3 text-sm">
+            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-muted/50 space-y-3 text-sm">
               <div v-if="record.demographics" class="grid grid-cols-4 gap-2">
-                <div><span class="text-gray-500">Age:</span> {{ record.demographics.ageRange }}</div>
-                <div><span class="text-gray-500">Gender:</span> {{ record.demographics.gender }}</div>
-                <div><span class="text-gray-500">Income:</span> {{ record.demographics.income }}</div>
-                <div><span class="text-gray-500">Lifestyle:</span> {{ record.demographics.lifestyle }}</div>
+                <div><span class="text-muted-foreground">Age:</span> {{ record.demographics.ageRange }}</div>
+                <div><span class="text-muted-foreground">Gender:</span> {{ record.demographics.gender }}</div>
+                <div><span class="text-muted-foreground">Income:</span> {{ record.demographics.income }}</div>
+                <div><span class="text-muted-foreground">Lifestyle:</span> {{ record.demographics.lifestyle }}</div>
               </div>
               <div v-if="record.coreDesires?.length">
-                <span class="text-xs text-gray-500">Core Desires:</span>
+                <span class="text-xs text-muted-foreground">Core Desires:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <span v-for="d in record.coreDesires" :key="d" class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">{{ d }}</span>
                 </div>
               </div>
               <div v-if="record.painPoints?.length">
-                <span class="text-xs text-gray-500">Pain Points:</span>
+                <span class="text-xs text-muted-foreground">Pain Points:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <span v-for="p in record.painPoints" :key="p" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">{{ p }}</span>
                 </div>
               </div>
               <div v-if="record.marketingHooks?.length">
-                <span class="text-xs text-gray-500">Marketing Hooks:</span>
+                <span class="text-xs text-muted-foreground">Marketing Hooks:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <span v-for="h in record.marketingHooks" :key="h" class="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">{{ h }}</span>
                 </div>
               </div>
               <div v-if="record.transformationPromise">
-                <span class="text-xs text-gray-500">Transformation:</span>
-                <p class="italic text-gray-900">"{{ record.transformationPromise }}"</p>
+                <span class="text-xs text-muted-foreground">Transformation:</span>
+                <p class="italic text-foreground">"{{ record.transformationPromise }}"</p>
               </div>
             </div>
           </div>
@@ -336,21 +350,23 @@ const backUrl = computed(() => {
 
       <!-- Enrichment Matches Section -->
       <div v-if="enrichmentMatches.length" class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <span class="i-heroicons-arrow-path text-blue-500" />
+        <h3 class="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+          </svg>
           Enrichment Matches
-          <span class="text-sm font-normal text-gray-500">({{ enrichmentMatches.length }})</span>
+          <span class="text-sm font-normal text-muted-foreground">({{ enrichmentMatches.length }})</span>
         </h3>
         <div class="space-y-3">
           <div
             v-for="record in enrichmentMatches"
             :key="record._id"
-            class="bg-white rounded-lg shadow overflow-hidden"
+            class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <h4 class="font-medium text-gray-900">{{ record.name }}</h4>
+                  <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                     Match: {{ Math.round((record.matchConfidence || 0) * 100) }}%
                   </span>
@@ -377,26 +393,26 @@ const backUrl = computed(() => {
                     Reject
                   </button>
                   <button
-                    class="px-2 py-1 text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     @click="togglePreview(record._id)"
                   >
                     {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
                   </button>
                 </div>
               </div>
-              <p v-if="record.matchReason" class="text-sm text-gray-500 mt-1">{{ record.matchReason }}</p>
+              <p v-if="record.matchReason" class="text-sm text-muted-foreground mt-1">{{ record.matchReason }}</p>
             </div>
 
-            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-gray-50 space-y-2 text-sm">
-              <p v-if="record.overview" class="text-gray-700">{{ record.overview }}</p>
+            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-muted/50 space-y-2 text-sm">
+              <p v-if="record.overview" class="text-muted-foreground">{{ record.overview }}</p>
               <div v-if="record.coreDesires?.length">
-                <span class="text-xs text-gray-500">New Core Desires:</span>
+                <span class="text-xs text-muted-foreground">New Core Desires:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <span v-for="d in record.coreDesires" :key="d" class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">{{ d }}</span>
                 </div>
               </div>
               <div v-if="record.painPoints?.length">
-                <span class="text-xs text-gray-500">New Pain Points:</span>
+                <span class="text-xs text-muted-foreground">New Pain Points:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <span v-for="p in record.painPoints" :key="p" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">{{ p }}</span>
                 </div>
@@ -408,21 +424,23 @@ const backUrl = computed(() => {
 
       <!-- Possible Matches Section -->
       <div v-if="possibleMatches.length" class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <span class="i-heroicons-question-mark-circle text-amber-500" />
+        <h3 class="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+          </svg>
           Possible Matches
-          <span class="text-sm font-normal text-gray-500">({{ possibleMatches.length }})</span>
+          <span class="text-sm font-normal text-muted-foreground">({{ possibleMatches.length }})</span>
         </h3>
         <div class="space-y-3">
           <div
             v-for="record in possibleMatches"
             :key="record._id"
-            class="bg-white rounded-lg shadow overflow-hidden"
+            class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <h4 class="font-medium text-gray-900">{{ record.name }}</h4>
+                  <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
                     Similarity: {{ Math.round((record.matchConfidence || 0) * 100) }}%
                   </span>
@@ -450,24 +468,24 @@ const backUrl = computed(() => {
                   </button>
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
-                    class="px-3 py-1 text-xs text-gray-600 border rounded-md hover:bg-gray-50 transition-colors"
+                    class="px-3 py-1 text-xs text-muted-foreground border rounded-md hover:bg-muted/50 transition-colors"
                     @click="reject(record._id)"
                   >
                     Skip
                   </button>
                   <button
-                    class="px-2 py-1 text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     @click="togglePreview(record._id)"
                   >
                     {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
                   </button>
                 </div>
               </div>
-              <p v-if="record.matchReason" class="text-sm text-gray-500 mt-1">{{ record.matchReason }}</p>
+              <p v-if="record.matchReason" class="text-sm text-muted-foreground mt-1">{{ record.matchReason }}</p>
             </div>
 
-            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-gray-50 space-y-2 text-sm">
-              <p v-if="record.overview" class="text-gray-700">{{ record.overview }}</p>
+            <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-muted/50 space-y-2 text-sm">
+              <p v-if="record.overview" class="text-muted-foreground">{{ record.overview }}</p>
             </div>
           </div>
         </div>
@@ -476,7 +494,7 @@ const backUrl = computed(() => {
       <!-- Import Button -->
       <div class="mt-8 flex justify-center">
         <button
-          class="bg-primary-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
+          class="bg-primary text-primary-foreground px-6 py-3 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
           :disabled="importing || !stagingSummary?.approved"
           @click="importAllApproved"
         >

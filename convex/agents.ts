@@ -46,7 +46,7 @@ export const register = mutation({
     heartbeatCron: v.string(),
     defaultModel: v.string(),
     skillPath: v.string(),
-    level: v.union(v.literal("intern"), v.literal("specialist"), v.literal("lead")),
+    level: v.union(v.literal("intern"), v.literal("specialist"), v.literal("lead"), v.literal("orchestrator")),
     agentFilePath: v.string(),
     status: v.optional(v.union(v.literal("idle"), v.literal("active"), v.literal("blocked"), v.literal("offline"))),
     staticSkillIds: v.optional(v.array(v.id("skills"))),
@@ -85,6 +85,17 @@ export const heartbeat = mutation({
       lastHeartbeat: Date.now(),
       stats: { ...agent.stats, lastActive: Date.now() },
     });
+  },
+});
+
+// Update agent default model
+export const updateModel = mutation({
+  args: {
+    id: v.id("agents"),
+    defaultModel: v.union(v.literal("haiku"), v.literal("sonnet"), v.literal("opus")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { defaultModel: args.defaultModel });
   },
 });
 

@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
@@ -35,7 +35,7 @@ export const acquireLock = mutation({
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new ConvexError("Task not found");
 
     const now = Date.now();
 
@@ -70,7 +70,7 @@ export const releaseLock = mutation({
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new ConvexError("Task not found");
 
     if (task.lockedBy !== args.agentName) {
       return { released: false, reason: "Lock held by different agent" };
@@ -99,11 +99,11 @@ export const completeStep = mutation({
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new ConvexError("Task not found");
 
     // Verify the caller holds the lock
     if (task.lockedBy !== args.agentName) {
-      throw new Error(
+      throw new ConvexError(
         `Lock mismatch: task locked by "${task.lockedBy}", caller is "${args.agentName}"`
       );
     }
@@ -113,7 +113,7 @@ export const completeStep = mutation({
 
     // Validate current step exists
     if (currentStepIndex < 0 || currentStepIndex >= pipeline.length) {
-      throw new Error(
+      throw new ConvexError(
         `Invalid pipeline step ${currentStepIndex} (pipeline has ${pipeline.length} steps)`
       );
     }
@@ -181,12 +181,12 @@ export const requestRevision = mutation({
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new ConvexError("Task not found");
 
     const pipeline = [...task.pipeline];
 
     if (args.targetStep < 0 || args.targetStep >= pipeline.length) {
-      throw new Error(
+      throw new ConvexError(
         `Invalid target step ${args.targetStep} (pipeline has ${pipeline.length} steps)`
       );
     }
@@ -216,7 +216,7 @@ export const getTaskPipelineStatus = query({
   args: { taskId: v.id("tasks") },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new ConvexError("Task not found");
 
     return {
       _id: task._id,

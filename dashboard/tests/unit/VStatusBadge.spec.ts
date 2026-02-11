@@ -25,12 +25,12 @@ describe('VStatusBadge', () => {
     expect(wrapper.find('span').classes()).toContain('text-green-700')
   })
 
-  it('applies default gray color for unknown statuses', () => {
+  it('applies default muted color for unknown statuses', () => {
     const wrapper = mount(VStatusBadge, {
       props: { status: 'unknown_status' },
     })
-    expect(wrapper.find('span').classes()).toContain('bg-gray-100')
-    expect(wrapper.find('span').classes()).toContain('text-gray-600')
+    expect(wrapper.find('span').classes()).toContain('bg-muted')
+    expect(wrapper.find('span').classes()).toContain('text-muted-foreground')
   })
 
   it('applies sm size classes when size is sm', () => {
@@ -65,11 +65,11 @@ describe('VStatusBadge', () => {
     expect(wrapper.find('span').classes()).toContain('text-red-700')
   })
 
-  it('maps backlog status to gray colors', () => {
+  it('maps backlog status to muted colors', () => {
     const wrapper = mount(VStatusBadge, {
       props: { status: 'backlog' },
     })
-    expect(wrapper.find('span').classes()).toContain('bg-gray-100')
-    expect(wrapper.find('span').classes()).toContain('text-gray-700')
+    expect(wrapper.find('span').classes()).toContain('bg-muted')
+    expect(wrapper.find('span').classes()).toContain('text-muted-foreground')
   })
 })

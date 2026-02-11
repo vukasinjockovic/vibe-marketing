@@ -44,14 +44,14 @@ async function submit() {
   <div class="max-w-2xl mx-auto">
     <VPageHeader title="New Project" description="Create a new marketing project" />
 
-    <form class="bg-white rounded-lg shadow p-6 space-y-6" @submit.prevent="submit">
+    <form class="rounded-lg border bg-card text-card-foreground shadow-sm p-6 space-y-6" @submit.prevent="submit">
       <VFormField label="Project Name" :error="errors.name" required>
         <input
           v-model="form.name"
           data-field="name"
           type="text"
           placeholder="Enter project name"
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </VFormField>
 
@@ -61,7 +61,7 @@ async function submit() {
           data-field="slug"
           type="text"
           placeholder="project-slug"
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </VFormField>
 
@@ -71,7 +71,7 @@ async function submit() {
           data-field="description"
           placeholder="Brief description of this project"
           rows="3"
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </VFormField>
 
@@ -82,7 +82,7 @@ async function submit() {
             :key="c"
             type="button"
             class="w-8 h-8 rounded-full border-2 transition-all"
-            :class="form.color === c ? 'border-gray-900 scale-110' : 'border-transparent'"
+            :class="form.color === c ? 'border-foreground scale-110' : 'border-transparent'"
             :style="{ backgroundColor: c }"
             @click="form.color = c"
           />
@@ -96,20 +96,20 @@ async function submit() {
           type="text"
           placeholder="e.g. rocket emoji"
           maxlength="2"
-          class="w-20 border rounded-md px-3 py-2 text-sm text-center focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="flex h-10 w-20 rounded-md border border-input bg-background px-3 py-2 text-sm text-center ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </VFormField>
 
       <div class="flex justify-end gap-3 pt-4 border-t">
         <NuxtLink
           to="/projects"
-          class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+          class="px-4 py-2 text-sm text-muted-foreground hover:bg-muted rounded-md transition-colors"
         >
           Cancel
         </NuxtLink>
         <button
           type="submit"
-          class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
+          class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
           :disabled="saving"
         >
           {{ saving ? 'Creating...' : 'Create Project' }}

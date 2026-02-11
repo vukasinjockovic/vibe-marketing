@@ -8,13 +8,13 @@ defineProps<{
 </script>
 
 <template>
-  <div class="space-y-1">
-    <label class="block text-sm font-medium text-gray-700">
+  <div class="space-y-1.5">
+    <label class="block text-sm font-medium text-foreground">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="text-destructive">*</span>
     </label>
     <slot />
-    <p v-if="hint && !error" class="text-xs text-gray-500">{{ hint }}</p>
-    <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
+    <p v-if="hint && !error" class="text-xs text-muted-foreground">{{ hint }}</p>
+    <p v-if="error" class="text-xs text-destructive">{{ error }}</p>
   </div>
 </template>

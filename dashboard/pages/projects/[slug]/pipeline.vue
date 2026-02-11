@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../../../convex/_generated/api'
+import { Cpu } from 'lucide-vue-next'
 
 const { project } = useCurrentProject()
 const projectId = computed(() => project.value?._id)
@@ -10,7 +11,7 @@ const { data: tasks, loading } = useConvexQuery(
 )
 
 const columns = [
-  { key: 'backlog', label: 'Backlog', color: 'bg-gray-100', headerColor: 'bg-gray-500', textColor: 'text-gray-700' },
+  { key: 'backlog', label: 'Backlog', color: 'bg-muted/50', headerColor: 'bg-muted-foreground/40', textColor: 'text-muted-foreground' },
   { key: 'researched', label: 'Researched', color: 'bg-blue-50', headerColor: 'bg-blue-500', textColor: 'text-blue-700' },
   { key: 'briefed', label: 'Briefed', color: 'bg-indigo-50', headerColor: 'bg-indigo-500', textColor: 'text-indigo-700' },
   { key: 'drafted', label: 'Drafted', color: 'bg-purple-50', headerColor: 'bg-purple-500', textColor: 'text-purple-700' },
@@ -62,7 +63,7 @@ function priorityColor(priority: string) {
     case 'urgent': return 'border-l-red-500'
     case 'high': return 'border-l-orange-500'
     case 'medium': return 'border-l-blue-400'
-    default: return 'border-l-gray-300'
+    default: return 'border-l-border'
   }
 }
 </script>
@@ -71,11 +72,10 @@ function priorityColor(priority: string) {
   <div>
     <VPageHeader title="Pipeline Board" :description="`${totalTaskCount} tasks across all stages`" />
 
-    <div v-if="loading" class="text-gray-500">Loading pipeline...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading pipeline...</div>
 
     <VEmptyState
       v-else-if="totalTaskCount === 0"
-      icon="i-heroicons-arrow-path-rounded-square"
       title="No tasks yet"
       description="Create a campaign and activate it to start generating tasks."
     />
@@ -110,26 +110,28 @@ function priorityColor(priority: string) {
               <button
                 v-for="task in tasksByStatus[col.key]"
                 :key="task._id"
-                class="w-full text-left bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border-l-3 cursor-pointer"
+                class="w-full text-left rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow p-3 border-l-3 cursor-pointer"
                 :class="priorityColor(task.priority)"
                 @click="openTask(task._id)"
               >
                 <div class="flex items-start justify-between gap-2 mb-1.5">
-                  <h4 class="text-sm font-medium text-gray-900 line-clamp-2 flex-1">
+                  <h4 class="text-sm font-medium text-foreground line-clamp-2 flex-1">
                     {{ task.title }}
                   </h4>
                 </div>
 
                 <div v-if="task.contentType" class="mb-2">
-                  <span class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                  <span class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
                     {{ task.contentType }}
                   </span>
                 </div>
 
                 <div class="flex items-center justify-between">
                   <div v-if="task.lockedBy" class="flex items-center gap-1">
-                    <span class="i-heroicons-cpu-chip text-xs text-gray-400" />
-                    <span class="text-xs text-gray-500">{{ task.lockedBy }}</span>
+                    <svg class="w-3 h-3 text-muted-foreground/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    <span class="text-xs text-muted-foreground">{{ task.lockedBy }}</span>
                   </div>
                   <div v-else />
 
@@ -147,7 +149,7 @@ function priorityColor(priority: string) {
                         'bg-red-100 text-red-700': task.priority === 'urgent',
                         'bg-orange-100 text-orange-600': task.priority === 'high',
                         'bg-blue-50 text-blue-600': task.priority === 'medium',
-                        'bg-gray-50 text-gray-500': task.priority === 'low',
+                        'bg-muted/50 text-muted-foreground': task.priority === 'low',
                       }"
                     >
                       {{ task.priority }}
@@ -159,7 +161,7 @@ function priorityColor(priority: string) {
               <!-- Empty column state -->
               <div
                 v-if="!tasksByStatus[col.key]?.length"
-                class="flex items-center justify-center h-24 text-xs text-gray-400"
+                class="flex items-center justify-center h-24 text-xs text-muted-foreground/60"
               >
                 No tasks
               </div>
@@ -170,21 +172,21 @@ function priorityColor(priority: string) {
 
       <!-- Special statuses (revision, blocked, cancelled) -->
       <div v-if="specialTasks.length" class="mt-6">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">
+        <h3 class="text-sm font-semibold text-muted-foreground mb-3">
           Needs Attention ({{ specialTasks.length }})
         </h3>
-        <div class="bg-white rounded-lg shadow divide-y">
+        <div class="rounded-lg border bg-card shadow-sm divide-y divide-border">
           <button
             v-for="task in specialTasks"
             :key="task._id"
-            class="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer"
+            class="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer"
             @click="openTask(task._id)"
           >
             <div class="flex items-center gap-3">
               <VStatusBadge :status="task.status" size="sm" />
               <span class="text-sm font-medium">{{ task.title }}</span>
             </div>
-            <div class="flex items-center gap-3 text-xs text-gray-500">
+            <div class="flex items-center gap-3 text-xs text-muted-foreground">
               <span v-if="task.rejectionNotes" class="max-w-xs truncate">
                 {{ task.rejectionNotes }}
               </span>

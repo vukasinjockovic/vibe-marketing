@@ -140,21 +140,25 @@ const reviewUrl = computed(() => {
     <VPageHeader title="Audiences" description="Target focus groups for this product">
       <template #actions>
         <button
-          class="border border-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          class="border border-border text-muted-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
           @click="showResearch = true"
         >
-          <span class="i-heroicons-magnifying-glass text-sm mr-1" />
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
           Research Audiences
         </button>
         <button
-          class="border border-gray-300 text-gray-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          class="border border-border text-muted-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
           @click="showImport = true"
         >
-          <span class="i-heroicons-document-arrow-up text-sm mr-1" />
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+          </svg>
           Import Document
         </button>
         <button
-          class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+          class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           @click="showCreate = true"
         >
           + Manual
@@ -165,7 +169,10 @@ const reviewUrl = computed(() => {
     <!-- Active Jobs Banner -->
     <div v-if="hasActiveJob" class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="i-heroicons-arrow-path animate-spin text-blue-600" />
+        <svg class="w-4 h-4 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
         <span class="text-sm text-blue-800">
           {{ activeTasks.length }} audience {{ activeTasks.length === 1 ? 'task' : 'tasks' }} running...
         </span>
@@ -178,7 +185,9 @@ const reviewUrl = computed(() => {
     <!-- Pending Review Banner -->
     <div v-if="hasPendingReview && stagingSummary" class="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="i-heroicons-exclamation-triangle text-amber-600" />
+        <svg class="w-4 h-4 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
         <span class="text-sm text-amber-800">
           {{ stagingSummary.pending }} focus group{{ stagingSummary.pending === 1 ? '' : 's' }} pending review
         </span>
@@ -192,24 +201,28 @@ const reviewUrl = computed(() => {
     </div>
 
     <!-- Overall Enrichment Progress -->
-    <div v-if="focusGroups?.length" class="mb-4 bg-white rounded-lg shadow p-4">
+    <div v-if="focusGroups?.length" class="mb-4 rounded-lg border bg-card shadow-sm p-4">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-semibold text-gray-900">Overall Enrichment Progress</h3>
-        <span class="text-xs text-gray-500">{{ focusGroups.length }} focus group{{ focusGroups.length === 1 ? '' : 's' }}</span>
+        <h3 class="text-sm font-semibold text-foreground">Overall Enrichment Progress</h3>
+        <span class="text-xs text-muted-foreground">{{ focusGroups.length }} focus group{{ focusGroups.length === 1 ? '' : 's' }}</span>
       </div>
       <EnrichmentProgressBar :score="overallEnrichmentScore" label="Enrichment Completeness" />
     </div>
 
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
     <VEmptyState
       v-else-if="!focusGroups?.length"
-      icon="i-heroicons-user-group"
       title="No focus groups yet"
       description="Define target audiences for better marketing."
     >
+      <template #icon>
+        <svg class="w-6 h-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+        </svg>
+      </template>
       <button
-        class="inline-block bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+        class="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
         @click="showCreate = true"
       >
         Add Focus Group
@@ -220,32 +233,32 @@ const reviewUrl = computed(() => {
       <div
         v-for="fg in focusGroups"
         :key="fg._id"
-        class="bg-white rounded-lg shadow overflow-hidden"
+        class="rounded-lg border bg-card shadow-sm overflow-hidden"
       >
         <!-- Card Header (always visible) -->
         <div
-          class="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          class="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
           @click="toggleExpand(fg._id)"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
                 {{ fg.number || '#' }}
               </span>
               <div class="flex-1">
                 <div class="flex items-center gap-2">
                   <NuxtLink
                     :to="`/projects/${project?.slug}/products/${productId}/audiences/${fg._id}`"
-                    class="font-medium text-gray-900 hover:text-primary-600"
+                    class="font-medium text-foreground hover:text-primary"
                     @click.stop
                   >
                     {{ fg.name }}
                   </NuxtLink>
-                  <span class="text-xs text-gray-400">{{ fg.nickname }}</span>
+                  <span class="text-xs text-muted-foreground/60">{{ fg.nickname }}</span>
                 </div>
                 <div class="flex items-center gap-2 mt-0.5">
                   <VStatusBadge :status="fg.category" size="sm" />
-                  <span class="text-xs text-gray-500">{{ fg.source }}</span>
+                  <span class="text-xs text-muted-foreground">{{ fg.source }}</span>
                 </div>
               </div>
             </div>
@@ -259,42 +272,51 @@ const reviewUrl = computed(() => {
                 title="Delete"
                 @click.stop="promptDelete(fg._id)"
               >
-                <span class="i-heroicons-trash text-sm" />
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
               </button>
-              <span
-                class="i-heroicons-chevron-down text-gray-400 transition-transform"
+              <svg
+                class="w-4 h-4 text-muted-foreground/60 transition-transform"
                 :class="{ 'rotate-180': isExpanded(fg._id) }"
-              />
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+              </svg>
             </div>
           </div>
-          <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ fg.overview }}</p>
+          <p class="text-sm text-muted-foreground mt-2 line-clamp-2">{{ fg.overview }}</p>
         </div>
 
         <!-- Expanded Details -->
-        <div v-if="isExpanded(fg._id)" class="border-t px-4 py-4 space-y-4 bg-gray-50">
+        <div v-if="isExpanded(fg._id)" class="border-t px-4 py-4 space-y-4 bg-muted/50">
           <!-- Demographics -->
           <div v-if="fg.demographics">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Demographics</h5>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Demographics</h5>
             <div class="grid grid-cols-4 gap-3 text-sm">
               <div>
-                <span class="text-gray-500">Age:</span>
-                <span class="ml-1 text-gray-900">{{ fg.demographics.ageRange }}</span>
+                <span class="text-muted-foreground">Age:</span>
+                <span class="ml-1 text-foreground">{{ fg.demographics.ageRange }}</span>
               </div>
               <div>
-                <span class="text-gray-500">Gender:</span>
-                <span class="ml-1 text-gray-900">{{ fg.demographics.gender }}</span>
+                <span class="text-muted-foreground">Gender:</span>
+                <span class="ml-1 text-foreground">{{ fg.demographics.gender }}</span>
               </div>
               <div>
-                <span class="text-gray-500">Income:</span>
-                <span class="ml-1 text-gray-900">{{ fg.demographics.income }}</span>
+                <span class="text-muted-foreground">Income:</span>
+                <span class="ml-1 text-foreground">{{ fg.demographics.income }}</span>
               </div>
               <div>
-                <span class="text-gray-500">Lifestyle:</span>
-                <span class="ml-1 text-gray-900">{{ fg.demographics.lifestyle }}</span>
+                <span class="text-muted-foreground">Lifestyle:</span>
+                <span class="ml-1 text-foreground">{{ fg.demographics.lifestyle }}</span>
               </div>
             </div>
             <div v-if="fg.demographics.triggers?.length" class="mt-2">
-              <span class="text-xs text-gray-500">Triggers:</span>
+              <span class="text-xs text-muted-foreground">Triggers:</span>
               <div class="flex flex-wrap gap-1 mt-1">
                 <span v-for="t in fg.demographics.triggers" :key="t" class="bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full">
                   {{ t }}
@@ -305,19 +327,19 @@ const reviewUrl = computed(() => {
 
           <!-- Psychographics -->
           <div v-if="fg.psychographics">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Psychographics</h5>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Psychographics</h5>
             <div class="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span class="text-gray-500">Lifestyle:</span>
-                <span class="ml-1 text-gray-900">{{ fg.psychographics.lifestyle }}</span>
+                <span class="text-muted-foreground">Lifestyle:</span>
+                <span class="ml-1 text-foreground">{{ fg.psychographics.lifestyle }}</span>
               </div>
               <div>
-                <span class="text-gray-500">Identity:</span>
-                <span class="ml-1 text-gray-900">{{ fg.psychographics.identity }}</span>
+                <span class="text-muted-foreground">Identity:</span>
+                <span class="ml-1 text-foreground">{{ fg.psychographics.identity }}</span>
               </div>
             </div>
             <div v-if="fg.psychographics.values?.length" class="mt-2">
-              <span class="text-xs text-gray-500">Values:</span>
+              <span class="text-xs text-muted-foreground">Values:</span>
               <div class="flex flex-wrap gap-1 mt-1">
                 <span v-for="v in fg.psychographics.values" :key="v" class="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">
                   {{ v }}
@@ -329,7 +351,7 @@ const reviewUrl = computed(() => {
           <!-- Core Desires & Pain Points -->
           <div class="grid grid-cols-2 gap-4">
             <div v-if="fg.coreDesires?.length">
-              <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Core Desires</h5>
+              <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Core Desires</h5>
               <div class="flex flex-wrap gap-1">
                 <span v-for="d in fg.coreDesires" :key="d" class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">
                   {{ d }}
@@ -337,7 +359,7 @@ const reviewUrl = computed(() => {
               </div>
             </div>
             <div v-if="fg.painPoints?.length">
-              <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Pain Points</h5>
+              <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Pain Points</h5>
               <div class="flex flex-wrap gap-1">
                 <span v-for="p in fg.painPoints" :key="p" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">
                   {{ p }}
@@ -348,7 +370,7 @@ const reviewUrl = computed(() => {
 
           <!-- Marketing Hooks -->
           <div v-if="fg.marketingHooks?.length">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Marketing Hooks</h5>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Marketing Hooks</h5>
             <div class="flex flex-wrap gap-1">
               <span v-for="h in fg.marketingHooks" :key="h" class="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
                 {{ h }}
@@ -358,7 +380,7 @@ const reviewUrl = computed(() => {
 
           <!-- Language Patterns -->
           <div v-if="fg.languagePatterns?.length">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Language Patterns</h5>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Language Patterns</h5>
             <div class="flex flex-wrap gap-1">
               <span v-for="l in fg.languagePatterns" :key="l" class="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">
                 {{ l }}
@@ -368,21 +390,21 @@ const reviewUrl = computed(() => {
 
           <!-- Transformation Promise -->
           <div v-if="fg.transformationPromise">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Transformation Promise</h5>
-            <p class="text-sm text-gray-900 italic">"{{ fg.transformationPromise }}"</p>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Transformation Promise</h5>
+            <p class="text-sm text-foreground italic">"{{ fg.transformationPromise }}"</p>
           </div>
 
           <!-- Enrichment Notes (read-only) -->
           <div v-if="fg.enrichmentNotes" class="pt-3 border-t">
-            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Enrichment Notes</h5>
-            <p class="text-xs text-gray-600">{{ fg.enrichmentNotes }}</p>
+            <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Enrichment Notes</h5>
+            <p class="text-xs text-muted-foreground">{{ fg.enrichmentNotes }}</p>
           </div>
 
           <!-- View Full Detail link -->
           <div class="pt-3 border-t">
             <NuxtLink
               :to="`/projects/${project?.slug}/products/${productId}/audiences/${fg._id}`"
-              class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              class="text-sm text-primary hover:text-primary font-medium"
             >
               View Full Details &amp; Enrichment History
             </NuxtLink>

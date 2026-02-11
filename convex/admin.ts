@@ -10,7 +10,7 @@ export const createUser = internalAction({
     password: v.string(),
     role: v.union(v.literal("admin"), v.literal("editor"), v.literal("viewer")),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<string> => {
     const bcrypt = await import("bcryptjs");
     const passwordHash = await bcrypt.hash(args.password, 12);
 

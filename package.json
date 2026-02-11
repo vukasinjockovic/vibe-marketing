@@ -7,6 +7,7 @@
     "dev": "concurrently \"npm run dev:convex\" \"npm run dev:dashboard\"",
     "dev:convex": "npx convex dev --url http://localhost:3210",
     "dev:dashboard": "cd dashboard && npm run dev",
+    "predeploy:convex": "rm -rf convex/dist",
     "deploy:convex": "npx convex deploy --url http://localhost:3210",
     "setup": "bash scripts/setup.sh",
     "cx": "bash scripts/cx.sh"

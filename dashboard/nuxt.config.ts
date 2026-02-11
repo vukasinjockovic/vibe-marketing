@@ -3,12 +3,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   modules: [
-    '@unocss/nuxt',
+    '@nuxtjs/tailwindcss',
   ],
 
   runtimeConfig: {
     public: {
-      convexUrl: process.env.NUXT_PUBLIC_CONVEX_URL || 'http://localhost:3210',
+      convexUrl: process.env.NUXT_PUBLIC_CONVEX_URL || '',
     },
   },
 
@@ -19,6 +19,11 @@ export default defineNuxtConfig({
       title: 'Vibe Marketing',
       meta: [
         { name: 'description', content: 'AI Marketing Automation Platform' },
+      ],
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap' },
       ],
     },
   },

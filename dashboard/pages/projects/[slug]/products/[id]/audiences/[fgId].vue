@@ -108,24 +108,30 @@ const backUrl = computed(() => {
     <div class="flex items-center gap-2 mb-4">
       <NuxtLink
         :to="backUrl"
-        class="text-sm text-gray-500 hover:text-gray-700"
+        class="text-sm text-muted-foreground hover:text-muted-foreground inline-flex items-center gap-1"
       >
-        <span class="i-heroicons-arrow-left text-sm mr-1" />
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
         Back to Audiences
       </NuxtLink>
     </div>
 
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
     <VEmptyState
       v-else-if="!fg"
-      icon="i-heroicons-exclamation-triangle"
       title="Focus group not found"
       description="This focus group doesn't exist or has been deleted."
     >
+      <template #icon>
+        <svg class="w-6 h-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
+      </template>
       <NuxtLink
         :to="backUrl"
-        class="inline-block bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+        class="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
       >
         Back to Audiences
       </NuxtLink>
@@ -136,29 +142,31 @@ const backUrl = computed(() => {
       <div class="flex items-center justify-between mb-6">
         <div>
           <div class="flex items-center gap-3">
-            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 text-primary-700 text-lg font-bold">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary text-lg font-bold">
               {{ fg.number || '#' }}
             </span>
             <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ fg.name }}</h1>
+              <h1 class="text-2xl font-bold text-foreground">{{ fg.name }}</h1>
               <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-sm text-gray-500">{{ fg.nickname }}</span>
+                <span class="text-sm text-muted-foreground">{{ fg.nickname }}</span>
                 <VStatusBadge :status="fg.category" size="sm" />
-                <span class="text-xs text-gray-400">{{ fg.source }}</span>
+                <span class="text-xs text-muted-foreground/60">{{ fg.source }}</span>
               </div>
             </div>
           </div>
         </div>
         <div class="flex gap-2">
           <button
-            class="px-3 py-1.5 text-sm border rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            class="px-3 py-1.5 text-sm border rounded-md text-muted-foreground hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
             @click="showEdit = true"
           >
-            <span class="i-heroicons-pencil-square text-sm mr-1" />
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            </svg>
             Edit
           </button>
           <button
-            class="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+            class="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
             :disabled="reEnriching"
             @click="reEnrichNow"
           >
@@ -168,15 +176,15 @@ const backUrl = computed(() => {
       </div>
 
       <!-- Enrichment Progress -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h3 class="font-semibold text-gray-900 mb-3">Enrichment Progress</h3>
+      <div class="rounded-lg border bg-card shadow-sm p-6 mb-6">
+        <h3 class="font-semibold text-foreground mb-3">Enrichment Progress</h3>
         <EnrichmentProgressBar
           v-if="enrichmentProgress"
           :score="enrichmentProgress.score"
           :label="`${enrichmentProgress.filledCount} of ${enrichmentProgress.totalCount} fields filled`"
         />
         <div v-if="enrichmentProgress?.missingFields?.length" class="mt-3">
-          <span class="text-xs text-gray-500">Missing fields:</span>
+          <span class="text-xs text-muted-foreground">Missing fields:</span>
           <div class="flex flex-wrap gap-1 mt-1">
             <span
               v-for="field in enrichmentProgress.missingFields"
@@ -192,37 +200,37 @@ const backUrl = computed(() => {
       <!-- Core Data -->
       <div class="grid grid-cols-2 gap-6 mb-6">
         <!-- Left Column: Basic Info -->
-        <div class="bg-white rounded-lg shadow p-6 space-y-4">
-          <h3 class="font-semibold text-gray-900">Core Profile</h3>
+        <div class="rounded-lg border bg-card shadow-sm p-6 space-y-4">
+          <h3 class="font-semibold text-foreground">Core Profile</h3>
 
           <div>
-            <p class="text-xs font-medium text-gray-500 uppercase">Overview</p>
-            <p class="text-sm text-gray-900 mt-1">{{ fg.overview }}</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase">Overview</p>
+            <p class="text-sm text-foreground mt-1">{{ fg.overview }}</p>
           </div>
 
           <div>
-            <p class="text-xs font-medium text-gray-500 uppercase">Transformation Promise</p>
-            <p class="text-sm text-gray-900 italic mt-1">"{{ fg.transformationPromise }}"</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase">Transformation Promise</p>
+            <p class="text-sm text-foreground italic mt-1">"{{ fg.transformationPromise }}"</p>
           </div>
 
           <div v-if="fg.demographics">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-2">Demographics</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-2">Demographics</p>
             <div class="grid grid-cols-2 gap-2 text-sm">
-              <div><span class="text-gray-500">Age:</span> {{ fg.demographics.ageRange }}</div>
-              <div><span class="text-gray-500">Gender:</span> {{ fg.demographics.gender }}</div>
-              <div><span class="text-gray-500">Income:</span> {{ fg.demographics.income }}</div>
-              <div><span class="text-gray-500">Lifestyle:</span> {{ fg.demographics.lifestyle }}</div>
+              <div><span class="text-muted-foreground">Age:</span> {{ fg.demographics.ageRange }}</div>
+              <div><span class="text-muted-foreground">Gender:</span> {{ fg.demographics.gender }}</div>
+              <div><span class="text-muted-foreground">Income:</span> {{ fg.demographics.income }}</div>
+              <div><span class="text-muted-foreground">Lifestyle:</span> {{ fg.demographics.lifestyle }}</div>
             </div>
           </div>
 
           <div v-if="fg.psychographics">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-2">Psychographics</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-2">Psychographics</p>
             <div class="grid grid-cols-2 gap-2 text-sm">
-              <div><span class="text-gray-500">Lifestyle:</span> {{ fg.psychographics.lifestyle }}</div>
-              <div><span class="text-gray-500">Identity:</span> {{ fg.psychographics.identity }}</div>
+              <div><span class="text-muted-foreground">Lifestyle:</span> {{ fg.psychographics.lifestyle }}</div>
+              <div><span class="text-muted-foreground">Identity:</span> {{ fg.psychographics.identity }}</div>
             </div>
             <div v-if="fg.psychographics.values?.length" class="mt-2">
-              <span class="text-xs text-gray-500">Values:</span>
+              <span class="text-xs text-muted-foreground">Values:</span>
               <div class="flex flex-wrap gap-1 mt-1">
                 <span v-for="v in fg.psychographics.values" :key="v" class="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">{{ v }}</span>
               </div>
@@ -231,53 +239,53 @@ const backUrl = computed(() => {
         </div>
 
         <!-- Right Column: Marketing Data -->
-        <div class="bg-white rounded-lg shadow p-6 space-y-4">
-          <h3 class="font-semibold text-gray-900">Marketing Intelligence</h3>
+        <div class="rounded-lg border bg-card shadow-sm p-6 space-y-4">
+          <h3 class="font-semibold text-foreground">Marketing Intelligence</h3>
 
           <div v-if="fg.coreDesires?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Core Desires</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Core Desires</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="d in fg.coreDesires" :key="d" class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">{{ d }}</span>
             </div>
           </div>
 
           <div v-if="fg.painPoints?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Pain Points</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Pain Points</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="p in fg.painPoints" :key="p" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">{{ p }}</span>
             </div>
           </div>
 
           <div v-if="fg.fears?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Fears</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Fears</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="f in fg.fears" :key="f" class="bg-orange-50 text-orange-700 text-xs px-2 py-0.5 rounded-full">{{ f }}</span>
             </div>
           </div>
 
           <div v-if="fg.objections?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Objections</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Objections</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="o in fg.objections" :key="o" class="bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full">{{ o }}</span>
             </div>
           </div>
 
           <div v-if="fg.marketingHooks?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Marketing Hooks</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Marketing Hooks</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="h in fg.marketingHooks" :key="h" class="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">{{ h }}</span>
             </div>
           </div>
 
           <div v-if="fg.languagePatterns?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Language Patterns</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Language Patterns</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="l in fg.languagePatterns" :key="l" class="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">{{ l }}</span>
             </div>
           </div>
 
           <div v-if="fg.emotionalTriggers?.length">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-1">Emotional Triggers</p>
+            <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Emotional Triggers</p>
             <div class="flex flex-wrap gap-1">
               <span v-for="t in fg.emotionalTriggers" :key="t" class="bg-pink-50 text-pink-700 text-xs px-2 py-0.5 rounded-full">{{ t }}</span>
             </div>
@@ -286,8 +294,8 @@ const backUrl = computed(() => {
       </div>
 
       <!-- Enrichment Field Status -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h3 class="font-semibold text-gray-900 mb-4">Enrichment Field Status</h3>
+      <div class="rounded-lg border bg-card shadow-sm p-6 mb-6">
+        <h3 class="font-semibold text-foreground mb-4">Enrichment Field Status</h3>
         <div class="grid grid-cols-2 gap-4">
           <EnrichmentFieldStatus
             v-for="field in enrichmentFields"
@@ -301,8 +309,8 @@ const backUrl = computed(() => {
       </div>
 
       <!-- Enrichment History Timeline -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="font-semibold text-gray-900 mb-4">Enrichment History</h3>
+      <div class="rounded-lg border bg-card shadow-sm p-6">
+        <h3 class="font-semibold text-foreground mb-4">Enrichment History</h3>
         <EnrichmentTimeline :enrichments="fg.enrichments || []" />
       </div>
 

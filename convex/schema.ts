@@ -520,7 +520,7 @@ export default defineSchema({
     heartbeatCron: v.string(),
     defaultModel: v.string(),
     skillPath: v.string(),
-    level: v.union(v.literal("intern"), v.literal("specialist"), v.literal("lead")),
+    level: v.union(v.literal("intern"), v.literal("specialist"), v.literal("lead"), v.literal("orchestrator")),
     stats: v.object({
       tasksCompleted: v.number(),
       avgQualityScore: v.optional(v.number()),

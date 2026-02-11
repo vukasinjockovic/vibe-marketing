@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 const stepValidator = v.object({
   order: v.number(),
@@ -88,10 +88,11 @@ export const create = mutation({
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
     if (existing) {
-      throw new Error(`Pipeline with slug "${args.slug}" already exists`);
+      return { error: `Pipeline with slug "${args.slug}" already exists` };
     }
 
-    return await ctx.db.insert("pipelines", args);
+    const id = await ctx.db.insert("pipelines", args);
+    return { id };
   },
 });
 
@@ -104,17 +105,19 @@ export const fork = mutation({
   },
   handler: async (ctx, args) => {
     const original = await ctx.db.get(args.pipelineId);
-    if (!original) throw new Error("Pipeline not found");
+    if (!original) {
+      return { error: "Pipeline not found" };
+    }
 
     const existing = await ctx.db
       .query("pipelines")
       .withIndex("by_slug", (q) => q.eq("slug", args.newSlug))
       .unique();
     if (existing) {
-      throw new Error(`Pipeline with slug "${args.newSlug}" already exists`);
+      return { error: `Pipeline with slug "${args.newSlug}" already exists` };
     }
 
-    return await ctx.db.insert("pipelines", {
+    const id = await ctx.db.insert("pipelines", {
       name: args.newName,
       slug: args.newSlug,
       description: original.description,
@@ -126,5 +129,6 @@ export const fork = mutation({
       onComplete: original.onComplete,
       requiredAgentCategories: original.requiredAgentCategories,
     });
+    return { id };
   },
 });

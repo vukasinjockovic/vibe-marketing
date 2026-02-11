@@ -1,0 +1,93 @@
+---
+session: general
+date: 2026-02-11
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Fixed 502 (PM2 + Nuxt dashboard), full agent reseed (18), setup script, installation guide, shadcn redesign started
+now: Check shadcn redesign agent (aac8037) completion, rebuild dashboard, run tests, then pm2 restart
+
+test: "rm -rf convex/dist && npx convex deploy --url http://localhost:3210 --admin-key $(grep CONVEX_SELF_HOSTED_ADMIN_KEY .env | cut -d= -f2-) --yes && cd dashboard && npx nuxt build && npx vitest run"
+
+done_this_session:
+  - task: "Fixed 502 — installed PM2, created ecosystem.config.cjs, built Nuxt dashboard, started on port 3000"
+    files: [ecosystem.config.cjs]
+  - task: "PM2 startup persistence — systemd service pm2-vuk.service created, survives reboot"
+    files: []
+  - task: "Interactive setup script — 8-phase installer (deps, .env, Docker, Convex, dashboard, PM2, nginx, SSL, optional services)"
+    files: [scripts/setup.sh]
+  - task: "INSTALLATION_GUIDE.md — full guide with architecture diagram, port map, day-to-day commands, troubleshooting"
+    files: [INSTALLATION_GUIDE.md]
+  - task: "Auto-detect Convex URL from window.location.origin + /convex/ instead of hardcoded env var"
+    files: [dashboard/plugins/convex.client.ts, dashboard/nuxt.config.ts]
+  - task: "ecosystem.config.cjs reads .env file dynamically — no hardcoded domains"
+    files: [ecosystem.config.cjs]
+  - task: "Full agent reseed — cleared DB, reseeded 18 agents with correct models (all writers on opus)"
+    files: [convex/seed.ts, convex/schema.ts, convex/agents.ts]
+  - task: "Added seed:clearAll mutation for easy DB reset"
+    files: [convex/seed.ts]
+  - task: "Added orchestrator level to agents schema union"
+    files: [convex/schema.ts, convex/agents.ts]
+  - task: "Google Sans font added to dashboard"
+    files: [dashboard/nuxt.config.ts, dashboard/uno.config.ts]
+  - task: "convex/dist/ auto-cleanup via predeploy:convex script"
+    files: [package.json, scripts/setup.sh]
+  - task: "Documented 20 missing agents from v3 spec (intelligence, distribution, analytics departments)"
+    files: [docs/MISSING_AGENTS.md]
+  - task: "Created admin user: admin@vibe.marketing / admin123"
+    files: []
+  - task: "Spawned shadcn-vue redesign agent (kraken, aac8037) — switching UnoCSS to Tailwind + shadcn components"
+    files: []
+
+blockers:
+  - "shadcn redesign agent still running — check output at /tmp/claude-1001/-var-www-vibe-marketing/tasks/aac8037.output"
+
+questions:
+  - "PM2 startup sudo command was run — verify it works after next reboot"
+
+decisions:
+  - auto_detect_convex_url: "Browser derives Convex URL from window.location.origin + /convex/ — no env var needed for production"
+  - writers_on_opus: "All writer/creative agents use opus model, research/utility agents use sonnet, per user preference"
+  - seed_clearall_public: "seed:clearAll is a public mutation (not internal) so it can be called via npx convex run for easy DB resets"
+  - unocss_to_tailwind: "Switching from UnoCSS to Tailwind CSS for shadcn-vue compatibility (shadcn requires Tailwind)"
+
+findings:
+  - convex_dist_recurring: "convex/dist/ keeps reappearing from tsc runs. Fixed with predeploy:convex cleanup in package.json"
+  - pm2_startup_systemd: "pm2 startup generates /etc/systemd/system/pm2-vuk.service. pm2 save stores process list to ~/.pm2/dump.pm2"
+  - convex_internal_vs_public: "npx convex run can only call public mutations/queries, not internalMutation. Use mutation() for CLI-callable functions"
+  - orchestrator_level: "Had to add 'orchestrator' literal to both schema.ts level union AND agents.ts register args union"
+
+worked:
+  - "ecosystem.config.cjs reading .env via fs.readFileSync — portable, no hardcoded values"
+  - "seed:clearAll + seed:run for clean reseed cycle"
+  - "Auto-detect Convex URL from window.location — zero config for any domain"
+
+failed:
+  - "internalMutation for clearAndReseed — can't call via CLI, had to switch to public mutation"
+  - "agents:register with level='orchestrator' failed before schema was updated — needed deploy first"
+
+next:
+  - "Check shadcn agent completion — review output, rebuild dashboard, run tests"
+  - "If shadcn agent failed mid-way: resume agent aac8037 or fix remaining pages manually"
+  - "pm2 restart vibe-dashboard after dashboard rebuild"
+  - "Change admin password from admin123"
+  - "Start content pipeline agents or Phase 9 E2E testing (carried over from previous session)"
+  - "Fix pipelines:create UnhandledPromiseRejection bug (carried over)"
+
+files:
+  created:
+    - ecosystem.config.cjs
+    - scripts/setup.sh
+    - INSTALLATION_GUIDE.md
+    - docs/MISSING_AGENTS.md
+    - thoughts/shared/handoffs/general/2026-02-11_21-35_infra-setup-agents-reseed.yaml
+  modified:
+    - package.json
+    - convex/seed.ts
+    - convex/schema.ts
+    - convex/agents.ts
+    - dashboard/plugins/convex.client.ts
+    - dashboard/nuxt.config.ts
+    - dashboard/uno.config.ts
+    - .env

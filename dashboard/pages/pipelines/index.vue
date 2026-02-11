@@ -29,11 +29,10 @@ async function fork(p: any) {
   <div>
     <VPageHeader title="Pipeline Templates" description="Content production pipeline templates and custom forks" />
 
-    <div v-if="loading" class="text-gray-500">Loading pipelines...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading pipelines...</div>
 
     <VEmptyState
       v-else-if="!pipelines?.length"
-      icon="i-heroicons-arrow-path-rounded-square"
       title="No pipelines"
       description="Pipeline templates will appear here once created."
     />
@@ -42,13 +41,13 @@ async function fork(p: any) {
       <div
         v-for="p in pipelines"
         :key="p._id"
-        class="bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+        class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow"
       >
         <div class="p-6">
           <div class="flex items-center justify-between mb-3">
             <NuxtLink
               :to="`/pipelines/${p.slug}`"
-              class="font-semibold text-gray-900 hover:text-primary-600 transition-colors"
+              class="font-semibold text-foreground hover:text-primary transition-colors"
             >
               {{ p.name }}
             </NuxtLink>
@@ -62,7 +61,7 @@ async function fork(p: any) {
             </span>
           </div>
 
-          <p v-if="p.description" class="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p v-if="p.description" class="text-sm text-muted-foreground mb-4 line-clamp-2">
             {{ p.description }}
           </p>
 
@@ -74,23 +73,23 @@ async function fork(p: any) {
               class="flex items-center"
             >
               <div
-                class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-xs font-medium"
+                class="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-medium"
                 :title="s.label"
               >
                 {{ i + 1 }}
               </div>
               <div
                 v-if="i < Math.min((p.mainSteps || []).length, 7) - 1"
-                class="w-3 h-0.5 bg-gray-200"
+                class="w-3 h-0.5 bg-border"
               />
             </div>
-            <span v-if="(p.mainSteps || []).length > 7" class="text-xs text-gray-400 ml-1">
+            <span v-if="(p.mainSteps || []).length > 7" class="text-xs text-muted-foreground/60 ml-1">
               +{{ (p.mainSteps || []).length - 7 }}
             </span>
           </div>
 
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3 text-xs text-gray-500">
+            <div class="flex items-center gap-3 text-xs text-muted-foreground">
               <span>{{ (p.mainSteps || []).length }} steps</span>
               <span v-if="p.parallelBranches?.length">
                 {{ p.parallelBranches.length }} branches
@@ -99,12 +98,12 @@ async function fork(p: any) {
             <div class="flex items-center gap-2">
               <NuxtLink
                 :to="`/pipelines/${p.slug}`"
-                class="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                class="text-xs text-primary hover:text-primary/80 font-medium"
               >
                 View
               </NuxtLink>
               <button
-                class="text-xs text-gray-500 hover:text-gray-700 font-medium disabled:opacity-50"
+                class="text-xs text-muted-foreground hover:text-foreground font-medium disabled:opacity-50"
                 :disabled="forking === p._id"
                 @click="fork(p)"
               >

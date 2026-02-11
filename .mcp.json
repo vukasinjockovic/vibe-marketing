@@ -2,10 +2,92 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": [
-        "@playwright/mcp@latest",
-        "--headless"
-      ]
+      "args": ["@playwright/mcp@latest", "--headless"]
+    },
+
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-brave-search"],
+      "env": { "BRAVE_API_KEY": "${BRAVE_API_KEY}" }
+    },
+
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@perplexity-ai/mcp-server"],
+      "env": { "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}" },
+      "disabled": true
+    },
+
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" },
+      "disabled": true
+    },
+
+    "crawl4ai": {
+      "command": "pip3",
+      "args": ["run", "crawl4ai-mcp-server"],
+      "env": { "CRAWL4AI_API_URL": "http://localhost:11235" },
+      "disabled": true
+    },
+
+    "dataforseo": {
+      "command": "npx",
+      "args": ["-y", "dataforseo-mcp-server"],
+      "env": {
+        "DATAFORSEO_USERNAME": "${DATAFORSEO_LOGIN}",
+        "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+      },
+      "disabled": true
+    },
+
+    "reddit": {
+      "command": "uvx",
+      "args": ["mcp-server-reddit"]
+    },
+
+    "twitter": {
+      "command": "npx",
+      "args": ["-y", "@enescinar/twitter-mcp"],
+      "env": {
+        "API_KEY": "${TWITTER_API_KEY}",
+        "API_SECRET_KEY": "${TWITTER_API_SECRET}",
+        "ACCESS_TOKEN": "${TWITTER_ACCESS_TOKEN}",
+        "ACCESS_TOKEN_SECRET": "${TWITTER_ACCESS_TOKEN_SECRET}"
+      },
+      "disabled": true
+    },
+
+    "youtube": {
+      "command": "npx",
+      "args": ["-y", "@anaisbetts/mcp-youtube"]
+    },
+
+    "fal": {
+      "command": "npx",
+      "args": ["-y", "fal-ai-mcp-server"],
+      "env": { "FAL_KEY": "${FAL_KEY}" }
+    },
+
+    "together": {
+      "command": "npx",
+      "args": ["-y", "together-mcp@latest"],
+      "env": { "TOGETHER_API_KEY": "${TOGETHER_API_KEY}" }
+    },
+
+    "recraft": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-recraft-server"],
+      "env": { "RECRAFT_API_KEY": "${RECRAFT_API_KEY}" },
+      "disabled": true
+    },
+
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}" },
+      "disabled": true
     }
   }
 }

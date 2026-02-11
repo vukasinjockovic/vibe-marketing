@@ -23,10 +23,10 @@ const barColorClass = computed(() => {
 <template>
   <div data-testid="enrichment-bar" class="w-full">
     <div v-if="label || showPct" class="flex items-center justify-between mb-1">
-      <span v-if="label" class="text-xs text-gray-600 font-medium">{{ label }}</span>
-      <span v-if="showPct" class="text-xs text-gray-500 font-medium">{{ clampedScore }}%</span>
+      <span v-if="label" class="text-xs text-muted-foreground font-medium">{{ label }}</span>
+      <span v-if="showPct" class="text-xs text-muted-foreground font-medium">{{ clampedScore }}%</span>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+    <div class="w-full bg-muted rounded-full h-2 overflow-hidden">
       <div
         data-testid="enrichment-bar-fill"
         class="h-2 rounded-full transition-all duration-300"

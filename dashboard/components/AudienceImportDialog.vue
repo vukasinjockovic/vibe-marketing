@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../convex/_generated/api'
+import { FileUp } from 'lucide-vue-next'
 
 const props = defineProps<{
   modelValue: boolean
@@ -134,20 +135,20 @@ async function submit() {
       <div
         data-testid="drop-zone"
         class="border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer"
-        :class="isDragOver ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-gray-400'"
+        :class="isDragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'"
         @dragover.prevent="onDragOver"
         @dragleave="onDragLeave"
         @drop.prevent="onDrop"
         @click="($refs.fileInput as HTMLInputElement)?.click()"
       >
-        <span class="i-heroicons-document-arrow-up text-3xl text-gray-400 mb-2 block" />
-        <p v-if="selectedFile" class="text-sm text-gray-900 font-medium">
+        <FileUp class="w-8 h-8 text-muted-foreground/60 mb-2 mx-auto" />
+        <p v-if="selectedFile" class="text-sm text-foreground font-medium">
           {{ selectedFile.name }}
-          <span class="text-gray-500">({{ (selectedFile.size / 1024).toFixed(1) }}KB)</span>
+          <span class="text-muted-foreground">({{ (selectedFile.size / 1024).toFixed(1) }}KB)</span>
         </p>
         <template v-else>
-          <p class="text-sm text-gray-600 mb-1">Drop a file here or click to browse</p>
-          <p class="text-xs text-gray-400">Accepts .md, .txt, .docx, .pdf</p>
+          <p class="text-sm text-muted-foreground mb-1">Drop a file here or click to browse</p>
+          <p class="text-xs text-muted-foreground/60">Accepts .md, .txt, .docx, .pdf</p>
         </template>
       </div>
 
@@ -164,21 +165,21 @@ async function submit() {
         <input
           v-model="autoEnrich"
           type="checkbox"
-          class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+          class="rounded border-border text-primary focus:ring-ring"
         />
-        <span class="text-sm text-gray-700">Auto-enrich after parsing</span>
+        <span class="text-sm text-muted-foreground">Auto-enrich after parsing</span>
       </label>
     </div>
 
     <template #footer>
       <button
-        class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+        class="px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors rounded-md"
         @click="close"
       >
         Cancel
       </button>
       <button
-        class="px-4 py-2 text-sm text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors disabled:opacity-50"
+        class="px-4 py-2 text-sm text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50"
         :disabled="!selectedFile || submitting"
         @click="submit"
       >

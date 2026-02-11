@@ -21,21 +21,23 @@ describe('VEmptyState', () => {
     const wrapper = mount(VEmptyState, {
       props: { title: 'No Projects' },
     })
-    expect(wrapper.find('p.text-gray-500').exists()).toBe(false)
+    expect(wrapper.find('p.text-muted-foreground').exists()).toBe(false)
   })
 
-  it('renders icon when provided', () => {
+  it('renders icon slot when provided', () => {
     const wrapper = mount(VEmptyState, {
-      props: { title: 'No Data', icon: 'i-heroicons-folder-open' },
+      props: { title: 'No Data' },
+      slots: { icon: '<svg data-testid="test-icon"></svg>' },
     })
-    expect(wrapper.find('.i-heroicons-folder-open').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="test-icon"]').exists()).toBe(true)
   })
 
-  it('does not render icon span when no icon', () => {
+  it('does not render icon container when no icon slot', () => {
     const wrapper = mount(VEmptyState, {
       props: { title: 'No Data' },
     })
-    expect(wrapper.find('.text-4xl').exists()).toBe(false)
+    // The icon container (rounded-full bg-muted) should not exist
+    expect(wrapper.find('.bg-muted').exists()).toBe(false)
   })
 
   it('renders default slot for action', () => {

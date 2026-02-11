@@ -25,7 +25,7 @@ function confidenceClass(confidence: string) {
     case 'high': return 'bg-green-500'
     case 'medium': return 'bg-yellow-500'
     case 'low': return 'bg-red-500'
-    default: return 'bg-gray-400'
+    default: return 'bg-muted-foreground/40'
   }
 }
 
@@ -40,13 +40,13 @@ function formatFieldName(field: string) {
 
 <template>
   <div>
-    <div v-if="!enrichments.length" class="text-sm text-gray-400 italic py-4 text-center">
+    <div v-if="!enrichments.length" class="text-sm text-muted-foreground/60 italic py-4 text-center">
       No enrichment history
     </div>
 
     <div v-else class="relative">
       <!-- Timeline line -->
-      <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-200" />
+      <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-border" />
 
       <div
         v-for="(entry, idx) in sortedEnrichments"
@@ -57,24 +57,24 @@ function formatFieldName(field: string) {
         <!-- Confidence dot -->
         <span
           data-testid="confidence-dot"
-          class="absolute left-1.5 top-1 w-3 h-3 rounded-full border-2 border-white"
+          class="absolute left-1.5 top-1 w-3 h-3 rounded-full border-2 border-background"
           :class="confidenceClass(entry.confidence)"
         />
 
-        <div class="bg-white border rounded-lg p-3">
+        <div class="rounded-lg border bg-card p-3">
           <div class="flex items-center justify-between mb-1">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-semibold text-gray-900">{{ entry.field }}</span>
-              <span class="text-xs text-gray-400">{{ formatFieldName(entry.field) }}</span>
+              <span class="text-xs font-semibold text-foreground">{{ entry.field }}</span>
+              <span class="text-xs text-muted-foreground/60">{{ formatFieldName(entry.field) }}</span>
             </div>
-            <span class="text-xs text-gray-400">{{ formatTimestamp(entry.timestamp) }}</span>
+            <span class="text-xs text-muted-foreground/60">{{ formatTimestamp(entry.timestamp) }}</span>
           </div>
 
-          <div class="flex items-center gap-1 text-xs text-gray-500 mb-1">
+          <div class="flex items-center gap-1 text-xs text-muted-foreground mb-1">
             <span class="font-medium">{{ entry.agentName }}</span>
-            <span class="text-gray-300">|</span>
+            <span class="text-muted-foreground/40">|</span>
             <span>{{ entry.source }}</span>
-            <span class="text-gray-300">|</span>
+            <span class="text-muted-foreground/40">|</span>
             <span
               class="px-1.5 py-0.5 rounded-full text-xs"
               :class="{
@@ -88,16 +88,16 @@ function formatFieldName(field: string) {
           </div>
 
           <!-- Value change -->
-          <div v-if="entry.previousValue" class="text-xs text-gray-500 mb-1">
+          <div v-if="entry.previousValue" class="text-xs text-muted-foreground mb-1">
             <span class="line-through text-red-400">{{ entry.previousValue }}</span>
             <span class="mx-1">-></span>
             <span class="text-green-600">{{ entry.newValue }}</span>
           </div>
-          <div v-else class="text-xs text-gray-500 mb-1">
+          <div v-else class="text-xs text-muted-foreground mb-1">
             <span class="text-green-600">{{ entry.newValue }}</span>
           </div>
 
-          <p class="text-xs text-gray-500 italic">{{ entry.reasoning }}</p>
+          <p class="text-xs text-muted-foreground italic">{{ entry.reasoning }}</p>
         </div>
       </div>
     </div>

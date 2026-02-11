@@ -32,12 +32,13 @@ describe('EnrichmentFieldStatus', () => {
     expect(indicator.classes()).toContain('bg-green-500')
   })
 
-  it('shows gray indicator when not filled', () => {
+  it('shows muted indicator when not filled', () => {
     const wrapper = mount(EnrichmentFieldStatus, {
       props: { label: 'Test', value: null, filled: false },
     })
     const indicator = wrapper.find('[data-testid="field-status-indicator"]')
-    expect(indicator.classes()).toContain('bg-gray-300')
+    // After redesign: bg-gray-300 was replaced with bg-muted-foreground/30
+    expect(indicator.classes().some(c => c.includes('bg-muted-foreground'))).toBe(true)
   })
 
   it('shows confidence badge when provided', () => {

@@ -1,0 +1,58 @@
+---
+session: general
+date: 2026-02-11
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Fixed Convex TS errors (clean deploy without --typecheck=disable) + comprehensive README.md update
+now: Start content pipeline agents (vibe-keyword-researcher, vibe-content-writer, etc.) or run Phase 9 E2E testing
+
+test: "npx convex deploy --url http://localhost:3210 --admin-key $(grep CONVEX_SELF_HOSTED_ADMIN_KEY .env | cut -d= -f2-) --yes && cd dashboard && npx vitest run"
+
+done_this_session:
+  - task: "Fixed circular type inference in convex/auth.ts — added explicit Promise return types to signIn and createSession handlers"
+    files: [convex/auth.ts]
+  - task: "Fixed missing crypto type in convex/auth.ts:59 — used (globalThis as any).crypto.randomUUID()"
+    files: [convex/auth.ts]
+  - task: "Fixed circular type inference in convex/admin.ts — added explicit Promise<string> return type to createUser handler"
+    files: [convex/admin.ts]
+  - task: "Removed stale convex/dist/ build artifact that caused TS5055 overwrite errors"
+    files: []
+  - task: "Comprehensive README.md update — added Dashboard section (all pages), Pipeline Presets table, FG Intelligence System section, enrichment fields breakdown, registered agents table, heartbeat mode docs, test commands, new design decisions"
+    files: [README.md]
+  - task: "Verified clean Convex deploy (typecheck enabled, no errors)"
+    files: []
+  - task: "Verified 190/190 dashboard tests pass"
+    files: []
+
+blockers: []
+
+questions: []
+
+decisions:
+  - globalThis_crypto: "Used (globalThis as any).crypto.randomUUID() instead of declaring crypto type — simpler, avoids polluting global types"
+  - explicit_return_types: "Added Promise<T> return types to action/internalAction handlers to break circular inference between co-located functions using internal.* references"
+
+findings:
+  - ts5055_stale_dist: "convex/dist/ directory with compiled JS from a previous tsc run caused TS5055 'Cannot write file because it would overwrite input file' errors on 21 files. Deleting the directory fixed it."
+  - convex_circular_inference: "When an action calls ctx.runMutation(internal.same_file.fn), TypeScript can't resolve both types simultaneously. Fix: explicit return type annotation on the handler."
+
+worked:
+  - "Explicit Promise<T> return types on action handlers break circular inference"
+  - "Removing convex/dist/ fixes TS5055 errors (already in .gitignore)"
+
+failed: []
+
+next:
+  - "Start content pipeline agents (vibe-keyword-researcher, vibe-content-writer, vibe-content-reviewer, vibe-humanizer)"
+  - "Phase 9 E2E testing — run full audience pipeline live"
+  - "Investigate and fix pipelines:create UnhandledPromiseRejection bug"
+
+files:
+  created:
+    - thoughts/shared/handoffs/general/2026-02-11_20-37_ts-fixes-readme-update.yaml
+  modified:
+    - convex/auth.ts
+    - convex/admin.ts
+    - README.md

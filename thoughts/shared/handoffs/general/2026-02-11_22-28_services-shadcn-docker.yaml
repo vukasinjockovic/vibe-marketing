@@ -1,0 +1,93 @@
+---
+session: general
+date: 2026-02-11
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Service registry populated (28 providers), shadcn redesign completed, Docker services live, MCP stack configured
+now: Sign up for remaining API keys (DataForSEO, Perplexity, Recraft), change admin password, start building content pipeline agents
+
+test: "sudo docker ps | grep -E 'crawl4ai|languagetool' && npx convex run services:listActive '{}' --url http://localhost:3210 | python3 -c 'import json,sys; d=json.load(sys.stdin); print(f\"{len(d)} active services\")' && cd dashboard && npx vitest run"
+
+done_this_session:
+  - task: "Researched all available MCP servers (Feb 2026) — 3 parallel agents: v3 spec scout, external registry scout, oracle web search"
+    files: [.claude/cache/agents/oracle/output-2026-02-11-mcp-servers.md, .claude/cache/agents/scout/output-20260211-214145.md]
+  - task: "Seeded 28 service providers into Convex services table across 16 categories (was 0, dashboard showed all empty)"
+    files: [scripts/seed-services.sh]
+  - task: "Updated .mcp.json from 1 MCP (playwright) to 13 MCPs — 6 enabled, 7 disabled pending API keys"
+    files: [.mcp.json]
+  - task: "Added all service API key placeholders to .env"
+    files: [.env]
+  - task: "Installed yt-dlp (via uvx) for YouTube MCP dependency"
+    files: []
+  - task: "Installed Chrome/Chromium for Playwright E2E tests"
+    files: []
+  - task: "Shadcn-vue redesign completed (agent aac8037) — all UnoCSS replaced with Tailwind + shadcn, 190/190 tests pass"
+    files: [dashboard/components/VEmptyState.vue, dashboard/pages/**, dashboard/layouts/default.vue]
+  - task: "Replaced inline SVGs with Lucide icon components (agent ae2a9a8) — 8 pages updated with lucide-vue-next imports"
+    files: [dashboard/pages/**, dashboard/layouts/**]
+  - task: "Started Crawl4AI (:11235) and LanguageTool (:8081) Docker containers, both healthy"
+    files: [docker-compose.yml]
+  - task: "Activated 10 services in Convex: Brave Search, Together AI, fal.ai, Resend, Reddit MCP, YouTube MCP, Crawl4AI, LanguageTool, Pandoc, Static Markdown"
+    files: []
+  - task: "Pipelines:create bug investigated by agent ae3b658 (check if fix was applied)"
+    files: [convex/pipelines.ts]
+  - task: "Dashboard rebuilt and PM2 restarted with all shadcn changes"
+    files: []
+
+blockers:
+  - "Pipelines:create fix needs verification — agent ae3b658 completed but Docker permissions may have blocked Convex deploy"
+
+questions:
+  - "Did the Lucide icon agent cover all SVGs? 18 remain — may be legitimate (logos, complex graphics) or missed"
+  - "Verify pipelines:create bug is actually fixed — try creating a pipeline in the dashboard"
+
+decisions:
+  - mcp_disabled_pattern: "MCPs with no API key use disabled:true in .mcp.json. Remove disabled flag after adding key to .env."
+  - lucide_over_heroicons: "Using lucide-vue-next for icons (shadcn-vue default) instead of @iconify-json/heroicons"
+  - resend_over_sendgrid: "Resend as primary email (3K/mo free vs 100/day). SendGrid kept as fallback."
+  - together_ai_free_flux: "Together AI for free image generation (Flux.1 Schnell-Free model, $0). fal.ai for premium quality."
+  - crawl4ai_in_main_compose: "Added crawl4ai + languagetool to main docker-compose.yml (not separate services file)"
+
+findings:
+  - mcp_ecosystem_2026: "17,000+ MCP servers exist. Key directories: mcp.so, PulseMCP, awesome-mcp-servers"
+  - reddit_api_restricted: "Reddit stopped free API keys Dec 2025. mcp-server-reddit uses public endpoints (read-only), no key needed"
+  - docker_needs_sudo: "Docker commands need sudo on this server (no rootless docker). Agents may fail docker commands without sudo."
+  - services_not_in_seed: "Service providers are NOT in seed.ts — only categories are seeded. Providers were added via scripts/seed-services.sh"
+
+worked:
+  - "Parallel research agents (3 scouts) for comprehensive MCP/service discovery"
+  - "Shell script for bulk service seeding (scripts/seed-services.sh) — rerunnable"
+  - "disabled:true pattern in .mcp.json for conditional MCP activation"
+  - "Docker containers added to existing docker-compose.yml alongside Convex stack"
+
+failed:
+  - "Crawl4AI MCP entry uses pip3 run which is wrong — should be uvx or npx. Currently disabled, needs fix."
+  - "Agent ae3b658 likely couldn't run sudo docker commands — Docker services had to be started manually"
+
+next:
+  - "Sign up for remaining services: DataForSEO ($1 credit), Perplexity, Recraft (free 50/day)"
+  - "Change admin password from admin123 to something secure"
+  - "Verify pipelines:create bug fix — try creating a pipeline in dashboard"
+  - "Fix crawl4ai MCP entry in .mcp.json (pip3 run → correct command)"
+  - "Check remaining 18 inline SVGs — replace any that have Lucide equivalents"
+  - "Start content pipeline agents or Phase 9 E2E testing (carried over)"
+  - "Consider adding services to seed.ts so they persist across DB reseeds"
+  - "Deploy Convex after pipelines fix verification"
+  - "pm2 save to persist current dashboard process"
+
+files:
+  created:
+    - scripts/seed-services.sh
+    - .claude/cache/agents/oracle/output-2026-02-11-mcp-servers.md
+    - .claude/cache/agents/scout/output-20260211-214145.md
+    - thoughts/shared/handoffs/general/2026-02-11_22-28_services-shadcn-docker.yaml
+  modified:
+    - .mcp.json
+    - .env
+    - docker-compose.yml
+    - dashboard/components/VEmptyState.vue
+    - dashboard/layouts/default.vue
+    - dashboard/pages/** (multiple pages — shadcn + Lucide icons)
+    - convex/pipelines.ts (possibly — check agent ae3b658 output)

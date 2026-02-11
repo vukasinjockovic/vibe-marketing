@@ -47,9 +47,9 @@ const columns = [
         <input
           v-model="searchQuery"
           placeholder="Search agents..."
-          class="border rounded-md px-3 py-1.5 text-sm w-48"
+          class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-48"
         />
-        <select v-model="statusFilter" class="border rounded-md px-3 py-1.5 text-sm">
+        <select v-model="statusFilter" class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
           <option v-for="s in statusOptions" :key="s" :value="s">
             {{ s === 'all' ? 'All statuses' : s }}
           </option>
@@ -59,22 +59,22 @@ const columns = [
 
     <VDataTable :columns="columns" :rows="filteredAgents" :loading="loading" empty-message="No agents registered yet.">
       <template #cell-displayName="{ row }">
-        <NuxtLink :to="`/agents/${row.name}`" class="hover:text-primary-600">
-          <div class="font-medium">{{ row.displayName }}</div>
-          <div class="text-xs text-gray-500">{{ row.name }}</div>
+        <NuxtLink :to="`/agents/${row.name}`" class="hover:text-primary">
+          <div class="font-medium text-foreground">{{ row.displayName }}</div>
+          <div class="text-xs text-muted-foreground">{{ row.name }}</div>
         </NuxtLink>
       </template>
       <template #cell-status="{ row }">
         <VStatusBadge :status="row.status" />
       </template>
       <template #cell-defaultModel="{ row }">
-        <span class="text-gray-600">{{ row.defaultModel }}</span>
+        <span class="text-muted-foreground text-xs bg-muted px-2 py-0.5 rounded font-mono">{{ row.defaultModel }}</span>
       </template>
       <template #cell-tasksCompleted="{ row }">
         {{ row.stats?.tasksCompleted || 0 }}
       </template>
       <template #cell-lastActive="{ row }">
-        <span class="text-gray-500">{{ timeAgo(row.stats?.lastActive || 0) }}</span>
+        <span class="text-muted-foreground">{{ timeAgo(row.stats?.lastActive || 0) }}</span>
       </template>
     </VDataTable>
   </div>

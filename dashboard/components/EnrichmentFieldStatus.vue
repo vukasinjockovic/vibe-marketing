@@ -12,11 +12,11 @@ defineProps<{
     <span
       data-testid="field-status-indicator"
       class="mt-1 w-2 h-2 rounded-full flex-shrink-0"
-      :class="filled ? 'bg-green-500' : 'bg-gray-300'"
+      :class="filled ? 'bg-green-500' : 'bg-muted-foreground/30'"
     />
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
-        <span class="text-xs font-medium text-gray-500">{{ label }}</span>
+        <span class="text-xs font-medium text-muted-foreground">{{ label }}</span>
         <span
           v-if="confidence"
           data-testid="confidence-badge"
@@ -30,10 +30,10 @@ defineProps<{
           {{ confidence }}
         </span>
       </div>
-      <p v-if="filled" class="text-sm text-gray-900 mt-0.5 truncate">
+      <p v-if="filled" class="text-sm text-foreground mt-0.5 truncate">
         {{ typeof value === 'object' ? JSON.stringify(value) : value }}
       </p>
-      <p v-else class="text-sm text-gray-400 italic mt-0.5">Not yet enriched</p>
+      <p v-else class="text-sm text-muted-foreground/60 italic mt-0.5">Not yet enriched</p>
     </div>
   </div>
 </template>

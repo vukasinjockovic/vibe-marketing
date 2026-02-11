@@ -7,3 +7,4 @@ dist/
 .convex/
 logs/
 .tldr/
+/claude/tsc-cache

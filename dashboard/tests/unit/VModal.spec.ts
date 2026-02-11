@@ -62,8 +62,8 @@ describe('VModal', () => {
         stubs: { Teleport: true },
       },
     })
-    // Find the close button (has x-mark icon)
-    const closeBtn = wrapper.findAll('button').find(b => b.find('.i-heroicons-x-mark').exists())
+    // Find the close button (contains SVG x icon, second button after title)
+    const closeBtn = wrapper.findAll('button').find(b => b.find('svg').exists())
     expect(closeBtn).toBeTruthy()
     await closeBtn!.trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeTruthy()

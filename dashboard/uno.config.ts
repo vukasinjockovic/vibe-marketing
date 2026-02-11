@@ -9,6 +9,9 @@ export default defineConfig({
     }),
   ],
   theme: {
+    fontFamily: {
+      sans: '"Google Sans", system-ui, -apple-system, sans-serif',
+    },
     colors: {
       primary: {
         50: '#f0f9ff',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../convex/_generated/api'
+import { Check } from 'lucide-vue-next'
 
 const props = defineProps<{
   projectId: string
@@ -141,27 +142,27 @@ async function submit() {
         <div
           class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
           :class="s < step
-            ? 'bg-primary-600 text-white'
+            ? 'bg-primary text-primary-foreground'
             : s === step
-              ? 'bg-primary-600 text-white ring-4 ring-primary-100'
-              : 'bg-gray-200 text-gray-500'"
+              ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+              : 'bg-muted text-muted-foreground'"
         >
-          <span v-if="s < step" class="i-heroicons-check text-sm" />
+          <Check v-if="s < step" class="w-4 h-4" />
           <span v-else>{{ s }}</span>
         </div>
         <div
           v-if="s < totalSteps"
           class="w-12 h-0.5 mx-1"
-          :class="s < step ? 'bg-primary-600' : 'bg-gray-200'"
+          :class="s < step ? 'bg-primary' : 'bg-muted'"
         />
       </div>
     </div>
 
     <div class="text-center mb-6">
-      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">
+      <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">
         Step {{ step }} of {{ totalSteps }}
       </h3>
-      <p class="text-lg font-semibold text-gray-900 mt-1">
+      <p class="text-lg font-semibold text-foreground mt-1">
         <span v-if="step === 1">Basic Information</span>
         <span v-else-if="step === 2">Product &amp; Audience</span>
         <span v-else-if="step === 3">Pipeline Selection</span>
@@ -176,7 +177,7 @@ async function submit() {
           v-model="form.name"
           type="text"
           placeholder="e.g. Q1 Blog Series - Fat Loss"
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         />
       </VFormField>
 
@@ -185,7 +186,7 @@ async function submit() {
           v-model="form.slug"
           type="text"
           placeholder="campaign-slug"
-          class="w-full border rounded-md px-3 py-2 text-sm bg-gray-50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-muted/50 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         />
       </VFormField>
 
@@ -194,7 +195,7 @@ async function submit() {
           v-model="form.description"
           rows="3"
           placeholder="Brief description of the campaign goals and scope..."
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         />
       </VFormField>
     </div>
@@ -204,7 +205,7 @@ async function submit() {
       <VFormField label="Product" required>
         <select
           v-model="form.productId"
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           <option value="" disabled>Select a product...</option>
           <option v-for="p in products" :key="p._id" :value="p._id">
@@ -218,8 +219,8 @@ async function submit() {
           <label
             v-for="fg in focusGroups"
             :key="fg._id"
-            class="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
-            :class="form.targetFocusGroupIds.includes(fg._id) ? 'border-primary-500 bg-primary-50' : ''"
+            class="flex items-start gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="form.targetFocusGroupIds.includes(fg._id) ? 'border-primary bg-primary/5' : ''"
           >
             <input
               type="checkbox"
@@ -229,11 +230,11 @@ async function submit() {
             />
             <div>
               <span class="font-medium text-sm">{{ fg.name }}</span>
-              <p v-if="fg.description" class="text-xs text-gray-500 mt-0.5">{{ fg.description }}</p>
+              <p v-if="fg.description" class="text-xs text-muted-foreground mt-0.5">{{ fg.description }}</p>
             </div>
           </label>
         </div>
-        <p v-else class="text-sm text-gray-500">No focus groups found for this product.</p>
+        <p v-else class="text-sm text-muted-foreground">No focus groups found for this product.</p>
       </VFormField>
     </div>
 
@@ -244,8 +245,8 @@ async function submit() {
           <label
             v-for="p in pipelinePresets"
             :key="p._id"
-            class="flex items-start gap-3 p-4 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
-            :class="form.pipelineId === p._id ? 'border-primary-500 bg-primary-50' : ''"
+            class="flex items-start gap-3 p-4 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="form.pipelineId === p._id ? 'border-primary bg-primary/5' : ''"
           >
             <input
               v-model="form.pipelineId"
@@ -256,31 +257,31 @@ async function submit() {
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span class="font-medium text-sm">{{ p.name }}</span>
-                <span class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                <span class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
                   {{ p.mainSteps?.length || 0 }} steps
                 </span>
               </div>
-              <p v-if="p.description" class="text-xs text-gray-500 mt-1">{{ p.description }}</p>
+              <p v-if="p.description" class="text-xs text-muted-foreground mt-1">{{ p.description }}</p>
             </div>
           </label>
         </div>
-        <p v-else class="text-sm text-gray-500">No pipeline presets available.</p>
+        <p v-else class="text-sm text-muted-foreground">No pipeline presets available.</p>
       </VFormField>
 
       <!-- Show selected pipeline steps -->
       <div v-if="selectedPipeline" class="mt-4">
-        <h4 class="text-sm font-medium text-gray-700 mb-2">Pipeline Steps</h4>
+        <h4 class="text-sm font-medium text-muted-foreground mb-2">Pipeline Steps</h4>
         <div class="space-y-1">
           <div
             v-for="(s, i) in selectedPipeline.mainSteps"
             :key="i"
             class="flex items-center gap-2 text-sm"
           >
-            <span class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-medium">
+            <span class="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-medium">
               {{ i + 1 }}
             </span>
             <span class="font-medium">{{ s.label }}</span>
-            <span v-if="s.agent" class="text-xs text-gray-500">{{ s.agent }}</span>
+            <span v-if="s.agent" class="text-xs text-muted-foreground">{{ s.agent }}</span>
           </div>
         </div>
       </div>
@@ -317,16 +318,16 @@ async function submit() {
           v-model="form.notes"
           rows="3"
           placeholder="Any additional notes for agents..."
-          class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         />
       </VFormField>
     </div>
 
     <!-- Navigation buttons -->
-    <div class="flex justify-between mt-8 pt-4 border-t">
+    <div class="flex justify-between mt-8 pt-4 border-t border-border">
       <button
         v-if="step > 1"
-        class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+        class="px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors rounded-md"
         @click="step--"
       >
         Back
@@ -336,7 +337,7 @@ async function submit() {
       <button
         v-if="step < totalSteps"
         :disabled="!stepValid"
-        class="px-4 py-2 text-sm text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-4 py-2 text-sm text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         @click="step++"
       >
         Next
@@ -344,7 +345,7 @@ async function submit() {
       <button
         v-else
         :disabled="!stepValid || saving"
-        class="px-4 py-2 text-sm text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-4 py-2 text-sm text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         @click="submit"
       >
         {{ saving ? 'Creating...' : 'Create Campaign' }}

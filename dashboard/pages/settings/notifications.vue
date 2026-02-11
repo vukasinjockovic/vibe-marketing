@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../../convex/_generated/api'
+import { RefreshCw, Bell } from 'lucide-vue-next'
 
 const { data: notifications, loading } = useConvexQuery(
   api.notifications.listUndelivered,
@@ -45,7 +46,7 @@ function timeAgo(ts: number) {
       <template #actions>
         <button
           v-if="notifications && notifications.length > 0"
-          class="px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+          class="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           @click="markAll"
         >
           Mark All Delivered
@@ -53,47 +54,46 @@ function timeAgo(ts: number) {
       </template>
     </VPageHeader>
 
-    <div v-if="loading" class="text-gray-500">
-      <span class="i-heroicons-arrow-path animate-spin text-2xl mb-2 block" />
+    <div v-if="loading" class="text-muted-foreground">
+      <RefreshCw class="animate-spin h-6 w-6 mb-2 inline-block" />
       Loading notifications...
     </div>
 
     <VEmptyState
       v-else-if="!notifications || notifications.length === 0"
-      icon="i-heroicons-bell-slash"
       title="No pending notifications"
       description="You're all caught up. Notifications from agents will appear here."
     />
 
-    <div v-else class="bg-white rounded-lg shadow divide-y">
+    <div v-else class="rounded-lg border bg-card text-card-foreground shadow-sm divide-y divide-border">
       <div
         v-for="notif in notifications"
         :key="notif._id"
         class="px-6 py-4 flex items-start gap-4"
       >
         <div class="flex-shrink-0 mt-0.5">
-          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700">
-            <span class="i-heroicons-bell text-sm" />
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+            <Bell class="w-4 h-4" />
           </span>
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm font-medium text-primary-700">{{ notif.fromAgent }}</span>
-            <span v-if="notif._creationTime" class="text-xs text-gray-400">
+            <span class="text-sm font-medium text-primary">{{ notif.fromAgent }}</span>
+            <span v-if="notif._creationTime" class="text-xs text-muted-foreground/60">
               {{ timeAgo(notif._creationTime) }}
             </span>
           </div>
-          <p class="text-sm text-gray-700">{{ notif.content }}</p>
+          <p class="text-sm text-muted-foreground">{{ notif.content }}</p>
           <NuxtLink
             v-if="notif.taskId"
             :to="`/tasks/${notif.taskId}`"
-            class="text-xs text-primary-600 hover:text-primary-700 mt-1 inline-block"
+            class="text-xs text-primary hover:text-primary/80 mt-1 inline-block"
           >
             View task
           </NuxtLink>
         </div>
         <button
-          class="flex-shrink-0 px-3 py-1 text-xs rounded-md font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+          class="flex-shrink-0 px-3 py-1 text-xs rounded-md font-medium text-muted-foreground bg-muted hover:bg-muted/80 transition-colors"
           @click="markOne(notif._id)"
         >
           Dismiss

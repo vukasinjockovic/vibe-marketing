@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation, mutation } from "./_generated/server";
 
 // ═══════════════════════════════════════════
 // SEED DATA — Runs once on first deploy via:
@@ -187,6 +187,7 @@ export const run = internalMutation({
     const existingAgents = await ctx.db.query("agents").collect();
     if (existingAgents.length === 0) {
       const agents = [
+        // ── Audience Agents ──
         {
           name: "vibe-audience-parser",
           displayName: "Audience Parser",
@@ -232,6 +233,236 @@ export const run = internalMutation({
           dynamicSkillIds: [] as any[],
           agentFilePath: ".claude/skills/audience-enrichment-procedures/vibe-audience-enricher.md",
         },
+        // ── Research Agents ──
+        {
+          name: "vibe-keyword-researcher",
+          displayName: "Keyword Researcher",
+          role: "Researches keywords, search intent, and content gaps. Generates content briefs with target keywords, headings, and competitor analysis.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/content-writing-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/content-writing-procedures/vibe-keyword-researcher.md",
+        },
+        {
+          name: "vibe-serp-analyzer",
+          displayName: "SERP Analyzer",
+          role: "Analyzes search engine results pages for target keywords. Identifies content gaps, featured snippet opportunities, and competitive positioning.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/content-writing-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/content-writing-procedures/vibe-serp-analyzer.md",
+        },
+        // ── Content Creation Agents ──
+        {
+          name: "vibe-content-writer",
+          displayName: "Content Writer",
+          role: "Writes long-form articles, blog posts, and guides from content briefs. Applies marketing psychology, focus group language patterns, and SEO optimization.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */4 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/content-writing-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/content-writing-procedures/vibe-content-writer.md",
+        },
+        {
+          name: "vibe-content-reviewer",
+          displayName: "Content Reviewer",
+          role: "Reviews content for quality, accuracy, SEO compliance, and brand voice. Scores against rubric and provides actionable revision notes.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */4 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/content-review-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/content-review-procedures/vibe-content-reviewer.md",
+        },
+        {
+          name: "vibe-humanizer",
+          displayName: "Humanizer",
+          role: "Removes AI writing patterns, adds human voice and authenticity. Final quality pass before publishing. Uses L5 quality skills.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */4 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/humanizer",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/humanizer/SKILL.md",
+        },
+        {
+          name: "vibe-content-repurposer",
+          displayName: "Content Repurposer",
+          role: "Transforms long-form content into email excerpts, newsletter snippets, and other derivative formats.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/content-writing-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/content-writing-procedures/vibe-content-repurposer.md",
+        },
+        // ── Channel-Specific Agents ──
+        {
+          name: "vibe-social-writer",
+          displayName: "Social Writer",
+          role: "Creates platform-optimized social media posts (X, LinkedIn, Facebook, Instagram) from articles and briefs. Handles hashtags, hooks, and character limits.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/social-content",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/social-content/SKILL.md",
+        },
+        {
+          name: "vibe-email-writer",
+          displayName: "Email Writer",
+          role: "Writes nurture email sequences, welcome series, and promotional emails. Applies direct response techniques and segmentation.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/email-sequence",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/email-sequence/SKILL.md",
+        },
+        {
+          name: "vibe-ad-writer",
+          displayName: "Ad Writer",
+          role: "Creates ad copy for Google Ads, Meta Ads, and LinkedIn Ads. Generates headlines, descriptions, and CTAs optimized per platform specs.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/paid-ads",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/paid-ads/SKILL.md",
+        },
+        {
+          name: "vibe-landing-page-writer",
+          displayName: "Landing Page Writer",
+          role: "Writes high-converting landing pages with hero sections, benefit stacks, testimonials, FAQ, and CTAs. Applies CRO best practices.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/page-cro",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/page-cro/SKILL.md",
+        },
+        // ── Visual & Media Agents ──
+        {
+          name: "vibe-image-director",
+          displayName: "Image Director",
+          role: "Generates detailed image prompts for AI image generation. Creates hero images, social graphics, and product visuals. Directs style, composition, and branding.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/image-prompt-engineering",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/image-prompt-engineering/SKILL.md",
+        },
+        {
+          name: "vibe-image-generator",
+          displayName: "Image Generator",
+          role: "Executes image generation using AI services (fal.ai, DALL-E, Ideogram, Recraft). Receives prompts from Image Director and produces final assets.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/image-generation-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/image-generation-procedures/SKILL.md",
+        },
+        {
+          name: "vibe-script-writer",
+          displayName: "Script Writer",
+          role: "Writes video scripts for YouTube, TikTok, Reels, and ads. Handles hooks, pacing, B-roll notes, and CTAs per platform format.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "sonnet",
+          skillPath: ".claude/skills/video-script-guide",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/video-script-guide/SKILL.md",
+        },
+        {
+          name: "vibe-ebook-writer",
+          displayName: "Ebook Writer",
+          role: "Creates lead magnet ebooks and long-form downloadable content. Handles chapter structure, design notes, and CTA placement.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/ebook-procedures",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/ebook-procedures/SKILL.md",
+        },
+        // ── Orchestration ──
+        {
+          name: "vibe-orchestrator",
+          displayName: "Orchestrator",
+          role: "Coordinates pipeline execution. Assigns tasks, monitors progress, handles failures, and triggers parallel branches. The brain of the system.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "*/5 * * * *",
+          defaultModel: "sonnet",
+          skillPath: "",
+          level: "orchestrator" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: "",
+        },
       ];
       for (const agent of agents) {
         await ctx.db.insert("agents", agent);
@@ -253,6 +484,29 @@ export const run = internalMutation({
         { agentName: "vibe-audience-enricher", capability: "web_search", required: false },
         { agentName: "vibe-audience-enricher", capability: "social_reddit", required: false },
         // Audience Parser — no external service dependencies (filesystem only)
+        // Keyword Researcher
+        { agentName: "vibe-keyword-researcher", capability: "seo_keywords", required: false },
+        { agentName: "vibe-keyword-researcher", capability: "web_search", required: true },
+        // SERP Analyzer
+        { agentName: "vibe-serp-analyzer", capability: "seo_keywords", required: true },
+        { agentName: "vibe-serp-analyzer", capability: "web_scraping", required: false },
+        // Content Writer — no external deps (uses Claude + skills)
+        // Content Reviewer
+        { agentName: "vibe-content-reviewer", capability: "content_quality", required: false },
+        // Humanizer — no external deps (Claude only)
+        // Social Writer
+        { agentName: "vibe-social-writer", capability: "social_publishing", required: false },
+        // Email Writer
+        { agentName: "vibe-email-writer", capability: "email_sending", required: false },
+        // Ad Writer
+        { agentName: "vibe-ad-writer", capability: "analytics", required: false },
+        // Landing Page Writer — no external deps
+        // Image Director — no external deps (generates prompts only)
+        // Image Generator
+        { agentName: "vibe-image-generator", capability: "image_generation", required: true },
+        // Script Writer — no external deps
+        // Ebook Writer
+        { agentName: "vibe-ebook-writer", capability: "document_generation", required: false },
       ];
       for (const dep of deps) {
         await ctx.db.insert("agentServiceDeps", dep);
@@ -263,6 +517,23 @@ export const run = internalMutation({
     }
 
     return results;
+  },
+});
+
+// Clear all seeded data and re-run seed from scratch
+export const clearAndReseed = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const tables = ["agents", "agentServiceDeps", "pipelines", "serviceCategories", "skillCategories"] as const;
+    const counts: Record<string, number> = {};
+    for (const table of tables) {
+      const rows = await ctx.db.query(table).collect();
+      for (const row of rows) {
+        await ctx.db.delete(row._id);
+      }
+      counts[table] = rows.length;
+    }
+    return counts;
   },
 });
 

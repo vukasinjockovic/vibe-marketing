@@ -14,22 +14,22 @@ describe('VFormField', () => {
     const wrapper = mount(VFormField, {
       props: { label: 'Email', required: true },
     })
-    expect(wrapper.find('span.text-red-500').exists()).toBe(true)
-    expect(wrapper.find('span.text-red-500').text()).toBe('*')
+    expect(wrapper.find('span.text-destructive').exists()).toBe(true)
+    expect(wrapper.find('span.text-destructive').text()).toBe('*')
   })
 
   it('does not show asterisk when required is false', () => {
     const wrapper = mount(VFormField, {
       props: { label: 'Email' },
     })
-    expect(wrapper.find('span.text-red-500').exists()).toBe(false)
+    expect(wrapper.find('span.text-destructive').exists()).toBe(false)
   })
 
   it('shows hint text when provided and no error', () => {
     const wrapper = mount(VFormField, {
       props: { label: 'Email', hint: 'Enter your work email' },
     })
-    const hint = wrapper.findAll('p').find(p => p.classes().includes('text-gray-500'))
+    const hint = wrapper.findAll('p').find(p => p.classes().includes('text-muted-foreground'))
     expect(hint).toBeTruthy()
     expect(hint!.text()).toBe('Enter your work email')
   })
@@ -38,7 +38,7 @@ describe('VFormField', () => {
     const wrapper = mount(VFormField, {
       props: { label: 'Email', error: 'Email is required' },
     })
-    const error = wrapper.findAll('p').find(p => p.classes().includes('text-red-600'))
+    const error = wrapper.findAll('p').find(p => p.classes().includes('text-destructive'))
     expect(error).toBeTruthy()
     expect(error!.text()).toBe('Email is required')
   })
@@ -47,7 +47,7 @@ describe('VFormField', () => {
     const wrapper = mount(VFormField, {
       props: { label: 'Email', hint: 'Enter email', error: 'Required' },
     })
-    const hint = wrapper.findAll('p').find(p => p.classes().includes('text-gray-500'))
+    const hint = wrapper.findAll('p').find(p => p.classes().includes('text-muted-foreground'))
     expect(hint).toBeUndefined()
   })
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../convex/_generated/api'
+import { ChevronDown } from 'lucide-vue-next'
 
 const props = defineProps<{
   projectId: string
@@ -181,16 +182,16 @@ const sections = [
 <template>
   <form class="space-y-2" @submit.prevent="submit">
     <!-- Accordion sections -->
-    <div v-for="section in sections" :key="section.key" class="border rounded-lg overflow-hidden">
+    <div v-for="section in sections" :key="section.key" class="border border-border rounded-lg overflow-hidden">
       <button
         type="button"
         data-section
-        class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+        class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
         @click="toggleSection(section.key)"
       >
-        <span class="text-sm font-semibold text-gray-900">{{ section.label }}</span>
-        <span
-          class="i-heroicons-chevron-down text-gray-400 transition-transform"
+        <span class="text-sm font-semibold text-foreground">{{ section.label }}</span>
+        <ChevronDown
+          class="w-4 h-4 text-muted-foreground/60 transition-transform"
           :class="{ 'rotate-180': isSectionOpen(section.key) }"
         />
       </button>
@@ -204,7 +205,7 @@ const sections = [
               data-field="name"
               type="text"
               placeholder="Focus group name"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -214,7 +215,7 @@ const sections = [
               data-field="nickname"
               type="text"
               placeholder="Short identifier"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
         </div>
@@ -226,7 +227,7 @@ const sections = [
               data-field="number"
               type="number"
               min="1"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -234,7 +235,7 @@ const sections = [
             <select
               v-model="form.category"
               data-field="category"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
             </select>
@@ -244,7 +245,7 @@ const sections = [
             <select
               v-model="form.source"
               data-field="source"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <option v-for="src in sources" :key="src" :value="src">{{ src }}</option>
             </select>
@@ -257,7 +258,7 @@ const sections = [
             data-field="overview"
             placeholder="Describe this focus group"
             rows="3"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -267,7 +268,7 @@ const sections = [
             data-field="transformationPromise"
             type="text"
             placeholder="e.g. From novice to advanced lifter in 12 weeks"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
       </div>
@@ -281,7 +282,7 @@ const sections = [
               data-field="ageRange"
               type="text"
               placeholder="e.g. 25-40"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -291,7 +292,7 @@ const sections = [
               data-field="gender"
               type="text"
               placeholder="e.g. Male, Female, All"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
         </div>
@@ -303,7 +304,7 @@ const sections = [
               data-field="income"
               type="text"
               placeholder="e.g. $50k-80k"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -313,7 +314,7 @@ const sections = [
               data-field="demographicsLifestyle"
               type="text"
               placeholder="e.g. Active, Sedentary"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
         </div>
@@ -340,7 +341,7 @@ const sections = [
               data-field="psychLifestyle"
               type="text"
               placeholder="e.g. Gym 5x/week"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -350,7 +351,7 @@ const sections = [
               data-field="identity"
               type="text"
               placeholder="e.g. Athlete, Yogi"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
         </div>
@@ -400,7 +401,7 @@ const sections = [
     <div class="flex justify-end gap-3 pt-4">
       <button
         type="submit"
-        class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
+        class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
         :disabled="saving"
       >
         {{ saving ? 'Saving...' : (isEdit ? 'Update Focus Group' : 'Create Focus Group') }}

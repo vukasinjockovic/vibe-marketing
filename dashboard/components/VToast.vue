@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { X } from 'lucide-vue-next'
+
 const { toasts, dismiss } = useToast()
 
 const typeStyles: Record<string, string> = {
   success: 'bg-green-600',
   error: 'bg-red-600',
   warning: 'bg-yellow-600',
-  info: 'bg-primary-600',
+  info: 'bg-primary',
 }
 </script>
 
@@ -26,7 +28,7 @@ const typeStyles: Record<string, string> = {
         >
           <span>{{ toast.message }}</span>
           <button class="ml-3 opacity-70 hover:opacity-100" @click="dismiss(toast.id)">
-            <span class="i-heroicons-x-mark" />
+            <X :size="14" />
           </button>
         </div>
       </TransitionGroup>

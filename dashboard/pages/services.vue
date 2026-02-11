@@ -49,24 +49,24 @@ async function toggleActive(svc: any) {
   <div>
     <VPageHeader title="Service Registry" description="Manage external service integrations" />
 
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
     <div v-else class="space-y-6">
-      <div v-for="cat in categories" :key="cat._id" class="bg-white rounded-lg shadow">
+      <div v-for="cat in categories" :key="cat._id" class="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div class="px-6 py-4 border-b flex items-center gap-2">
           <span class="text-lg">{{ cat.icon }}</span>
-          <h3 class="font-semibold">{{ cat.displayName }}</h3>
-          <span class="text-sm text-gray-500 ml-2">{{ cat.description }}</span>
+          <h3 class="font-semibold text-foreground">{{ cat.displayName }}</h3>
+          <span class="text-sm text-muted-foreground ml-2">{{ cat.description }}</span>
         </div>
-        <div v-if="servicesByCategory[cat._id]?.length" class="divide-y">
+        <div v-if="servicesByCategory[cat._id]?.length" class="divide-y divide-border">
           <div
             v-for="svc in servicesByCategory[cat._id]"
             :key="svc._id"
             class="px-6 py-3 flex items-center justify-between"
           >
             <div>
-              <span class="font-medium">{{ svc.displayName }}</span>
-              <span class="text-sm text-gray-500 ml-2">{{ svc.costInfo }}</span>
+              <span class="font-medium text-foreground">{{ svc.displayName }}</span>
+              <span class="text-sm text-muted-foreground ml-2">{{ svc.costInfo }}</span>
             </div>
             <div class="flex items-center gap-3">
               <VStatusBadge :status="svc.apiKeyConfigured ? 'configured' : 'needs_key'" />
@@ -74,7 +74,7 @@ async function toggleActive(svc: any) {
                 class="px-3 py-1 text-xs rounded-full font-medium transition-colors"
                 :class="svc.isActive
                   ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'"
                 @click="toggleActive(svc)"
               >
                 {{ svc.isActive ? 'Active' : 'Inactive' }}
@@ -82,7 +82,7 @@ async function toggleActive(svc: any) {
             </div>
           </div>
         </div>
-        <div v-else class="px-6 py-4 text-sm text-gray-500">
+        <div v-else class="px-6 py-4 text-sm text-muted-foreground">
           No services configured for this category.
         </div>
       </div>

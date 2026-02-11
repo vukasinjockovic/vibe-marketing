@@ -34,7 +34,7 @@ function formatDate(ts: number) {
     <VPageHeader title="Campaigns" description="Manage content campaigns for this project">
       <template #actions>
         <button
-          class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+          class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           @click="showCreateModal = true"
         >
           New Campaign
@@ -43,14 +43,14 @@ function formatDate(ts: number) {
     </VPageHeader>
 
     <!-- Status filter tabs -->
-    <div class="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
+    <div class="flex gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
       <button
         v-for="tab in statusTabs"
         :key="tab"
         class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors capitalize"
         :class="statusFilter === tab
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-600 hover:text-gray-900'"
+          ? 'bg-background text-foreground shadow-sm'
+          : 'text-muted-foreground hover:text-foreground'"
         @click="statusFilter = tab"
       >
         {{ tab }}
@@ -69,11 +69,10 @@ function formatDate(ts: number) {
       </button>
     </div>
 
-    <div v-if="loading" class="text-gray-500">Loading campaigns...</div>
+    <div v-if="loading" class="text-muted-foreground">Loading campaigns...</div>
 
     <VEmptyState
       v-else-if="!filteredCampaigns.length"
-      icon="i-heroicons-megaphone"
       title="No campaigns found"
       :description="statusFilter === 'all'
         ? 'Create your first campaign to start producing content.'
@@ -81,7 +80,7 @@ function formatDate(ts: number) {
     >
       <button
         v-if="statusFilter === 'all'"
-        class="inline-block bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+        class="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
         @click="showCreateModal = true"
       >
         Create Campaign
@@ -93,22 +92,20 @@ function formatDate(ts: number) {
         v-for="campaign in filteredCampaigns"
         :key="campaign._id"
         :to="`/projects/${$route.params.slug}/campaigns/${campaign._id}`"
-        class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+        class="rounded-lg border bg-card text-card-foreground shadow-sm p-6 hover:shadow-md transition-shadow"
       >
         <div class="flex items-center justify-between mb-3">
-          <h3 class="font-semibold text-gray-900 truncate">{{ campaign.name }}</h3>
+          <h3 class="font-semibold text-foreground truncate">{{ campaign.name }}</h3>
           <VStatusBadge :status="campaign.status" size="sm" />
         </div>
-        <p v-if="campaign.description" class="text-sm text-gray-600 mb-4 line-clamp-2">
+        <p v-if="campaign.description" class="text-sm text-muted-foreground mb-4 line-clamp-2">
           {{ campaign.description }}
         </p>
-        <div class="flex items-center gap-4 text-xs text-gray-500">
+        <div class="flex items-center gap-4 text-xs text-muted-foreground">
           <span v-if="campaign.seedKeywords?.length" class="flex items-center gap-1">
-            <span class="i-heroicons-tag text-sm" />
             {{ campaign.seedKeywords.length }} keywords
           </span>
           <span v-if="campaign._creationTime" class="flex items-center gap-1">
-            <span class="i-heroicons-calendar text-sm" />
             {{ formatDate(campaign._creationTime) }}
           </span>
         </div>

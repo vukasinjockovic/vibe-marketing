@@ -124,7 +124,7 @@ async function submit() {
   <form class="space-y-6" @submit.prevent="submit">
     <!-- Basic Info -->
     <div>
-      <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Basic Info</h3>
+      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">Basic Info</h3>
       <div class="space-y-4">
         <VFormField label="Product Name" :error="errors.name" required>
           <input
@@ -132,7 +132,7 @@ async function submit() {
             data-field="name"
             type="text"
             placeholder="Enter product name"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -142,7 +142,7 @@ async function submit() {
             data-field="slug"
             type="text"
             placeholder="product-slug"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -152,7 +152,7 @@ async function submit() {
             data-field="description"
             placeholder="Brief description of this product"
             rows="2"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
       </div>
@@ -160,7 +160,7 @@ async function submit() {
 
     <!-- Context -->
     <div>
-      <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Context</h3>
+      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">Context</h3>
       <div class="space-y-4">
         <VFormField label="What It Is" :error="errors.whatItIs" required>
           <textarea
@@ -168,7 +168,7 @@ async function submit() {
             data-field="whatItIs"
             placeholder="Describe what this product is"
             rows="2"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -182,7 +182,7 @@ async function submit() {
             data-field="pricing"
             type="text"
             placeholder="e.g. $29/mo"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -196,7 +196,7 @@ async function submit() {
             data-field="targetMarket"
             type="text"
             placeholder="Who is this for?"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -206,7 +206,7 @@ async function submit() {
             data-field="website"
             type="url"
             placeholder="https://..."
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -218,7 +218,7 @@ async function submit() {
 
     <!-- Brand Voice -->
     <div>
-      <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Brand Voice</h3>
+      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">Brand Voice</h3>
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <VFormField label="Tone" :error="errors.tone" required>
@@ -227,7 +227,7 @@ async function submit() {
               data-field="tone"
               type="text"
               placeholder="e.g. Motivational, Friendly"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
@@ -237,7 +237,7 @@ async function submit() {
               data-field="style"
               type="text"
               placeholder="e.g. Bold, Casual"
-              class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
         </div>
@@ -256,7 +256,7 @@ async function submit() {
             data-field="examples"
             placeholder="Example copy or voice samples"
             rows="2"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
 
@@ -266,17 +266,17 @@ async function submit() {
             data-field="notes"
             placeholder="Additional brand voice notes"
             rows="2"
-            class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
         </VFormField>
       </div>
     </div>
 
     <!-- Submit -->
-    <div class="flex justify-end gap-3 pt-4 border-t">
+    <div class="flex justify-end gap-3 pt-4 border-t border-border">
       <button
         type="submit"
-        class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
+        class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
         :disabled="saving"
       >
         {{ saving ? 'Saving...' : (isEdit ? 'Update Product' : 'Create Product') }}
