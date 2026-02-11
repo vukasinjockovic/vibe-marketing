@@ -19,12 +19,13 @@
 10. [Audience Intelligence System](#10-audience-intelligence-system)
 11. [Individual Agent Skill Specifications](#11-individual-agent-skill-specifications)
 12. [The Orchestrator (vibe-orchestrator) — Heartbeat & Dispatch](#12-the-orchestrator-vibe-orchestrator--heartbeat--dispatch)
-13. [Memory & Persistence System](#13-memory--persistence-system)
-14. [Human-in-the-Loop & Approval System](#14-human-in-the-loop--approval-system)
-15. [Dashboard — Vue + Convex](#15-dashboard--vue--convex)
-16. [External Tool Integration Scripts](#16-external-tool-integration-scripts)
-17. [Cost Analysis](#17-cost-analysis)
-18. [Implementation Roadmap](#18-implementation-roadmap)
+13. [Writing Strategy System](#13-writing-strategy-system)
+14. [Memory & Persistence System](#14-memory--persistence-system)
+15. [Human-in-the-Loop & Approval System](#15-human-in-the-loop--approval-system)
+16. [Dashboard — Vue + Convex](#16-dashboard--vue--convex)
+17. [External Tool Integration Scripts](#17-external-tool-integration-scripts)
+18. [Cost Analysis](#18-cost-analysis)
+19. [Implementation Roadmap](#19-implementation-roadmap)
 
 ---
 
@@ -685,6 +686,8 @@ The Settings → Service Registry page in the dashboard shows:
 │   ├── activities.ts                          ← Activity feed
 │   ├── notifications.ts                       ← @mention system
 │   ├── services.ts                            ← Service registry CRUD
+│   ├── skills.ts                              ← Skills CRUD, sync mutations (NEW)
+│   ├── skillCategories.ts                     ← Category seed + CRUD (NEW)
 │   └── analytics.ts                           ← Analytics/reports
 ├── dashboard/                                 ← Vue 3 / Nuxt 3 dashboard
 │   ├── nuxt.config.ts
@@ -730,17 +733,38 @@ The Settings → Service Registry page in the dashboard shows:
 │   │   │   ├── index.vue                      ← Pipeline library (presets + custom)
 │   │   │   ├── [id].vue                       ← Pipeline builder (drag-and-drop)
 │   │   │   └── new.vue                        ← New pipeline / fork from preset
+│   │   ├── skills/                            ← Skills registry (global, NEW)
+│   │   │   ├── index.vue                      ← Skills list + filter by category
+│   │   │   └── [slug]/
+│   │   │       └── index.vue                  ← Skill detail + edit metadata
 │   │   ├── agents/
-│   │   │   └── index.vue                      ← Agent status grid (global)
+│   │   │   ├── index.vue                      ← Agent status grid (global)
+│   │   │   └── [name]/
+│   │   │       ├── index.vue                  ← Agent detail (NEW)
+│   │   │       └── skills.vue                 ← Agent skill bindings (NEW)
 │   │   └── settings/                          ← Platform settings (global)
 │   │       ├── services.vue                   ← Service Registry
 │   │       ├── notifications.vue              ← Telegram/Discord config
 │   │       ├── crons.vue                      ← Agent schedule management
 │   │       └── general.vue                    ← Platform settings
 │   ├── components/
+│   │   ├── skills/                            ← Skills UI components (NEW)
+│   │   │   ├── SkillCard.vue                  ← Skill card with category + type badges
+│   │   │   ├── SkillCategoryBadge.vue         ← Colored category badge
+│   │   │   ├── SkillWizard.vue                ← 3-step new skill wizard (Dialog)
+│   │   │   ├── SkillPicker.vue                ← Multi-select grouped by category
+│   │   │   └── SkillSubSelections.vue         ← Principle/trigger checkbox group
+│   │   ├── agents/
+│   │   │   └── AgentSkillBindings.vue         ← Static vs dynamic skill lists
+│   │   ├── pipelines/
+│   │   │   ├── PipelineStepSkills.vue         ← Skill badges + popover on pipeline steps
+│   │   │   └── WritingStrategyPanel.vue       ← Campaign-level skill override panel
+│   │   └── campaigns/
+│   │       └── WritingStrategySummary.vue      ← Read-only skill config summary
 │   └── package.json
 ├── scripts/                                   ← Shared utility scripts
 │   ├── invoke-agent.sh                        ← Agent invocation wrapper
+│   ├── sync-skills.ts                         ← Filesystem → Convex skill sync (NEW)
 │   ├── setup-crons.sh                         ← Install all cron jobs
 │   ├── resolve_service.py                     ← Service registry resolver
 │   ├── sync_registry.py                       ← Convex → SERVICE_REGISTRY.md
@@ -1271,8 +1295,13 @@ export default defineSchema({
       label: v.string(),                   // "Write Article" (display name)
       description: v.optional(v.string()), // "Writes long-form article from brief"
       outputDir: v.optional(v.string()),   // "drafts", "research", "final" (subfolder in campaign dir)
+      // Per-step skill overrides (from pipeline builder UI — see section 13)
+      skillOverrides: v.optional(v.array(v.object({
+        skillId: v.id("skills"),
+        subSelections: v.optional(v.array(v.string())),
+      }))),
     })),
-    
+
     // Parallel branches — fire after a specific main step
     parallelBranches: v.optional(v.array(v.object({
       triggerAfterStep: v.number(),        // Main step order that triggers this
@@ -1280,6 +1309,11 @@ export default defineSchema({
       model: v.optional(v.string()),
       label: v.string(),                   // "Generate Hero Image"
       description: v.optional(v.string()),
+      // Per-step skill overrides (from pipeline builder UI — see section 13)
+      skillOverrides: v.optional(v.array(v.object({
+        skillId: v.id("skills"),
+        subSelections: v.optional(v.array(v.string())),
+      }))),
     }))),
     
     // Where parallel branches must complete before pipeline continues
@@ -1343,6 +1377,40 @@ export default defineSchema({
     competitorUrls: v.array(v.string()),   // Competitors for THIS angle
     notes: v.optional(v.string()),
     
+    // Writing Strategy — per-campaign skill overrides
+    // Takes precedence over pipeline snapshot's skillOverrides on each step.
+    // If null/empty, pipeline defaults apply.
+    // See section 13 (Writing Strategy System) for full documentation.
+    skillConfig: v.optional(v.object({
+      // Layer-based overrides (applied to ALL writing agents in pipeline)
+      offerFramework: v.optional(v.object({
+        skillId: v.id("skills"),
+      })),
+      persuasionSkills: v.optional(v.array(v.object({
+        skillId: v.id("skills"),
+        subSelections: v.optional(v.array(v.string())),
+      }))),
+      primaryCopyStyle: v.optional(v.object({
+        skillId: v.id("skills"),
+      })),
+      secondaryCopyStyle: v.optional(v.object({
+        skillId: v.id("skills"),
+      })),
+
+      // Per-agent overrides (applied to specific pipeline steps only)
+      agentOverrides: v.optional(v.array(v.object({
+        agentName: v.string(),           // "vibe-content-writer"
+        pipelineStep: v.number(),        // Which step in the pipeline
+        skillOverrides: v.array(v.object({
+          skillId: v.id("skills"),
+          subSelections: v.optional(v.array(v.string())),
+        })),
+      }))),
+
+      // Display summary
+      summary: v.optional(v.string()),
+    })),
+
     // Publishing config (FUTURE — when publisher agents are built)
     publishConfig: v.optional(v.object({
       cmsService: v.optional(v.string()),  // Service registry name
@@ -1495,8 +1563,98 @@ export default defineSchema({
       avgQualityScore: v.optional(v.number()),
       lastActive: v.number(),
     }),
+
+    // Skill bindings (see section 13: Writing Strategy System)
+    staticSkillIds: v.array(v.id("skills")),     // Always loaded (from agent .md "Skills to Load")
+    dynamicSkillIds: v.array(v.id("skills")),    // Available for campaign selection
+                                                  // Only mbook/selectable skills the agent supports
+    agentFilePath: v.string(),                   // ".claude/agents/vibe-content-writer.md"
+
   }).index("by_name", ["name"])
     .index("by_status", ["status"]),
+
+  // ═══════════════════════════════════════════
+  // SKILLS REGISTRY — Mirrors .claude/skills/ filesystem
+  // See section 13 (Writing Strategy System) for full documentation
+  // ═══════════════════════════════════════════
+
+  skills: defineTable({
+    // Identity
+    name: v.string(),                      // "mbook-schwarz-awareness"
+    slug: v.string(),                      // "mbook-schwarz-awareness"
+    displayName: v.string(),               // "Schwartz Awareness Stages"
+    description: v.string(),               // One-liner for dashboard
+
+    // Classification
+    category: v.string(),                  // "L1_audience", "L2_offer", etc. — see skillCategories
+    type: v.union(
+      v.literal("mbook"),                  // Book-derived marketing skill
+      v.literal("procedure"),              // Process/procedure skill
+      v.literal("community"),              // Installed from skills.sh
+      v.literal("custom"),                 // User-created
+    ),
+
+    // Behavior
+    isAutoActive: v.boolean(),             // true for L1 + L5 — always loaded, not selectable
+    isCampaignSelectable: v.boolean(),     // true for L2/L3/L4 — appears in Writing Strategy UI
+
+    // Sub-selections (for skills like Cialdini or Sugarman that have principle/trigger pickers)
+    subSelections: v.optional(v.array(v.object({
+      key: v.string(),                     // "social_proof", "authority", "curiosity"
+      label: v.string(),                   // "Social Proof", "Authority"
+      description: v.optional(v.string()), // "Show others already trust you"
+    }))),
+
+    // Category-specific constraints (how the dashboard groups + limits selection)
+    categoryConstraints: v.optional(v.object({
+      maxPerCampaign: v.optional(v.number()),     // L2: 1, L3: 2, L4: 1
+      selectionMode: v.optional(v.string()),      // "radio" (L4 primary) or "checkbox" (L2, L3)
+    })),
+
+    // Filesystem
+    filePath: v.string(),                  // ".claude/skills/mbook-schwarz-awareness/SKILL.md"
+    fileHash: v.optional(v.string()),      // SHA256 of SKILL.md for change detection
+
+    // Dashboard copy (from marketing-books.md Layer Details)
+    tagline: v.optional(v.string()),       // "Match copy to how aware your reader already is"
+    dashboardDescription: v.optional(v.string()), // Paragraph shown in Writing Strategy UI
+
+    // Sync metadata
+    lastSyncedAt: v.number(),
+    syncStatus: v.union(
+      v.literal("synced"),                 // File exists, hash matches
+      v.literal("file_missing"),           // DB record exists but file gone
+      v.literal("pending_sync"),           // File found, not yet in DB
+      v.literal("pending_setup"),          // Synced but needs wizard classification
+    ),
+
+  }).index("by_slug", ["slug"])
+    .index("by_category", ["category"])
+    .index("by_type", ["type"])
+    .index("by_selectable", ["isCampaignSelectable"]),
+
+  // ═══════════════════════════════════════════
+  // SKILL CATEGORIES — Groupings for dashboard display
+  // See section 13 (Writing Strategy System) for seed data + layer model
+  // ═══════════════════════════════════════════
+
+  skillCategories: defineTable({
+    key: v.string(),                       // "L1_audience", "research_method", etc.
+    displayName: v.string(),               // "Audience Understanding"
+    description: v.string(),               // Shown in wizard + pipeline builder
+    sortOrder: v.number(),                 // Display order in UI
+    scope: v.union(
+      v.literal("copy"),                   // L1-L5 writing layers
+      v.literal("research"),               // Research methodology skills
+      v.literal("visual"),                 // Visual/media style skills
+      v.literal("quality"),                // Quality/review rubric skills
+      v.literal("general"),               // Uncategorized utility skills
+    ),
+    // Constraints for skills in this category
+    maxPerPipelineStep: v.optional(v.number()), // How many skills from this category per agent step
+    selectionMode: v.optional(v.string()),      // "radio", "checkbox", "auto" (not selectable)
+  }).index("by_key", ["key"])
+    .index("by_scope", ["scope"]),
 
   messages: defineTable({
     taskId: v.id("tasks"),
@@ -1892,11 +2050,13 @@ Never corporate. Never generic. Every paragraph earns its place.
 2. Check Convex for assigned tasks: ./scripts/cx.sh tasks:getByAgent '{"agent":"vibe-content-writer"}'
 3. For each task:
    a. Load campaign context (product, brand voice, focus groups)
-   b. Read the content brief
-   c. Write the article following content-writing skill
-   d. Save to projects/{project-slug}/campaigns/{campaign-slug}/drafts/{slug}.md
-   e. Update task status to "drafted"
-   f. @mention vibe-content-reviewer for review
+   b. Load campaign skill config → read each SKILL.md from CAMPAIGN_SKILLS env var
+      (in addition to static skills from agent .md — see section 13)
+   c. Read the content brief
+   d. Write the article following content-writing skill + loaded campaign skills
+   e. Save to projects/{project-slug}/campaigns/{campaign-slug}/drafts/{slug}.md
+   f. Update task status to "drafted"
+   g. @mention vibe-content-reviewer for review
 4. Update memory/WORKING/vibe-content-writer.md
 5. Log activity to Convex
 6. Exit
@@ -2561,21 +2721,37 @@ export const completeStep = mutation({
 // ══════════════════════════════════════════════
 
 export const dispatchAgent = internalAction({
-  args: { 
-    taskId: v.id("tasks"), 
+  args: {
+    taskId: v.id("tasks"),
     agentName: v.string(),
     model: v.string(),
   },
   handler: async (ctx, args) => {
+    // Get task → campaign → skillConfig (see section 13: Writing Strategy System)
+    const task = await ctx.runQuery(internal.tasks.get, { taskId: args.taskId });
+    const campaign = task.campaignId
+      ? await ctx.runQuery(internal.campaigns.get, { campaignId: task.campaignId })
+      : null;
+
+    // Resolve skill file paths from skillConfig + agent bindings + auto-active skills
+    // Resolution order:
+    //   1. Agent's staticSkillIds (always loaded, from agent .md)
+    //   2. Pipeline step's skillOverrides (defaults from pipeline template)
+    //   3. Campaign's skillConfig overrides (campaign-specific, highest priority)
+    //   4. Auto-active skills (L1 + L5 — always loaded regardless of config)
+    const skillPaths = await resolveSkillPaths(ctx, args.agentName, campaign?.skillConfig);
+
     const { exec } = require('child_process');
     const cmd = [
       `cd ~/vibe-marketing &&`,
+      // Pass resolved skill paths as environment variable
+      skillPaths.length > 0 ? `CAMPAIGN_SKILLS="${skillPaths.join(',')}"` : '',
       `./scripts/invoke-agent.sh`,
       args.agentName,
       args.model,
       `"Process task ${args.taskId}"`,
-    ].join(' ');
-    
+    ].filter(Boolean).join(' ');
+
     exec(cmd, (error: any) => {
       if (error) console.error(`Failed to dispatch ${args.agentName}:`, error);
     });
@@ -3384,7 +3560,592 @@ Extension creates new tasks on the campaign, not revisions. These run through th
 
 ---
 
-## 13. Memory & Persistence System
+## 13. Writing Strategy System
+
+> **Merged from:** `marketing-books.md` layer model, dashboard UX, content-type defaults, and agent loading pattern. Book-by-book reference material remains in `marketing-books.md`.
+
+The Writing Strategy System connects book-derived marketing skills (mbook skills) to the pipeline and campaign workflow. It answers: **which skills does each agent load, and how does the user control that per-campaign?**
+
+### Layer Model — The Backbone of Copy Generation
+
+Skills stack in layers. A single piece of copy might use Schwartz (to match awareness level) + Hormozi (to structure the offer) + Voss (to pre-handle objections) + Ogilvy (for headline craft). The question isn't "which one?" — it's "which combination?"
+
+**You don't use all of them.** A typical campaign loads 2-4 skills total (plus the auto-active ones). Each layer is pick-some-or-none, not pick-all.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ LAYER 1: AUDIENCE UNDERSTANDING (auto — not selectable) │
+│ Always active. Derived from focus group data.           │
+│ mbook-schwarz-awareness                                 │
+└─────────────────────────────────────────────────────────┘
+         ↓ informs
+┌─────────────────────────────────────────────────────────┐
+│ LAYER 2: OFFER STRUCTURE (pick 0-1, rarely 2)           │
+│ Skip entirely if no offer/product pitch in this content.│
+│ hormozi-offer · hormozi-leads · brunson-funnels         │
+└─────────────────────────────────────────────────────────┘
+         ↓ shapes
+┌─────────────────────────────────────────────────────────┐
+│ LAYER 3: PERSUASION MECHANICS (pick 1-2)                │
+│ The psychological toolkit. Don't overload — 2 max.      │
+│ cialdini · voss · sugarman · marketing-psychology       │
+└─────────────────────────────────────────────────────────┘
+         ↓ expressed through
+┌─────────────────────────────────────────────────────────┐
+│ LAYER 4: COPY CRAFT (pick 1 primary, optional secondary)│
+│ These are writing STYLES — mutually exclusive primary.   │
+│ ogilvy · halbert · storybrand · brunson-positioning     │
+└─────────────────────────────────────────────────────────┘
+         ↓ polished by
+┌─────────────────────────────────────────────────────────┐
+│ LAYER 5: QUALITY (auto — not selectable)                │
+│ Always runs post-writing.                               │
+│ humanizer · writing-clearly                             │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Important: L1-L5 is NOT removed — it's the backbone of the copy system.** The layer model is preserved as:
+- `L1_audience` → auto-active, derived from focus groups, runs first
+- `L2_offer` → pick 0-1, shapes the value proposition
+- `L3_persuasion` → pick 1-2, psychological toolkit
+- `L4_craft` → pick 1 primary, determines writing style
+- `L5_quality` → auto-active, runs post-writing (humanizer + writing-clearly)
+
+The `scope: "copy"` field on layer categories tells the dashboard to render them with the familiar layer stack UI. The `sortOrder` field preserves the execution order. Auto-active categories (`L1_audience`, `L5_quality`) have `selectionMode: "auto"` so they don't appear as user choices.
+
+The only change from a hardcoded `layer` enum: these are rows in `skillCategories` — which means new category types (research, visual, quality rubric) can be added later without schema migration.
+
+### Skill Category Seed Data
+
+Categories are stored in the `skillCategories` Convex table (see section 8). Initial seed data:
+
+| Key | Display Name | Scope | Sort | Max/Step | Mode | Status |
+|-----|-------------|-------|------|----------|------|--------|
+| `L1_audience` | Audience Understanding | copy | 1 | — | auto | MVP |
+| `L2_offer` | Offer Structure | copy | 2 | 1 | radio | MVP |
+| `L3_persuasion` | Persuasion Mechanics | copy | 3 | 2 | checkbox | MVP |
+| `L4_craft` | Copy Craft | copy | 4 | 1 primary | radio | MVP |
+| `L5_quality` | Quality | copy | 5 | — | auto | MVP |
+| `research_method` | Research Methodology | research | 10 | 1 | radio | FUTURE |
+| `visual_style` | Visual Style | visual | 20 | 1 | radio | FUTURE |
+| `quality_rubric` | Quality Rubric | quality | 30 | 1 | radio | FUTURE |
+| `utility` | Utility | general | 99 | — | — | MVP |
+
+For MVP, only `copy` scope categories (L1-L5) and `utility` are populated. Future categories exist in the table but have no skills assigned yet — they become active when someone adds the first skill to that category via the wizard.
+
+### Skill Registry Seed Data — Complete Mapping
+
+The sync script populates these from SKILL.md frontmatter. The `skills` table (section 8) holds all metadata. SKILL.md frontmatter provides **initial suggestions** for the wizard, but Convex is the source of truth.
+
+```yaml
+# Example SKILL.md frontmatter (suggestions for wizard):
+---
+name: mbook-schwarz-awareness
+displayName: Schwartz Awareness Stages
+description: Match copy to reader's awareness level
+category: L1_audience        # Suggestion — wizard confirms
+type: mbook
+tagline: "Match copy to how aware your reader already is"
+---
+```
+
+**Complete skill → category mapping:**
+
+| # | Skill Slug | Display Name | Category | Auto? | Selectable? | Sub-selections |
+|---|-----------|-------------|----------|-------|-------------|----------------|
+| 1 | `mbook-schwarz-awareness` | Schwartz Awareness | L1_audience | yes | no | — |
+| 2 | `mbook-hormozi-offers` | Hormozi Value Equation | L2_offer | no | yes | — |
+| 3 | `mbook-hormozi-leads` | Hormozi Lead Gen | L2_offer | no | yes | — |
+| 4 | `mbook-brunson-dotcom` | Brunson Funnels | L2_offer | no | yes | — |
+| 5 | `mbook-cialdini-influence` | Cialdini Persuasion | L3_persuasion | no | yes | reciprocity, commitment, social_proof, authority, liking, scarcity, unity |
+| 6 | `mbook-voss-negotiation` | Voss Tactical Empathy | L3_persuasion | no | yes | — |
+| 7 | `mbook-sugarman-copywriting` | Sugarman Triggers | L3_persuasion | no | yes | curiosity, specificity, storytelling, exclusivity, urgency, simplicity |
+| 8 | `marketing-psychology` | Marketing Psychology | L3_persuasion | no | yes | — (community skill, not mbook) |
+| 9 | `mbook-ogilvy-advertising` | Ogilvy Copywriting | L4_craft | no | yes | — |
+| 10 | `mbook-halbert-boron` | Halbert Direct Response | L4_craft | no | yes | — |
+| 11 | `mbook-miller-storybrand` | StoryBrand Framework | L4_craft | no | yes | — |
+| 12 | `mbook-brunson-expert` | Brunson Positioning | L4_craft | no | yes | — |
+| 13 | `humanizer` | Humanizer | L5_quality | yes | no | — |
+| 14 | `writing-clearly-and-concisely` | Writing Clearly | L5_quality | yes | no | — |
+
+**Category constraints (from `skillCategories` table):**
+
+| Category | Max per step | Selection mode | Notes |
+|----------|-------------|----------------|-------|
+| L1_audience | — | auto | Always active, not selectable |
+| L2_offer | 1 | radio | Pick 0 or 1 offer framework. Skip for pure content. |
+| L3_persuasion | 2 | checkbox | Pick 1-2 persuasion mechanics. Don't overload. |
+| L4_craft | 1 primary + 1 secondary | radio + dropdown | Primary is mutually exclusive. Optional secondary for mixed content. |
+| L5_quality | — | auto | Always active, not selectable |
+
+### Default Agent → Skill Assignments
+
+The `agents.dynamicSkillIds` field is configured in the dashboard (`/agents/:name/skills`). This determines which skills APPEAR as options when that agent is placed in a pipeline step.
+
+**Writing agents:**
+
+| Agent | Static Skills (always loaded) | Dynamic Skills (available for campaign selection) |
+|-------|------------------------------|--------------------------------------------------|
+| `vibe-content-writer` | content-writing-procedures, marketing-psychology | ALL L2 + ALL L3 + ALL L4 |
+| `vibe-landing-page-writer` | content-writing-procedures | hormozi-offers, brunson-dotcom (L2); cialdini, voss (L3); ALL L4 |
+| `vibe-email-writer` | content-writing-procedures | hormozi-leads, brunson-dotcom (L2); sugarman, voss (L3); halbert, storybrand (L4) |
+| `vibe-ad-writer` | content-writing-procedures | hormozi-offers (L2); cialdini, sugarman (L3); halbert, ogilvy (L4) |
+| `vibe-social-writer` | content-writing-procedures | — (L2); sugarman (L3); — (L4) |
+| `vibe-ebook-writer` | content-writing-procedures | hormozi-leads (L2); cialdini (L3); storybrand, brunson-expert (L4) |
+| `vibe-script-writer` | content-writing-procedures | — (L2); voss (L3); storybrand, brunson-expert (L4) |
+| `vibe-press-writer` | content-writing-procedures | — (L2); cialdini [authority] (L3); ogilvy (L4) |
+| `vibe-content-repurposer` | content-writing-procedures | Inherits from source content's pipeline step skills |
+| `vibe-image-director` | — | — (no mbook skills — images don't use copy frameworks) |
+| `vibe-content-reviewer` | content-writing-procedures | — (reviewer reads skills to EVALUATE against, loaded from task's pipeline) |
+| `vibe-humanizer` | humanizer, writing-clearly | — (L5 auto-active, no campaign selection) |
+
+**Non-writing agents (static skills only at MVP):**
+
+| Agent | Category | Static Skills | Dynamic Skills (FUTURE) |
+|-------|----------|--------------|------------------------|
+| `vibe-keyword-researcher` | research | keyword-research-procedures | — (FUTURE: research_method) |
+| `vibe-keyword-deep-researcher` | research | keyword-deep-research-procedures | — (FUTURE: research_method) |
+| `vibe-competitor-analyst` | research | competitor-analysis-procedures | — (FUTURE: research_method) |
+| `vibe-brand-monitor` | research | brand-monitoring-procedures | — |
+| `vibe-reddit-scout` | research | reddit-scouting-procedures | — |
+| `vibe-twitter-scout` | research | twitter-scouting-procedures | — |
+| `vibe-linkedin-scout` | research | linkedin-scouting-procedures | — |
+| `vibe-trend-detector` | research | trend-detection-procedures | — |
+| `vibe-review-harvester` | research | review-analysis-procedures | — |
+| `vibe-serp-analyzer` | research | serp-analysis-procedures | — (FUTURE: research_method) |
+| `vibe-seo-auditor` | research | seo-audit-procedures | — (FUTURE: quality_rubric) |
+| `vibe-audience-parser` | audience | audience-analyzer (section 10) | — |
+| `vibe-audience-researcher` | audience | audience-researcher (section 10), psychographic-frameworks | — |
+| `vibe-audience-enricher` | audience | audience-enricher (section 10) | — |
+| `vibe-content-reviewer` | quality | content-quality-rubric | — (FUTURE: quality_rubric) |
+| `vibe-fact-checker` | quality | claim-investigation (community skill) | — |
+| `vibe-plagiarism-checker` | quality | plagiarism-check-procedures | — |
+| `vibe-image-director` | media | image-prompt-engineering | — (FUTURE: visual_style) |
+| `vibe-image-generator` | media | image-generation-procedures | — |
+| `vibe-video-generator` | media | video-generation-procedures | — |
+| `vibe-orchestrator` | system | pipeline-dispatch-rules | — |
+
+### Content-Type Defaults
+
+When you select a content type, the dashboard pre-fills a recommended skill combo. You can accept, modify, or start from scratch.
+
+| Content Type | L2 | L3 | L4 | Why This Combo |
+|---|---|---|---|---|
+| Blog post | — | cialdini [authority, social_proof] | ogilvy | Authority-driven, fact-heavy content that builds trust with proof |
+| Landing page | hormozi-offer | voss + cialdini [scarcity, social_proof] | halbert | Value equation + objection audit + urgency = high-conversion page |
+| Email sequence | — | sugarman [curiosity, urgency] + voss | halbert | Hook-driven subject lines, empathy openers, personal tone |
+| Ad copy | hormozi-offer | cialdini [scarcity] | halbert | Direct response value prop with urgency |
+| Ebook / lead magnet | hormozi-leads | cialdini [authority, reciprocity] | storybrand | Lead-to-customer journey with narrative structure |
+| Social post | — | sugarman [curiosity, specificity] | — | Pure hook triggers, short-form, no copy style needed |
+| Video script | — | voss | storybrand | Narrative structure with empathy-first approach |
+
+### Real Examples — Typical Skill Loads (2-4 skills, not 11)
+
+**Example 1 — "GymZilla Summer Shred Blog Series":**
+```
+Layer 1: mbook-schwarz-awareness = Problem Aware        ← auto
+Layer 2: (none)                                          ← blog posts, no direct offer
+Layer 3: cialdini [authority, social_proof]               ← 1 skill, 2 principles
+Layer 4: ogilvy-copywriting                              ← primary style
+Layer 5: humanizer + writing-clearly                     ← auto
+Total skills loaded by agent: 4 (schwartz + cialdini + ogilvy + humanizer/writing)
+```
+
+**Example 2 — "GymZilla Black Friday Landing Page":**
+```
+Layer 1: mbook-schwarz-awareness = Product Aware         ← auto
+Layer 2: hormozi-offer                                   ← value equation for the offer
+Layer 3: voss-tactical-empathy + cialdini [scarcity]     ← 2 skills
+Layer 4: halbert-direct-response                         ← urgent, direct style
+Layer 5: humanizer + writing-clearly                     ← auto
+Total skills loaded by agent: 6 (schwartz + hormozi + voss + cialdini + halbert + humanizer/writing)
+```
+
+**Example 3 — "Photo Prints Valentine's Day Email Sequence":**
+```
+Layer 1: mbook-schwarz-awareness = Solution Aware        ← auto
+Layer 2: (none)                                          ← nurture emails, not selling yet
+Layer 3: sugarman [curiosity, storytelling]               ← 1 skill, 2 triggers
+Layer 4: storybrand-framework                            ← narrative emails
+Layer 5: humanizer + writing-clearly                     ← auto
+Total skills loaded by agent: 4 (schwartz + sugarman + storybrand + humanizer/writing)
+```
+
+### Skill Resolution Order (Runtime)
+
+When `dispatchAgent` (section 12) invokes an agent, it resolves skills in this order:
+
+1. **Agent's `staticSkillIds`** — always loaded (from agent .md "Skills to Load")
+2. **Pipeline step's `skillOverrides`** — defaults from pipeline template
+3. **Campaign's `skillConfig` overrides** — campaign-specific, highest priority
+4. **Auto-active skills** — L1 + L5 — always loaded regardless of config
+
+The agent reads the campaign's skill selection and loads those SKILL.md files before writing.
+
+```
+# Agent loading pattern:
+1. Load campaign skillConfig from Convex (via CAMPAIGN_SKILLS env var)
+2. For each skill in offerFramework + persuasionSkills + primaryCopyStyle:
+   - Read .claude/skills/{skill-slug}/SKILL.md
+3. Apply in layer order: awareness → offer → persuasion → craft
+4. Write content
+5. Post-processing: humanizer → writing-clearly (L5 auto-active)
+```
+
+### Filesystem → Convex Sync Mechanism
+
+**Sources of truth:**
+- **Filesystem** owns skill existence and SKILL.md content (the actual instructions agents read)
+- **Convex** owns ALL metadata: category, type, agent assignments, sub-selections, display copy
+- SKILL.md frontmatter provides **initial suggestions** for the wizard, but Convex is authoritative
+
+**Sync script: `scripts/sync-skills.ts`**
+
+- Runs on: startup + cron (every 5 min) + manual trigger from dashboard
+- Process:
+  1. Glob `.claude/skills/*/SKILL.md` on filesystem
+  2. For each SKILL.md found:
+     - Parse YAML frontmatter (name, description, category, type)
+     - Compute SHA256 hash of file content
+     - Check Convex `skills` table for existing record by slug
+     - If not found → insert new record with `syncStatus: "pending_setup"`
+     - If found + hash changed → update record, bump `lastSyncedAt`
+     - If found + hash same → skip
+  3. For each Convex record not found on filesystem → mark `syncStatus: "file_missing"`
+  4. Dashboard shows "file_missing" skills with a warning badge
+
+**No writing to filesystem** — Convex is read-only mirror. Skills are always created on disk first.
+
+**What happens when sync detects a new skill?**
+- Sync script inserts record with `syncStatus: "pending_setup"`
+- Dashboard shows a "New Skill Detected" notification badge
+- User clicks → **New Skill Wizard** opens (see Dashboard UI below)
+- Skill stays in `pending_setup` until wizard is completed:
+  - Won't appear in pipeline builder
+  - Won't appear in Writing Strategy UI
+  - Dashboard shows persistent "1 skill needs setup" notification
+
+### Dashboard UI/UX — Skills Integration
+
+**Component library:** shadcn-vue (shadcn ported to Vue 3). All new skills UI uses shadcn components.
+
+#### New pages and components
+
+```
+dashboard/pages/
+├── skills/
+│   ├── index.vue              ← Skills registry (list + filter)
+│   └── [slug]/
+│       └── index.vue          ← Skill detail + edit metadata
+├── agents/
+│   └── [name]/
+│       ├── index.vue          ← Agent detail (NEW)
+│       └── skills.vue         ← Agent skill bindings (NEW)
+
+dashboard/components/
+├── skills/
+│   ├── SkillCard.vue          ← Card showing skill name, category badge, type badge
+│   ├── SkillCategoryBadge.vue ← Colored badge: L1=blue, L2=green, L3=purple, L4=orange, L5=gray
+│   ├── SkillWizard.vue        ← 3-step new skill setup wizard (Dialog)
+│   ├── SkillPicker.vue        ← Multi-select grouped by category (for agent binding)
+│   └── SkillSubSelections.vue ← Checkbox group for Cialdini principles / Sugarman triggers
+├── agents/
+│   └── AgentSkillBindings.vue ← Static vs dynamic skill lists with toggle
+├── pipelines/
+│   ├── PipelineStepSkills.vue ← Popover showing skills on a pipeline step
+│   └── WritingStrategyPanel.vue ← Campaign-level override panel
+└── campaigns/
+    └── WritingStrategySummary.vue ← Read-only summary of skill config for campaign detail
+```
+
+#### a) Skills Registry Page (`/skills`)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Skills Registry                              [Sync Now] [+ New] │
+│                                                                   │
+│  Filter: [All Categories ▾] [All Types ▾] [Search...        ]   │
+│                                                                   │
+│  ┌─ L1 Audience Understanding ─────────────────────────────────┐ │
+│  │ ┌──────────────────────┐                                    │ │
+│  │ │ Schwartz Awareness   │  auto-active · mbook · synced      │ │
+│  │ │ L1_audience          │  Used by: all writing agents       │ │
+│  │ └──────────────────────┘                                    │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─ L2 Offer Structure ───────────────────────────────────────┐  │
+│  │ ┌──────────────────────┐ ┌──────────────────────┐         │  │
+│  │ │ Hormozi Offers       │ │ Hormozi Leads        │  ...    │  │
+│  │ │ L2_offer · mbook     │ │ L2_offer · mbook     │         │  │
+│  │ └──────────────────────┘ └──────────────────────┘         │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│  ... (L3, L4, L5, utility grouped similarly)                     │
+│                                                                   │
+│  ┌─ Pending Setup (1) ────────────────────────────────────────┐  │
+│  │  ⚠ mbook-kennedy-magnetic  [Set Up →]                      │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**shadcn components:** `Card`, `Badge`, `Input` (search), `Select` (filter dropdowns), `Button`, `Separator`, `Alert` (pending setup)
+
+#### b) Skill Detail Page (`/skills/:slug`)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  ← Skills / Cialdini Persuasion                         [Edit]   │
+│                                                                   │
+│  ┌─ Metadata ──────────────────────────────────────────────────┐ │
+│  │  Category: [L3_persuasion badge]   Type: [mbook badge]      │ │
+│  │  Auto-active: No    Campaign selectable: Yes                │ │
+│  │  File: .claude/skills/mbook-cialdini-influence/SKILL.md     │ │
+│  │  Sync: Synced (2h ago)   Hash: a3f8c2...                   │ │
+│  │  Tagline: "Apply proven principles of human persuasion"     │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─ Sub-selections (7) ───────────────────────────────────────┐  │
+│  │  reciprocity · commitment · social_proof · authority ·      │  │
+│  │  liking · scarcity · unity                                  │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                   │
+│  ┌─ Used by Agents (6) ──────────────────────────────────────┐   │
+│  │  vibe-content-writer         (dynamic)                     │   │
+│  │  vibe-landing-page-writer    (dynamic)                     │   │
+│  │  vibe-email-writer           (dynamic)                     │   │
+│  │  vibe-ad-writer              (dynamic)                     │   │
+│  │  vibe-social-writer          (dynamic)                     │   │
+│  │  vibe-ebook-writer           (dynamic)                     │   │
+│  └───────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**shadcn components:** `Card`, `Badge`, `Separator`, `Table`, `Button`
+
+#### c) Agent Skills Page (`/agents/:name/skills`)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  ← Agents / vibe-content-writer / Skills                         │
+│                                                                   │
+│  ┌─ Static Skills (always loaded) ─────────────────────────────┐ │
+│  │  These are defined in the agent's .md file.                 │ │
+│  │  Edit the file to change them.                              │ │
+│  │                                                              │ │
+│  │  content-writing-procedures     utility                     │ │
+│  │  marketing-psychology           L3_persuasion               │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─ Dynamic Skills (available for campaign selection) ─────────┐ │
+│  │  Check skills this agent can use. These appear in the       │ │
+│  │  pipeline builder when this agent is placed in a step.      │ │
+│  │                                                              │ │
+│  │  L2 Offer Structure                                         │ │
+│  │  [x] Hormozi Offers    [x] Hormozi Leads    [x] Brunson    │ │
+│  │                                                              │ │
+│  │  L3 Persuasion Mechanics                                    │ │
+│  │  [x] Cialdini          [x] Voss             [x] Sugarman   │ │
+│  │  [x] Marketing Psych                                        │ │
+│  │                                                              │ │
+│  │  L4 Copy Craft                                              │ │
+│  │  [x] Ogilvy            [x] Halbert          [x] StoryBrand │ │
+│  │  [x] Brunson Expert                                         │ │
+│  │                                                              │ │
+│  │  [Save Changes]                                             │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**shadcn components:** `Card`, `Checkbox`, `Badge`, `Button`, `Label`, `Separator`
+
+#### d) Pipeline Builder — Skill Badges on Agent Steps
+
+When an agent is placed in the pipeline, it shows a skill badge. Clicking opens a `Popover`:
+
+```
+Pipeline Builder: "GymZilla Full Launch"
+
+  MAIN PIPELINE (sequential)
+  ────────────────────────────
+  ┌─ 1. Keyword Research ───────────────────────────────┐
+  │   vibe-keyword-researcher                            │
+  │   [1 skill] ← gray badge (static only, no config)   │
+  └──────────────────────────────────────────────────────┘
+           ↓
+  ┌─ 3. Write Article ──────────────────────────────────┐
+  │   vibe-content-writer                                │
+  │   [6 skills] ← purple badge (has dynamic skills)    │
+  └──────────────────────────────────────────────────────┘
+           │
+           │ Click [6 skills] opens Popover:
+           ▼
+  ┌─ Skills for: vibe-content-writer (Step 3) ──────────┐
+  │                                                      │
+  │  Static (always loaded):                             │
+  │  content-writing-procedures                          │
+  │  marketing-psychology                                │
+  │                                                      │
+  │  L2 Offer (pick 0-1):                               │
+  │  ( ) None  (*) Hormozi Offers  ( ) Hormozi Leads    │
+  │  ( ) Brunson Funnels                                 │
+  │                                                      │
+  │  L3 Persuasion (pick 1-2):                           │
+  │  [x] Cialdini  → Sub: [x] social_proof [x] authority│
+  │  [x] Voss                                            │
+  │  [ ] Sugarman                                        │
+  │                                                      │
+  │  L4 Craft (pick 1):                                  │
+  │  (*) Ogilvy  ( ) Halbert  ( ) StoryBrand  ( ) Brunson│
+  │  Secondary: [None ▾]                                 │
+  │                                                      │
+  │  [Apply to this step]                                │
+  └──────────────────────────────────────────────────────┘
+```
+
+**shadcn components:** `Popover`, `PopoverTrigger`, `PopoverContent`, `RadioGroup`, `RadioGroupItem`, `Checkbox`, `Select`, `Badge`, `Button`, `Label`, `Separator`
+
+Skill selections on a pipeline step are saved to `mainSteps[].skillOverrides` (see pipeline schema in section 8). Pipeline snapshot (frozen on campaign creation) captures these selections.
+
+#### e) Campaign Creation — "Writing Strategy" Step
+
+Since skills are configured per-agent-step in the pipeline builder, the campaign "Writing Strategy" step is a **summary with override capability**. This becomes Step 4 in the campaign creation wizard (after Select Focus Groups, before Toggle Deliverables):
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Campaign: Summer Shred Launch                                    │
+│  Step 4 of 7: Writing Strategy                                    │
+│                                                                   │
+│  ┌─ Inherited from Pipeline: "Full Content Production" ────────┐ │
+│  │                                                              │ │
+│  │  AWARENESS (auto):  Problem Aware ← from Focus Groups #1,#5 │ │
+│  │                                                              │ │
+│  │  vibe-content-writer (Step 3):                               │ │
+│  │    L2: Hormozi Offers                                        │ │
+│  │    L3: Cialdini [social_proof, authority] + Voss             │ │
+│  │    L4: Ogilvy (primary)                                      │ │
+│  │    [Override for this campaign ▾]                             │ │
+│  │                                                              │ │
+│  │  vibe-social-writer (parallel):                              │ │
+│  │    L3: Sugarman [curiosity]                                  │ │
+│  │    [Override for this campaign ▾]                             │ │
+│  │                                                              │ │
+│  │  QUALITY (auto): humanizer + writing-clearly                 │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  [Apply defaults for: Blog Post ▾]  [Reset to pipeline defaults] │
+│                                                                   │
+│  [← Back]  [Next: Toggle Deliverables →]                         │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+Clicking "Override for this campaign" opens the same `Popover` as the pipeline builder, but saves to `campaign.skillConfig.agentOverrides` instead of the pipeline template.
+
+**shadcn components:** `Card`, `Badge`, `Popover`, `Select`, `Button`, `Separator`, `Collapsible`
+
+#### f) New Skill Wizard (`SkillWizard.vue`)
+
+Uses shadcn `Dialog` + stepper pattern (3 steps). Triggered when sync detects a new SKILL.md:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  NEW SKILL DETECTED                                          │
+│  mbook-kennedy-magnetic-marketing                            │
+│  Found at: .claude/skills/mbook-kennedy-magnetic-marketing/  │
+│                                                              │
+│  Step 1 of 3: CLASSIFY                                       │
+│  ─────────────────────────────────────────────────────────── │
+│                                                              │
+│  Display Name: [Magnetic Marketing                    ]      │
+│  Description:  [Kennedy's direct response marketing... ]     │
+│                                                              │
+│  Type:   (*) mbook  ( ) procedure  ( ) community  ( ) custom│
+│                                                              │
+│  Category:                                                   │
+│          ( ) L1 (Audience Understanding - auto-active)       │
+│          ( ) L2 (Offer Structure)                            │
+│          ( ) L3 (Persuasion Mechanics)                       │
+│          (*) L4 (Copy Craft)               ← suggested from │
+│          ( ) L5 (Quality - auto-active)       SKILL.md       │
+│          ( ) Utility (non-layer)              frontmatter    │
+│                                                              │
+│  [Next →]                                                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Step 2 of 3: CONFIGURE                                      │
+│  ─────────────────────────────────────────────────────────── │
+│                                                              │
+│  Auto-active?  ( ) Yes (always loaded)  (*) No (selectable) │
+│  Campaign selectable?  (*) Yes  ( ) No                       │
+│                                                              │
+│  Sub-selections (optional — for skills with principle         │
+│  or trigger pickers like Cialdini):                          │
+│  [+ Add sub-selection]                                       │
+│                                                              │
+│  Tagline for Writing Strategy UI:                            │
+│  [Direct response with personality-driven copy        ]      │
+│                                                              │
+│  [← Back]  [Next →]                                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Step 3 of 3: ASSIGN TO AGENTS                               │
+│  ─────────────────────────────────────────────────────────── │
+│                                                              │
+│  Which agents can use this skill?                            │
+│  (Only showing agents that write marketing copy)             │
+│                                                              │
+│  [x] vibe-content-writer        (all L2-L4 by default)      │
+│  [x] vibe-landing-page-writer                                │
+│  [x] vibe-email-writer                                       │
+│  [x] vibe-ad-writer                                          │
+│  [ ] vibe-social-writer         (usually no L4 skills)      │
+│  [ ] vibe-ebook-writer                                       │
+│  [x] vibe-script-writer                                      │
+│  [ ] vibe-press-writer                                       │
+│                                                              │
+│  [← Back]  [Save Skill]                                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**After wizard completes:**
+- `skills` record updated: `syncStatus: "synced"`, all metadata fields populated
+- `agents.dynamicSkillIds` updated for each selected agent
+- Skill immediately available in pipeline builder when those agents are placed
+- Skill appears in campaign Writing Strategy override UI
+
+**Editing existing skills:** Same form accessible from `/skills/:slug/edit`. Changing the category or agent assignments takes effect on NEW campaigns only (existing campaign snapshots are frozen).
+
+**shadcn components:** `Dialog`, `DialogContent`, `DialogHeader`, `DialogFooter`, `Input`, `RadioGroup`, `Switch`, `Checkbox`, `Button`, `Label`, `Textarea`
+
+### Convex Functions for Skills
+
+```
+convex/
+├── skills.ts            ← Skills CRUD, sync mutations, category queries
+├── skillCategories.ts   ← Category seed + CRUD
+```
+
+**Key queries/mutations:**
+
+```typescript
+// convex/skills.ts
+skills.listAll                    // All skills (for registry page)
+skills.listByCategory             // Skills grouped by category
+skills.listSelectable             // Only isCampaignSelectable=true
+skills.getBySlug                  // Single skill detail
+skills.syncFromFilesystem         // Upsert from sync script
+skills.updateMetadata             // Wizard/edit form saves
+skills.markFileMissing            // Sync script marks missing files
+
+// convex/skillCategories.ts
+skillCategories.list              // All categories (ordered by sortOrder)
+skillCategories.listByScope       // Categories for a scope ("copy", "research", etc.)
+skillCategories.seed              // Initial seed data (run once on setup)
+```
+
+---
+
+## 14. Memory & Persistence System
 
 *(Same three-layer system as V2)*
 
@@ -3400,7 +4161,7 @@ Extension creates new tasks on the campaign, not revisions. These run through th
 
 ---
 
-## 14. Human-in-the-Loop — Post-Pipeline Review Model
+## 15. Human-in-the-Loop — Post-Pipeline Review Model
 
 ### Design Philosophy
 
@@ -3432,11 +4193,11 @@ Pipelines run **uninterrupted** — no human gates blocking the assembly line. A
 
 ### Revision Workflow
 
-See "Post-Pipeline Review & Revision System" above (section 12) for the full revision architecture including Type A (fix), Type B (rethink), and Type C (extend) flows.
+See "Post-Pipeline Review & Revision System" above (section 12, under Orchestrator) for the full revision architecture including Type A (fix), Type B (rethink), and Type C (extend) flows.
 
 ---
 
-## 15. Dashboard — Vue + Convex (Web-Accessible, Real-Time)
+## 16. Dashboard — Vue + Convex (Web-Accessible, Real-Time)
 
 The dashboard is a **web application** accessible from any browser. It connects to Convex over WebSocket for real-time updates — when an agent changes a task status, your browser updates instantly without refresh.
 
@@ -3583,8 +4344,22 @@ GLOBAL ROUTES (no project context)
     ├── Validation warnings/errors (real-time as you build)
     └── [Save] [Preview Flow] [Cancel]
 
+/skills                              ← Skills registry (global)
+├── Skills grouped by category (L1-L5, utility)
+├── Filter: category, type, search
+├── Pending setup section (skills awaiting wizard)
+├── [Sync Now] trigger manual filesystem sync
+├── [+ New] link to create skill on filesystem
+└── /skills/:slug                   ← Skill detail + edit metadata
+    ├── Metadata: category, type, auto-active, selectable, tagline
+    ├── Sub-selections list (Cialdini principles, Sugarman triggers)
+    ├── Used by agents list
+    ├── Sync status + file hash
+    └── [Edit] → opens edit form (same as wizard steps 1-3)
+
 /agents                              ← Agent management (global)
-├── Agent cards: name, role, status indicator, current task, last heartbeat
+├── Agent cards: name, role, status indicator, current task, last heartbeat,
+│   skill count badge
 ├── "Run Now" button per agent (invokes Claude Code CLI)
 ├── Agent detail panel:
 │   ├── Run history (from agentRuns table — start, duration, status)
@@ -3592,7 +4367,13 @@ GLOBAL ROUTES (no project context)
 │   ├── Quality score trends (if applicable)
 │   ├── Working memory preview (current WORKING/{agent}.md)
 │   └── Cron schedule (editable — saves to Convex + regenerates crontab)
-└── Global controls: Pause All / Resume All / Run Standup Now
+├── Global controls: Pause All / Resume All / Run Standup Now
+└── /agents/:name                   ← Agent detail (NEW)
+    ├── Agent overview (model, schedule, skill path)
+    └── /agents/:name/skills        ← Skill bindings (NEW)
+        ├── Static skills (read-only, from agent .md)
+        ├── Dynamic skills (checkboxes grouped by L2/L3/L4)
+        └── [Save Changes]
 
 /settings                            ← Platform configuration (global)
 ├── /settings/services               ← SERVICE REGISTRY
@@ -3655,11 +4436,14 @@ Navigation: [🏋️ GymZilla ▾] Dashboard | Products | Campaigns | Pipeline |
 │   Step 1: Select product (from this project)
 │   Step 2: Select pipeline (from global presets or custom pipelines)
 │   Step 3: Select target focus groups (checkboxes — one or more)
-│           ⚠️ Contextual warnings if pipeline has audience agents
+│           Contextual warnings if pipeline has audience agents
 │           but focus groups already selected (see Pipeline Validation)
-│   Step 4: Toggle deliverables (which parallel branches to activate)
-│   Step 5: Add seed keywords + competitor URLs
-│   Step 6: Review & activate
+│   Step 4: Writing Strategy — summary of pipeline skill config +
+│           per-campaign overrides (see section 13)
+│           [Apply defaults for: Blog Post ▾] quick-apply presets
+│   Step 5: Toggle deliverables (which parallel branches to activate)
+│   Step 6: Add seed keywords + competitor URLs
+│   Step 7: Review & activate
 └── /projects/:slug/campaigns/:id    ← Campaign detail
     ├── Campaign config (all fields editable while in "planning")
     ├── Pipeline visualization (shows main steps + parallel branches)
@@ -3861,7 +4645,7 @@ NUXT_PUBLIC_APP_URL="https://marketing.yourdomain.com"
 
 ---
 
-## 16. External Tool Integration Scripts
+## 17. External Tool Integration Scripts
 
 All service wrapper scripts live in `scripts/services/` and follow a common pattern:
 
@@ -3924,7 +4708,7 @@ Each service script is:
 
 ---
 
-## 17. Cost Analysis
+## 18. Cost Analysis
 
 ### Fixed Monthly
 
@@ -3956,7 +4740,7 @@ Per-article cost (fully loaded): **~$3-5**
 
 ---
 
-## 18. Implementation Roadmap
+## 19. Implementation Roadmap
 
 ### Phase 1 — Foundation (Week 1-2)
 **Goal**: Auth, projects, core pipeline working end-to-end with locking + push triggers

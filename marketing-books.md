@@ -4,6 +4,12 @@
 > invoke during content creation. Each skill encodes a specific framework,
 > not just knowledge — it changes HOW the agent writes.
 
+> **Implementation details** (Convex schema, pipeline integration, dashboard UX,
+> skill registry, sync mechanism, Writing Strategy wizard) have been merged into
+> `vibe-marketing-platform-v3.md` section 13 "Writing Strategy System".
+> This file retains the layer model overview, book-by-book reference,
+> focus group schema enhancements, and enrichment log schema.
+
 ---
 
 ## Skill Categories (Not "Tones")
@@ -252,132 +258,15 @@ empty -ing constructions, and overused vocabulary (delve, leverage, multifaceted
 
 ### How Campaigns Select Skills
 
-**Auto-active (always on, not selectable):**
-- `mbook-schwarz-awareness` — derived from focus group awareness level
-- `humanizer` + `writing-clearly` — always run post-writing
+> **Full implementation details** — campaign skill selection UI, content-type defaults,
+> pipeline builder skill badges, New Skill Wizard, `skillConfig` schema, agent loading
+> pattern, and skill resolution order — are in `vibe-marketing-platform-v3.md` section 13
+> "Writing Strategy System".
 
-**Campaign-level selection (set at campaign creation, "Writing Strategy" step):**
-- Layer 2: Pick 0-1 offer framework (skip for pure content campaigns)
-- Layer 3: Pick 1-2 persuasion mechanics (with sub-selections for principles/triggers)
-- Layer 4: Pick 1 primary copy style (optional secondary for mixed content)
-
-**Content-type defaults (auto-suggested, one-click apply):**
-
-When you select a content type, the dashboard pre-fills a recommended skill combo.
-You can accept, modify, or start from scratch.
-
-| Content Type | Layer 2 | Layer 3 | Layer 4 | Why This Combo |
-|---|---|---|---|---|
-| Blog post | — | cialdini [authority, social_proof] | ogilvy | Authority-driven, fact-heavy content that builds trust with proof |
-| Landing page | hormozi-offer | voss + cialdini [scarcity, social_proof] | halbert | Value equation + objection audit + urgency = high-conversion page |
-| Email sequence | — | sugarman [curiosity, urgency] + voss | halbert | Hook-driven subject lines, empathy openers, personal tone |
-| Ad copy | hormozi-offer | cialdini [scarcity] | halbert | Direct response value prop with urgency |
-| Ebook / lead magnet | hormozi-leads | cialdini [authority, reciprocity] | storybrand | Lead-to-customer journey with narrative structure |
-| Social post | — | sugarman [curiosity, specificity] | — | Pure hook triggers, short-form, no copy style needed |
-| Video script | — | voss | storybrand | Narrative structure with empathy-first approach |
-
-**Dashboard UX — "Writing Strategy" step:**
-
-```
-Campaign Creation → Step 3: Writing Strategy
-
-  ┌─────────────────────────────────────────────────────────────┐
-  │ AWARENESS TARGETING (auto-detected from your focus groups)  │
-  │                                                             │
-  │ Focus Group #1 "Fat Loss Seekers"  → ● Problem Aware       │
-  │ Focus Group #5 "Plateau Breakers"  → ● Solution Aware      │
-  │                                                             │
-  │ Your agents will automatically adjust headline formulas,    │
-  │ opening strategies, and CTA styles per awareness stage.     │
-  └─────────────────────────────────────────────────────────────┘
-
-  ┌─ Offer Framework (pick 0-1) ────────────────────────────────┐
-  │                                                              │
-  │ ☑ Hormozi Value Equation                                     │
-  │   Make offers irresistible using the value equation.         │
-  │                                                              │
-  │ ☐ Hormozi Lead Magnets                                       │
-  │   Structure content as a give-to-ask lead gen pipeline.      │
-  │                                                              │
-  │ ☐ Brunson Funnels                                            │
-  │   Position content within a multi-step funnel journey.       │
-  │                                                              │
-  └──────────────────────────────────────────────────────────────┘
-
-  ┌─ Persuasion Mechanics (pick 1-2) ───────────────────────────┐
-  │                                                              │
-  │ ☑ Cialdini Persuasion                                        │
-  │   Apply proven influence principles.                         │
-  │   Sub-select: ☑ Social Proof  ☑ Authority  ☐ Scarcity       │
-  │               ☐ Reciprocity   ☐ Commitment ☐ Liking ☐ Unity │
-  │                                                              │
-  │ ☑ Voss Tactical Empathy                                      │
-  │   Lead with objections, name emotions, lower the guard.      │
-  │                                                              │
-  │ ☐ Sugarman Triggers                                          │
-  │   Embed psychological hooks that pull readers forward.        │
-  │   Sub-select: ☐ Curiosity ☐ Specificity ☐ Urgency           │
-  │               ☐ Storytelling ☐ Exclusivity ☐ Simplicity      │
-  │                                                              │
-  │ ☐ Marketing Psychology                                       │
-  │   Broad behavioral economics mental models.                  │
-  │                                                              │
-  └──────────────────────────────────────────────────────────────┘
-
-  ┌─ Copy Style (pick 1 primary) ───────────────────────────────┐
-  │                                                              │
-  │ ◉ Ogilvy — Fact-driven, headline-first, authoritative       │
-  │   Specific benefits, data-backed claims, expert tone.        │
-  │                                                              │
-  │ ○ Halbert — Urgent, personal, emotional, action-driving     │
-  │   Write to one person, pile on benefits, act NOW.            │
-  │                                                              │
-  │ ○ StoryBrand — Hero's journey, customer is the hero         │
-  │   Narrative structure: problem → guide → plan → success.     │
-  │                                                              │
-  │ ○ Brunson — Origin stories, epiphany bridges                │
-  │   Discovery narratives that reframe beliefs.                 │
-  │                                                              │
-  │ Optional secondary: [None ▾]                                 │
-  │                                                              │
-  └──────────────────────────────────────────────────────────────┘
-
-  [Apply defaults for: Blog Post ▾]  [Reset All]  [Advanced ▾]
-```
-
-**Real examples showing typical skill loads (2-4 skills, not 11):**
-
-Example 1 — "GymZilla Summer Shred Blog Series":
-```
-Layer 1: mbook-schwarz-awareness = Problem Aware        ← auto
-Layer 2: (none)                                     ← blog posts, no direct offer
-Layer 3: cialdini [authority, social_proof]          ← 1 skill, 2 principles
-Layer 4: ogilvy-copywriting                         ← primary style
-Layer 5: humanizer + writing-clearly                ← auto
-Total skills loaded by agent: 4 (schwartz + cialdini + ogilvy + humanizer/writing)
-```
-
-Example 2 — "GymZilla Black Friday Landing Page":
-```
-Layer 1: mbook-schwarz-awareness = Product Aware         ← auto
-Layer 2: hormozi-offer                              ← value equation for the offer
-Layer 3: voss-tactical-empathy + cialdini [scarcity] ← 2 skills
-Layer 4: halbert-direct-response                    ← urgent, direct style
-Layer 5: humanizer + writing-clearly                ← auto
-Total skills loaded by agent: 6 (schwartz + hormozi + voss + cialdini + halbert + humanizer/writing)
-```
-
-Example 3 — "Photo Prints Valentine's Day Email Sequence":
-```
-Layer 1: mbook-schwarz-awareness = Solution Aware        ← auto
-Layer 2: (none)                                     ← nurture emails, not selling yet
-Layer 3: sugarman [curiosity, storytelling]          ← 1 skill, 2 triggers
-Layer 4: storybrand-framework                       ← narrative emails
-Layer 5: humanizer + writing-clearly                ← auto
-Total skills loaded by agent: 4 (schwartz + sugarman + storybrand + humanizer/writing)
-```
-
-The agent reads the campaign's skill selection and loads those skills before writing.
+**Quick reference:**
+- **Auto-active (always on):** `mbook-schwarz-awareness` (L1) + `humanizer` + `writing-clearly` (L5)
+- **Campaign-level selection:** L2 (pick 0-1), L3 (pick 1-2), L4 (pick 1 primary + optional secondary)
+- **Content-type defaults:** pre-filled combos for blog, landing page, email, ad, ebook, social, video
 
 ---
 
@@ -981,53 +870,5 @@ Content agents don't read the full enrichment log. Instead:
 
 ## Skill Invocation Summary
 
-### Always Active (not selectable)
-```
-mbook-schwarz-awareness     — Auto-derived from focus group awarenessStage
-humanizer              — Post-writing AI pattern removal
-writing-clearly        — Post-writing prose cleanup
-```
-
-### Campaign-Level Selection (checkbox grid at campaign creation)
-```
-Layer 2 — Offer Structure:
-  hormozi-offer          — Value equation framing
-  hormozi-leads          — Lead magnet / content-to-lead
-  brunson-funnels        — Funnel stage positioning
-
-Layer 3 — Persuasion Mechanics:
-  cialdini-persuasion    — Principle selection (can pick specific principles)
-  voss-tactical-empathy  — Accusation audit, labeling, no-oriented questions
-  sugarman-triggers      — Psychological trigger selection
-  marketing-psychology   — Mental model activation (already installed)
-
-Layer 4 — Copy Craft (primary + optional secondary):
-  ogilvy-copywriting     — Headline-first, proof-heavy, long copy
-  halbert-direct-response — Urgent, personal, emotional, AIDA
-  storybrand-framework   — Hero's journey, 7-part narrative
-  brunson-positioning    — Epiphany bridge, origin story
-```
-
-### Convex Schema Addition
-```typescript
-// Add to campaigns table:
-skillConfig: v.optional(v.object({
-  offerFrameworks: v.array(v.string()),      // ["hormozi-offer"]
-  persuasionStack: v.array(v.string()),      // ["cialdini-persuasion", "voss-tactical-empathy"]
-  primaryCopyStyle: v.string(),              // "ogilvy-copywriting"
-  secondaryCopyStyle: v.optional(v.string()),// "storybrand-framework"
-  cialdiniPrinciples: v.optional(v.array(v.string())), // ["social_proof", "authority"]
-  sugarmanTriggers: v.optional(v.array(v.string())),   // ["curiosity", "specificity"]
-})),
-```
-
-### Agent Loading Pattern
-```markdown
-# In any content agent's execution:
-1. Load campaign skillConfig
-2. For each skill in offerFrameworks + persuasionStack + primaryCopyStyle:
-   - Read .claude/skills/{skill-name}/SKILL.md
-3. Apply in layer order: awareness → offer → persuasion → craft
-4. Write content
-5. Post-processing: humanizer → writing-clearly
-```
+> **Moved to v3:** Full skill registry, `skillConfig` schema, agent loading pattern,
+> and skill resolution order are in `vibe-marketing-platform-v3.md` section 13.
