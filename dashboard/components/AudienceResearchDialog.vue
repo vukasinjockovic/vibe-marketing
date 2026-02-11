@@ -4,8 +4,8 @@ import { api } from '../../convex/_generated/api'
 const props = defineProps<{
   modelValue: boolean
   projectId: string
-  productId: string
-  product: any
+  productId?: string
+  product?: any
 }>()
 
 const emit = defineEmits<{
@@ -53,7 +53,7 @@ async function submit() {
       createdBy: 'dashboard',
       contentType: 'audience_research',
       metadata: {
-        productId: props.productId,
+        ...(props.productId ? { productId: props.productId } : {}),
         includeReddit: includeReddit.value,
         includeCompetitors: includeCompetitors.value,
         autoEnrich: autoEnrich.value,

@@ -96,6 +96,17 @@ export const create = mutation({
   },
 });
 
+// Rename a pipeline
+export const rename = mutation({
+  args: {
+    id: v.id("pipelines"),
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { name: args.name });
+  },
+});
+
 // Fork a pipeline into a custom copy
 export const fork = mutation({
   args: {
@@ -130,5 +141,71 @@ export const fork = mutation({
       requiredAgentCategories: original.requiredAgentCategories,
     });
     return { id };
+  },
+});
+
+// Update a pipeline
+export const update = mutation({
+  args: {
+    id: v.id("pipelines"),
+    name: v.string(),
+    slug: v.string(),
+    description: v.string(),
+    mainSteps: v.array(stepValidator),
+    parallelBranches: v.optional(v.array(branchValidator)),
+    convergenceStep: v.optional(v.number()),
+    onComplete: v.object({
+      telegram: v.boolean(),
+      summary: v.boolean(),
+      generateManifest: v.boolean(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...fields } = args;
+    const pipeline = await ctx.db.get(id);
+    if (!pipeline) throw new ConvexError("Pipeline not found");
+
+    // Check slug uniqueness if changed
+    if (fields.slug !== pipeline.slug) {
+      const existing = await ctx.db
+        .query("pipelines")
+        .withIndex("by_slug", (q) => q.eq("slug", fields.slug))
+        .unique();
+      if (existing) {
+        throw new ConvexError(`Pipeline with slug "${fields.slug}" already exists`);
+      }
+    }
+
+    await ctx.db.patch(id, fields);
+  },
+});
+
+// Delete a pipeline
+export const remove = mutation({
+  args: { id: v.id("pipelines") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+// Fix step models to match agent defaults
+export const fixStepModels = mutation({
+  args: {
+    id: v.id("pipelines"),
+    agentModelMap: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const pipeline = await ctx.db.get(args.id);
+    if (!pipeline) throw new ConvexError("Pipeline not found");
+    const map = args.agentModelMap as Record<string, string>;
+    const mainSteps = (pipeline.mainSteps || []).map((s: any) => ({
+      ...s,
+      ...(s.agent && map[s.agent] ? { model: map[s.agent] } : {}),
+    }));
+    const parallelBranches = (pipeline.parallelBranches || []).map((b: any) => ({
+      ...b,
+      ...(b.agent && map[b.agent] ? { model: map[b.agent] } : {}),
+    }));
+    await ctx.db.patch(args.id, { mainSteps, parallelBranches });
   },
 });

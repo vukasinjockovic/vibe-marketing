@@ -13,12 +13,20 @@ const emit = defineEmits<{
 const step = ref(1)
 const totalSteps = 4
 
+// Product role types
+type ProductRole = 'main' | 'upsell' | 'addon' | 'downsell'
+
+interface CampaignProduct {
+  productId: string
+  role: ProductRole
+}
+
 // Form state
 const form = reactive({
   name: '',
   slug: '',
   description: '',
-  productId: '' as string,
+  products: [] as CampaignProduct[],
   targetFocusGroupIds: [] as string[],
   pipelineId: '' as string,
   seedKeywords: [] as string[],
@@ -44,11 +52,18 @@ const { data: products } = useConvexQuery(
   { projectId: props.projectId as any },
 )
 
-// Load focus groups when product selected
+// Load focus groups at project level
 const { data: focusGroups } = useConvexQuery(
-  api.focusGroups.listByProduct,
-  computed(() => form.productId ? { productId: form.productId as any } : 'skip'),
+  api.focusGroups.listByProject,
+  { projectId: props.projectId as any },
 )
+
+const productRoles: { value: ProductRole; label: string }[] = [
+  { value: 'main', label: 'Main' },
+  { value: 'upsell', label: 'Upsell' },
+  { value: 'addon', label: 'Add-on' },
+  { value: 'downsell', label: 'Downsell' },
+]
 
 // Load pipeline presets
 const { data: pipelinePresets } = useConvexQuery(api.pipelines.listPresets, {})
@@ -68,16 +83,11 @@ watch(() => form.name, (name) => {
   form.slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 })
 
-// Reset focus groups when product changes
-watch(() => form.productId, () => {
-  form.targetFocusGroupIds = []
-})
-
 // Step validation
 const stepValid = computed(() => {
   switch (step.value) {
     case 1: return form.name.trim().length > 0 && form.slug.trim().length > 0
-    case 2: return !!form.productId && form.targetFocusGroupIds.length > 0
+    case 2: return form.products.some(p => p.role === 'main') && form.targetFocusGroupIds.length > 0
     case 3: return !!form.pipelineId
     case 4: return true
     default: return false
@@ -106,6 +116,26 @@ function toggleFocusGroup(id: string) {
   }
 }
 
+function toggleProduct(productId: string) {
+  const idx = form.products.findIndex(p => p.productId === productId)
+  if (idx >= 0) {
+    form.products.splice(idx, 1)
+  } else {
+    // Default to 'main' if no main yet, otherwise 'upsell'
+    const hasMain = form.products.some(p => p.role === 'main')
+    form.products.push({ productId, role: hasMain ? 'upsell' : 'main' })
+  }
+}
+
+function getProductRole(productId: string): ProductRole | undefined {
+  return form.products.find(p => p.productId === productId)?.role
+}
+
+function setProductRole(productId: string, role: ProductRole) {
+  const entry = form.products.find(p => p.productId === productId)
+  if (entry) entry.role = role
+}
+
 async function submit() {
   if (!stepValid.value) return
   saving.value = true
@@ -115,7 +145,7 @@ async function submit() {
       name: form.name,
       slug: form.slug,
       description: form.description,
-      productId: form.productId as any,
+      products: form.products.map(p => ({ productId: p.productId as any, role: p.role })),
       pipelineId: form.pipelineId as any,
       pipelineSnapshot: selectedPipeline.value,
       targetFocusGroupIds: form.targetFocusGroupIds as any[],
@@ -164,7 +194,7 @@ async function submit() {
       </h3>
       <p class="text-lg font-semibold text-foreground mt-1">
         <span v-if="step === 1">Basic Information</span>
-        <span v-else-if="step === 2">Product &amp; Audience</span>
+        <span v-else-if="step === 2">Products &amp; Audiences</span>
         <span v-else-if="step === 3">Pipeline Selection</span>
         <span v-else>Configuration</span>
       </p>
@@ -200,22 +230,44 @@ async function submit() {
       </VFormField>
     </div>
 
-    <!-- Step 2: Product & Focus Groups -->
-    <div v-if="step === 2" class="space-y-4">
-      <VFormField label="Product" required>
-        <select
-          v-model="form.productId"
-          class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        >
-          <option value="" disabled>Select a product...</option>
-          <option v-for="p in products" :key="p._id" :value="p._id">
-            {{ p.name }}
-          </option>
-        </select>
+    <!-- Step 2: Products & Focus Groups -->
+    <div v-if="step === 2" class="space-y-6">
+      <VFormField label="Products" hint="Select products and assign roles. At least one 'Main' product required." required>
+        <div v-if="products?.length" class="space-y-2 max-h-48 overflow-y-auto">
+          <div
+            v-for="p in products"
+            :key="p._id"
+            class="flex items-center gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="getProductRole(p._id) ? 'border-primary bg-primary/5' : ''"
+            @click="toggleProduct(p._id)"
+          >
+            <input
+              type="checkbox"
+              :checked="!!getProductRole(p._id)"
+              class="shrink-0"
+              @click.stop
+              @change="toggleProduct(p._id)"
+            />
+            <div class="flex-1 min-w-0">
+              <span class="font-medium text-sm">{{ p.name }}</span>
+              <p v-if="p.description" class="text-xs text-muted-foreground mt-0.5 truncate">{{ p.description }}</p>
+            </div>
+            <select
+              v-if="getProductRole(p._id)"
+              :value="getProductRole(p._id)"
+              class="shrink-0 border border-input rounded px-2 py-1 text-xs bg-background"
+              @click.stop
+              @change="setProductRole(p._id, ($event.target as HTMLSelectElement).value as ProductRole)"
+            >
+              <option v-for="r in productRoles" :key="r.value" :value="r.value">{{ r.label }}</option>
+            </select>
+          </div>
+        </div>
+        <p v-else class="text-sm text-muted-foreground">No products found. Create a product first.</p>
       </VFormField>
 
-      <VFormField v-if="form.productId" label="Target Focus Groups" required>
-        <div v-if="focusGroups?.length" class="space-y-2 max-h-60 overflow-y-auto">
+      <VFormField label="Target Audiences" hint="Select focus groups to target with this campaign." required>
+        <div v-if="focusGroups?.length" class="space-y-2 max-h-48 overflow-y-auto">
           <label
             v-for="fg in focusGroups"
             :key="fg._id"
@@ -230,11 +282,12 @@ async function submit() {
             />
             <div>
               <span class="font-medium text-sm">{{ fg.name }}</span>
-              <p v-if="fg.description" class="text-xs text-muted-foreground mt-0.5">{{ fg.description }}</p>
+              <span v-if="fg.nickname" class="text-xs text-muted-foreground ml-1">({{ fg.nickname }})</span>
+              <p v-if="fg.overview" class="text-xs text-muted-foreground mt-0.5 line-clamp-2">{{ fg.overview }}</p>
             </div>
           </label>
         </div>
-        <p v-else class="text-sm text-muted-foreground">No focus groups found for this product.</p>
+        <p v-else class="text-sm text-muted-foreground">No audiences found. Create or import audiences first.</p>
       </VFormField>
     </div>
 

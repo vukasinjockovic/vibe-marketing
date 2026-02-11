@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-vue-next'
 
 const props = defineProps<{
   projectId: string
-  productId: string
+  productId?: string
   focusGroup?: any
 }>()
 
@@ -133,7 +133,7 @@ async function submit() {
     } else {
       await createFocusGroup({
         projectId: props.projectId as any,
-        productId: props.productId as any,
+        ...(props.productId ? { productId: props.productId as any } : {}),
         number: form.number,
         name: form.name,
         nickname: form.nickname,
@@ -263,10 +263,10 @@ const sections = [
         </VFormField>
 
         <VFormField label="Transformation Promise" :error="errors.transformationPromise" required>
-          <input
+          <textarea
             v-model="form.transformationPromise"
             data-field="transformationPromise"
-            type="text"
+            rows="2"
             placeholder="e.g. From novice to advanced lifter in 12 weeks"
             class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
@@ -309,10 +309,10 @@ const sections = [
           </VFormField>
 
           <VFormField label="Lifestyle" :error="errors.lifestyle" required>
-            <input
+            <textarea
               v-model="form.lifestyle"
               data-field="demographicsLifestyle"
-              type="text"
+              rows="2"
               placeholder="e.g. Active, Sedentary"
               class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
@@ -336,20 +336,20 @@ const sections = [
 
         <div class="grid grid-cols-2 gap-4">
           <VFormField label="Lifestyle" :error="errors.psychLifestyle" required>
-            <input
+            <textarea
               v-model="form.psychLifestyle"
               data-field="psychLifestyle"
-              type="text"
+              rows="2"
               placeholder="e.g. Gym 5x/week"
               class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
           <VFormField label="Identity" :error="errors.identity" required>
-            <input
+            <textarea
               v-model="form.identity"
               data-field="identity"
-              type="text"
+              rows="2"
               placeholder="e.g. Athlete, Yogi"
               class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />

@@ -96,7 +96,7 @@ export const run = internalMutation({
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
             { order: 1, agent: "vibe-keyword-researcher", model: "sonnet", label: "Keyword Research", description: "Research keywords and search intent", outputDir: "research" },
             { order: 2, agent: "vibe-keyword-researcher", model: "sonnet", label: "Content Brief", description: "Generate content brief from research", outputDir: "briefs" },
-            { order: 3, agent: "vibe-content-writer", model: "sonnet", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
+            { order: 3, agent: "vibe-content-writer", model: "opus", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
             { order: 4, agent: "vibe-content-reviewer", model: "sonnet", label: "Quality Review", description: "Review for quality, accuracy, SEO", outputDir: "reviewed" },
             { order: 5, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add human voice", outputDir: "final" },
           ],
@@ -112,14 +112,14 @@ export const run = internalMutation({
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
             { order: 1, agent: "vibe-keyword-researcher", model: "sonnet", label: "Keyword Research", description: "Research keywords and search intent", outputDir: "research" },
             { order: 2, agent: "vibe-keyword-researcher", model: "sonnet", label: "Content Brief", description: "Generate content brief from research", outputDir: "briefs" },
-            { order: 3, agent: "vibe-content-writer", model: "sonnet", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
+            { order: 3, agent: "vibe-content-writer", model: "opus", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
             { order: 4, agent: "vibe-content-reviewer", model: "sonnet", label: "Quality Review", description: "Review for quality, accuracy, SEO", outputDir: "reviewed" },
             { order: 5, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add human voice", outputDir: "final" },
           ],
           parallelBranches: [
             { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate image prompts for article" },
-            { triggerAfterStep: 3, agent: "vibe-social-writer", model: "sonnet", label: "Social Posts", description: "Create social media posts from article" },
-            { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "sonnet", label: "Email Excerpt", description: "Create email newsletter excerpt" },
+            { triggerAfterStep: 3, agent: "vibe-social-writer", model: "opus", label: "Social Posts", description: "Create social media posts from article" },
+            { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "opus", label: "Email Excerpt", description: "Create email newsletter excerpt" },
           ],
           convergenceStep: 5,
           onComplete: { telegram: true, summary: true, generateManifest: true },
@@ -133,23 +133,23 @@ export const run = internalMutation({
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
             { order: 1, agent: "vibe-keyword-researcher", model: "sonnet", label: "Keyword Research", description: "Research keywords and search intent", outputDir: "research" },
             { order: 2, agent: "vibe-keyword-researcher", model: "sonnet", label: "Content Brief", description: "Generate content brief from research", outputDir: "briefs" },
-            { order: 3, agent: "vibe-content-writer", model: "sonnet", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
+            { order: 3, agent: "vibe-content-writer", model: "opus", label: "Write Article", description: "Write long-form article from brief", outputDir: "drafts" },
             { order: 4, agent: "vibe-content-reviewer", model: "sonnet", label: "Quality Review", description: "Review for quality, accuracy, SEO", outputDir: "reviewed" },
             { order: 5, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add human voice", outputDir: "final" },
           ],
           parallelBranches: [
             { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate image prompts for article" },
-            { triggerAfterStep: 3, agent: "vibe-social-writer", model: "sonnet", label: "Social Posts", description: "Create social media posts from article" },
-            { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "sonnet", label: "Email Excerpt", description: "Create email newsletter excerpt" },
+            { triggerAfterStep: 3, agent: "vibe-social-writer", model: "opus", label: "Social Posts", description: "Create social media posts from article" },
+            { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "opus", label: "Email Excerpt", description: "Create email newsletter excerpt" },
             { triggerAfterStep: 2, agent: "vibe-landing-page-writer", model: "opus", label: "Landing Page", description: "Write high-converting landing page" },
-            { triggerAfterStep: 2, agent: "vibe-email-writer", model: "sonnet", label: "Email Sequence", description: "Write nurture email sequence" },
-            { triggerAfterStep: 2, agent: "vibe-ad-writer", model: "sonnet", label: "Ad Copy Set", description: "Write ad copy for Google/Meta/LinkedIn" },
+            { triggerAfterStep: 2, agent: "vibe-email-writer", model: "opus", label: "Email Sequence", description: "Write nurture email sequence" },
+            { triggerAfterStep: 2, agent: "vibe-ad-writer", model: "opus", label: "Ad Copy Set", description: "Write ad copy for Google/Meta/LinkedIn" },
           ],
           convergenceStep: 5,
           onComplete: { telegram: true, summary: true, generateManifest: true },
         },
         {
-          name: "Audience Discovery",
+          name: "[Audience Discovery] From Scratch",
           slug: "audience-discovery",
           type: "preset" as const,
           description: "Generate focus group profiles from scratch for a new market.",
@@ -162,7 +162,7 @@ export const run = internalMutation({
           onComplete: { telegram: true, summary: true, generateManifest: true },
         },
         {
-          name: "Document Import",
+          name: "[Audience Discovery] From Existing Document",
           slug: "document-import",
           type: "preset" as const,
           description: "Parse an uploaded audience document into structured focus groups.",
@@ -550,7 +550,7 @@ export const seedMissing = internalMutation({
       .unique();
     if (!audienceDiscovery) {
       await ctx.db.insert("pipelines", {
-        name: "Audience Discovery",
+        name: "[Audience Discovery] From Scratch",
         slug: "audience-discovery",
         type: "preset" as const,
         description: "Generate focus group profiles from scratch for a new market.",
@@ -562,9 +562,9 @@ export const seedMissing = internalMutation({
         parallelBranches: [],
         onComplete: { telegram: true, summary: true, generateManifest: true },
       });
-      results.push("Seeded Audience Discovery pipeline");
+      results.push("Seeded [Audience Discovery] From Scratch pipeline");
     } else {
-      results.push("Audience Discovery pipeline already exists");
+      results.push("[Audience Discovery] From Scratch pipeline already exists");
     }
 
     const docImport = await ctx.db
@@ -573,7 +573,7 @@ export const seedMissing = internalMutation({
       .unique();
     if (!docImport) {
       await ctx.db.insert("pipelines", {
-        name: "Document Import",
+        name: "[Audience Discovery] From Existing Document",
         slug: "document-import",
         type: "preset" as const,
         description: "Parse an uploaded audience document into structured focus groups.",
@@ -585,9 +585,9 @@ export const seedMissing = internalMutation({
         parallelBranches: [],
         onComplete: { telegram: true, summary: true, generateManifest: false },
       });
-      results.push("Seeded Document Import pipeline");
+      results.push("Seeded [Audience Discovery] From Existing Document pipeline");
     } else {
-      results.push("Document Import pipeline already exists");
+      results.push("[Audience Discovery] From Existing Document pipeline already exists");
     }
 
     return results;

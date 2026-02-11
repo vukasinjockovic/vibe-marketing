@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Package, Megaphone, ListTodo, CheckCircle } from 'lucide-vue-next'
 import { api } from '../../../../convex/_generated/api'
 
 const { project } = useCurrentProject()
@@ -21,10 +22,10 @@ const stats = computed(() => project.value?.stats || {
 })
 
 const statCards = computed(() => [
-  { label: 'Products', value: stats.value.productCount || 0, color: 'text-blue-600 bg-blue-50' },
-  { label: 'Campaigns', value: stats.value.campaignCount || 0, color: 'text-purple-600 bg-purple-50' },
-  { label: 'Tasks', value: stats.value.taskCount || 0, color: 'text-amber-600 bg-amber-50' },
-  { label: 'Completed', value: stats.value.completedTaskCount || 0, color: 'text-green-600 bg-green-50' },
+  { label: 'Products', value: stats.value.productCount || 0, color: 'text-blue-600 bg-blue-50', icon: Package },
+  { label: 'Campaigns', value: stats.value.campaignCount || 0, color: 'text-purple-600 bg-purple-50', icon: Megaphone },
+  { label: 'Tasks', value: stats.value.taskCount || 0, color: 'text-amber-600 bg-amber-50', icon: ListTodo },
+  { label: 'Completed', value: stats.value.completedTaskCount || 0, color: 'text-green-600 bg-green-50', icon: CheckCircle },
 ])
 
 const recentCampaigns = computed(() => (campaigns.value || []).slice(0, 5))
@@ -56,7 +57,7 @@ function formatTime(ts: number) {
       >
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" :class="stat.color">
-            <span class="text-xl font-bold">{{ stat.value }}</span>
+            <component :is="stat.icon" :size="20" />
           </div>
           <div>
             <p class="text-2xl font-bold text-foreground">{{ stat.value }}</p>

@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { Plus } from 'lucide-vue-next'
 import { api } from '../../../convex/_generated/api'
 
 const { data: pipelines, loading } = useConvexQuery(api.pipelines.list, {})
 const { mutate: forkPipeline } = useConvexMutation(api.pipelines.fork)
+const { mutate: removePipeline } = useConvexMutation(api.pipelines.remove)
 const toast = useToast()
 
 const forking = ref<string | null>(null)
+const showCreate = ref(false)
 
 async function fork(p: any) {
   forking.value = p._id
@@ -23,11 +26,34 @@ async function fork(p: any) {
     forking.value = null
   }
 }
+
+function onCreated(slug: string) {
+  showCreate.value = false
+  navigateTo(`/pipelines/${slug}`)
+}
 </script>
 
 <template>
   <div>
-    <VPageHeader title="Pipeline Templates" description="Content production pipeline templates and custom forks" />
+    <VPageHeader title="Pipeline Templates" description="Content production pipeline templates and custom forks">
+      <template #actions>
+        <button
+          class="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+          @click="showCreate = true"
+        >
+          <Plus :size="16" />
+          Create Pipeline
+        </button>
+      </template>
+    </VPageHeader>
+
+    <!-- Create modal -->
+    <VModal v-model="showCreate" title="Create Pipeline" size="xl">
+      <PipelineForm
+        @saved="onCreated"
+        @cancelled="showCreate = false"
+      />
+    </VModal>
 
     <div v-if="loading" class="text-muted-foreground">Loading pipelines...</div>
 
@@ -35,7 +61,15 @@ async function fork(p: any) {
       v-else-if="!pipelines?.length"
       title="No pipelines"
       description="Pipeline templates will appear here once created."
-    />
+    >
+      <button
+        class="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90"
+        @click="showCreate = true"
+      >
+        <Plus :size="16" />
+        Create Pipeline
+      </button>
+    </VEmptyState>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div

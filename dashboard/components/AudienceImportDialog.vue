@@ -5,7 +5,7 @@ import { FileUp } from 'lucide-vue-next'
 const props = defineProps<{
   modelValue: boolean
   projectId: string
-  productId: string
+  productId?: string
 }>()
 
 const emit = defineEmits<{
@@ -83,7 +83,7 @@ async function submit() {
       title: selectedFile.value.name,
       content: fileContent.value,
       type: 'audience_doc' as any,
-      productId: props.productId as any,
+      ...(props.productId ? { productId: props.productId as any } : {}),
       projectId: props.projectId as any,
       createdBy: 'dashboard',
     })
@@ -110,7 +110,7 @@ async function submit() {
       createdBy: 'dashboard',
       contentType: 'audience_import',
       metadata: {
-        productId: props.productId,
+        ...(props.productId ? { productId: props.productId } : {}),
         documentId: docId,
         autoEnrich: autoEnrich.value,
         uploadedFilePath: selectedFile.value.name,

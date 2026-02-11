@@ -117,3 +117,11 @@ export const updateStats = mutation({
     await ctx.db.patch(args.id, { stats: args.stats });
   },
 });
+
+// Delete a project
+export const remove = mutation({
+  args: { id: v.id("projects") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});

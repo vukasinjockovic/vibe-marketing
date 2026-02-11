@@ -191,10 +191,10 @@ async function submit() {
         </VFormField>
 
         <VFormField label="Target Market" :error="errors.targetMarket" required>
-          <input
+          <textarea
             v-model="form.targetMarket"
             data-field="targetMarket"
-            type="text"
+            rows="2"
             placeholder="Who is this for?"
             class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
@@ -222,20 +222,20 @@ async function submit() {
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <VFormField label="Tone" :error="errors.tone" required>
-            <input
+            <textarea
               v-model="form.tone"
               data-field="tone"
-              type="text"
+              rows="2"
               placeholder="e.g. Motivational, Friendly"
               class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </VFormField>
 
           <VFormField label="Style" :error="errors.style" required>
-            <input
+            <textarea
               v-model="form.style"
               data-field="style"
-              type="text"
+              rows="2"
               placeholder="e.g. Bold, Casual"
               class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />

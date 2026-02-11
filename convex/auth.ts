@@ -137,6 +137,7 @@ export const me = query({
       name: user.name,
       role: user.role,
       lastLoginAt: user.lastLoginAt,
+      notificationsReadAt: user.notificationsReadAt,
     };
   },
 });

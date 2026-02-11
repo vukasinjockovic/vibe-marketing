@@ -49,7 +49,10 @@ export const create = mutation({
     name: v.string(),
     slug: v.string(),
     description: v.string(),
-    productId: v.id("products"),
+    products: v.array(v.object({
+      productId: v.id("products"),
+      role: v.union(v.literal("main"), v.literal("upsell"), v.literal("addon"), v.literal("downsell")),
+    })),
     pipelineId: v.id("pipelines"),
     pipelineSnapshot: v.any(),
     targetFocusGroupIds: v.array(v.id("focusGroups")),

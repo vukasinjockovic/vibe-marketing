@@ -50,7 +50,7 @@ export const getByCampaign = query({
 export const create = mutation({
   args: {
     projectId: v.id("projects"),
-    productId: v.id("products"),
+    productId: v.optional(v.id("products")),
     number: v.number(),
     name: v.string(),
     nickname: v.string(),
@@ -148,49 +148,47 @@ export const remove = mutation({
 // NEW: Focus Group Intelligence Functions
 // ═══════════════════════════════════════════
 
-// Find by exact name using the by_name index (productId + name)
+// Find by exact name within a project
 export const findByName = query({
   args: {
-    productId: v.id("products"),
+    projectId: v.id("projects"),
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    const result = await ctx.db
+    const all = await ctx.db
       .query("focusGroups")
-      .withIndex("by_name", (q) =>
-        q.eq("productId", args.productId).eq("name", args.name)
-      )
-      .first();
-    return result;
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+    return all.find((fg) => fg.name === args.name) || null;
   },
 });
 
-// Find by nickname (case-insensitive, collects all for product then filters)
+// Find by nickname (case-insensitive, within project)
 export const findByNickname = query({
   args: {
-    productId: v.id("products"),
+    projectId: v.id("projects"),
     nickname: v.string(),
   },
   handler: async (ctx, args) => {
     const all = await ctx.db
       .query("focusGroups")
-      .withIndex("by_product", (q) => q.eq("productId", args.productId))
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
     const lowerNickname = args.nickname.toLowerCase();
     return all.filter((fg) => fg.nickname.toLowerCase() === lowerNickname);
   },
 });
 
-// Search by name (partial match, case-insensitive)
+// Search by name (partial match, case-insensitive, within project)
 export const searchByName = query({
   args: {
-    productId: v.id("products"),
+    projectId: v.id("projects"),
     query: v.string(),
   },
   handler: async (ctx, args) => {
     const all = await ctx.db
       .query("focusGroups")
-      .withIndex("by_product", (q) => q.eq("productId", args.productId))
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
     const lowerQuery = args.query.toLowerCase();
     return all.filter((fg) => fg.name.toLowerCase().includes(lowerQuery));
@@ -264,7 +262,7 @@ export const createBatch = mutation({
   args: {
     groups: v.array(v.object({
       projectId: v.id("projects"),
-      productId: v.id("products"),
+      productId: v.optional(v.id("products")),
       number: v.number(),
       name: v.string(),
       nickname: v.string(),

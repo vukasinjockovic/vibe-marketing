@@ -7,6 +7,7 @@ const slug = computed(() => route.params.slug as string)
 const tabs = computed(() => [
   { name: 'Overview', path: `/projects/${slug.value}` },
   { name: 'Products', path: `/projects/${slug.value}/products` },
+  { name: 'Audiences', path: `/projects/${slug.value}/audiences` },
   { name: 'Campaigns', path: `/projects/${slug.value}/campaigns` },
   { name: 'Pipeline', path: `/projects/${slug.value}/pipeline` },
 ])

@@ -161,7 +161,7 @@ export const getSummary = query({
 export const createFromParsed = mutation({
   args: {
     taskId: v.id("tasks"),
-    productId: v.id("products"),
+    productId: v.optional(v.id("products")),
     projectId: v.id("projects"),
     sourceDocumentId: v.optional(v.id("documents")),
     matchStatus: v.union(
@@ -197,7 +197,7 @@ export const createBatch = mutation({
   args: {
     groups: v.array(v.object({
       taskId: v.id("tasks"),
-      productId: v.id("products"),
+      productId: v.optional(v.id("products")),
       projectId: v.id("projects"),
       sourceDocumentId: v.optional(v.id("documents")),
       matchStatus: v.union(

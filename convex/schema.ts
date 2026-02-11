@@ -14,6 +14,7 @@ export default defineSchema({
     role: v.union(v.literal("admin"), v.literal("editor"), v.literal("viewer")),
     status: v.union(v.literal("active"), v.literal("disabled")),
     lastLoginAt: v.optional(v.number()),
+    notificationsReadAt: v.optional(v.number()),
   }).index("by_email", ["email"]),
 
   sessions: defineTable({
@@ -91,7 +92,7 @@ export default defineSchema({
 
   focusGroups: defineTable({
     projectId: v.id("projects"),
-    productId: v.id("products"),
+    productId: v.optional(v.id("products")),
     number: v.number(),
     name: v.string(),
     nickname: v.string(),
@@ -198,7 +199,7 @@ export default defineSchema({
   focusGroupStaging: defineTable({
     // Context
     taskId: v.id("tasks"),
-    productId: v.id("products"),
+    productId: v.optional(v.id("products")),
     projectId: v.id("projects"),
     sourceDocumentId: v.optional(v.id("documents")),
 
@@ -369,7 +370,10 @@ export default defineSchema({
     name: v.string(),
     slug: v.string(),
     description: v.string(),
-    productId: v.id("products"),
+    products: v.array(v.object({
+      productId: v.id("products"),
+      role: v.union(v.literal("main"), v.literal("upsell"), v.literal("addon"), v.literal("downsell")),
+    })),
     pipelineId: v.id("pipelines"),
     pipelineSnapshot: v.any(),
     targetFocusGroupIds: v.array(v.id("focusGroups")),
@@ -437,7 +441,6 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     targetArticleCount: v.optional(v.number()),
   }).index("by_slug", ["slug"])
-    .index("by_product", ["productId"])
     .index("by_project", ["projectId"])
     .index("by_status", ["status"]),
 
