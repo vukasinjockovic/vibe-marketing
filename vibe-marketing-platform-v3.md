@@ -278,29 +278,103 @@ Agents can't have this hardcoded. It needs to be configurable from the dashboard
 ```typescript
 // In Convex schema
 serviceCategories: defineTable({
-  name: v.string(),              // "seo_keywords", "image_generation", "web_scraping"
-  displayName: v.string(),       // "SEO & Keywords", "Image Generation"
+  key: v.string(),                       // "seo_keywords", "web_scraping", "image_generation"
+  displayName: v.string(),               // "SEO & Keywords"
   description: v.string(),
-  icon: v.string(),              // Dashboard icon
-}),
+  icon: v.string(),                      // Dashboard icon
+  scope: v.union(
+    v.literal("research"),               // SEO, SERP, scraping, social scraping
+    v.literal("content"),                // Image gen, video gen, voice, templated images
+    v.literal("distribution"),           // Email, social publishing, CMS
+    v.literal("quality"),                // Plagiarism, grammar, fact-checking
+    v.literal("infrastructure"),         // Search, analytics, notifications, doc gen
+  ),
+  sortOrder: v.number(),                 // Display order in dashboard
+  isRequired: v.boolean(),              // true = agents can't work without this
+  selfHostedAvailable: v.boolean(),     // true = free self-hosted option exists
+  freeProviderAvailable: v.boolean(),   // true = at least one provider has free tier
+}).index("by_key", ["key"])
+  .index("by_scope", ["scope"]),
 
 services: defineTable({
   categoryId: v.id("serviceCategories"),
-  name: v.string(),              // "dataforseo", "flux_pro", "firecrawl"
-  displayName: v.string(),       // "DataForSEO", "FLUX Pro (fal.ai)"
-  description: v.string(),       // What it's best for
-  isActive: v.boolean(),
-  priority: v.number(),          // 1 = highest priority in category
-  apiKeyField: v.string(),       // ENV var name: "DATAFORSEO_LOGIN"
-  apiKeySet: v.boolean(),        // Whether the key is configured
-  configJson: v.optional(v.string()), // Extra config (endpoints, models, etc.)
-  costInfo: v.string(),          // "$0.05/image", "$50/mo min deposit"
-  useCases: v.array(v.string()), // ["hero_images", "product_photos"]
-  scriptPath: v.string(),        // Path to the wrapper script
-  mcpServer: v.optional(v.string()), // MCP server name if applicable
-  docs: v.optional(v.string()),  // URL to API docs
+  name: v.string(),                    // "dataforseo", "crawl4ai", "firecrawl"
+  displayName: v.string(),             // "DataForSEO", "Crawl4AI"
+  description: v.string(),
+  isActive: v.boolean(),               // Whether this provider is currently active
+  priority: v.number(),                // 1 = highest priority in category
+
+  // API key configuration
+  apiKeyFields: v.array(v.object({     // Changed from single field to array
+    envVar: v.string(),                // "DATAFORSEO_LOGIN"
+    label: v.string(),                 // "Login"
+    isSecret: v.boolean(),             // true = masked in UI
+  })),
+  apiKeyConfigured: v.boolean(),       // Whether all required keys are set
+
+  // Integration method
+  integrationMethod: v.union(
+    v.literal("mcp"),                  // MCP server only
+    v.literal("script"),               // Python script only
+    v.literal("both"),                 // MCP + script
+    v.literal("local"),                // Local tool (pandoc, etc.)
+    v.literal("docker"),               // Self-hosted Docker container
+  ),
+  mcpServerName: v.optional(v.string()),   // Key in .mcp.json
+  mcpPackage: v.optional(v.string()),      // npm/pip package name
+  scriptPath: v.optional(v.string()),      // Path to wrapper script
+  dockerImage: v.optional(v.string()),     // Docker image for self-hosted
+  dockerPort: v.optional(v.number()),      // Host port mapping
+
+  // Cost & hosting
+  costTier: v.union(
+    v.literal("free"),                 // Completely free
+    v.literal("freemium"),             // Free tier available
+    v.literal("paid"),                 // Paid only
+    v.literal("self_hosted"),          // Free if self-hosted
+  ),
+  costInfo: v.string(),               // "$0.05/image", "Free (self-hosted)"
+  isSelfHosted: v.boolean(),           // Runs on user's infrastructure
+
+  // Use cases (sub-capabilities within category)
+  useCases: v.array(v.string()),       // ["hero_images", "product_photos"]
+
+  // Setup
+  installCommand: v.optional(v.string()), // What setup.sh runs to install
+  healthCheckEndpoint: v.optional(v.string()), // URL to ping for health check
+
+  // Docs
+  docsUrl: v.optional(v.string()),     // API documentation URL
+
+  // Status tracking
+  lastHealthCheck: v.optional(v.number()),
+  healthStatus: v.optional(v.union(
+    v.literal("healthy"),
+    v.literal("degraded"),
+    v.literal("down"),
+    v.literal("unchecked"),
+  )),
 }).index("by_category", ["categoryId"])
-  .index("by_active", ["isActive"]),
+  .index("by_active", ["isActive"])
+  .index("by_name", ["name"]),
+
+// ═══════════════════════════════════════════
+// AGENT SERVICE DEPENDENCIES
+// Maps which service capabilities each agent needs
+// Used by pipeline builder to determine agent draggability
+// ═══════════════════════════════════════════
+
+agentServiceDeps: defineTable({
+  agentName: v.string(),                // "vibe-keyword-researcher"
+  capabilityKey: v.string(),            // "seo_keywords"
+  requirement: v.union(
+    v.literal("required"),              // Agent cannot function without this
+    v.literal("optional"),              // Agent works but with reduced capability
+    v.literal("enhances"),              // Nice to have, agent fully works without
+  ),
+  reason: v.string(),                   // "Needs keyword data to generate briefs"
+}).index("by_agent", ["agentName"])
+  .index("by_capability", ["capabilityKey"]),
 ```
 
 ### Service Categories & Initial Services
@@ -540,19 +614,74 @@ Agents can call this directly: `python scripts/resolve_service.py image_generati
 
 ### Dashboard: Service Registry Page
 
-The Settings → Service Registry page in the dashboard shows:
+The Settings → Services page in the dashboard is the central hub for managing external service integrations. It directly controls which agents are available in the pipeline builder.
 
-- **Category tabs** across the top (SEO, Scraping, Images, Video, Email, etc.)
-- Per category: **card grid** of all available services
-  - Each card shows: service name, description, cost info, status toggle (active/inactive)
-  - Drag-and-drop to reorder priority
-  - "Configure" button opens a modal:
-    - API key fields (stored in Convex, encrypted)
-    - Extra config (JSON or form fields)
-    - Use case tags (which sub-tasks this service handles)
-    - "Test Connection" button that runs a quick API check
-- **Active summary** at the top: "4 of 12 image services active, 2 of 5 SEO services active"
-- When you toggle a service or change priority, the registry daemon auto-regenerates `SERVICE_REGISTRY.md`
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Settings → Services                              [Run Setup ▾] │
+│                                                                   │
+│  Agent Status: 18/26 agents enabled · 3 degraded · 5 blocked    │
+│                                                                   │
+│  ┌─ Research ──────────────────────────────────────────────────┐ │
+│  │                                                              │ │
+│  │  SEO & Keywords                    [2 of 5 active]          │ │
+│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │ │
+│  │  │ DataForSEO   │ │ Ahrefs       │ │ Google KP    │  ...   │ │
+│  │  │ ● Active #1  │ │ ○ Inactive   │ │ ● Active #2  │        │ │
+│  │  │ [Configure]  │ │ [Add Key]    │ │ [Configure]  │        │ │
+│  │  └──────────────┘ └──────────────┘ └──────────────┘        │ │
+│  │                                                              │ │
+│  │  Unlocks: vibe-keyword-researcher, vibe-seo-auditor         │ │
+│  │                                                              │ │
+│  │  Web Scraping                      [1 of 4 active]          │ │
+│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐        │ │
+│  │  │ Crawl4AI     │ │ Firecrawl    │ │ Apify        │  ...   │ │
+│  │  │ 🐳 Running   │ │ ○ No key     │ │ ○ No key     │        │ │
+│  │  │ Self-hosted  │ │ [Add Key]    │ │ [Add Key]    │        │ │
+│  │  └──────────────┘ └──────────────┘ └──────────────┘        │ │
+│  │                                                              │ │
+│  │  Unlocks: vibe-competitor-analyst                            │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─ Content ───────────────────────────────────────────────────┐ │
+│  │  Image Generation                  [0 of 9 active] ⚠       │ │
+│  │  ...                                                        │ │
+│  │  Blocks: vibe-image-generator                               │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─ Blocked Agents (5) ───────────────────────────────────────┐  │
+│  │  ○ vibe-image-generator      — needs: image_generation     │  │
+│  │  ○ vibe-video-generator      — needs: video_generation     │  │
+│  │  ○ vibe-twitter-scout        — needs: social_scraping_x    │  │
+│  │  ○ vibe-linkedin-scout       — needs: social_scraping_li   │  │
+│  │  ○ vibe-competitor-analyst   — needs: web_scraping          │  │
+│  │                                                              │  │
+│  │  [Quick Setup: Enable all with free tiers →]                │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Service card states:**
+- `● Active #N` — API key configured, service is active, N = priority rank
+- `○ Inactive` — No API key, or manually disabled
+- `🐳 Running` — Self-hosted Docker container is up
+- `🐳 Stopped` — Docker container exists but isn't running
+- `⚠ Error` — Health check failed
+
+**Per-card actions:**
+- **Configure** — Edit API keys, priority, use cases
+- **Add Key** — Quick API key entry
+- **Test Connection** — Run health check
+- **Disable/Enable** — Toggle without removing keys
+- **Priority ↑↓** — Drag to reorder within category
+
+**"Quick Setup: Enable all with free tiers"** button runs:
+1. Start Crawl4AI Docker container (enables web_scraping)
+2. Start LanguageTool Docker container (enables content_quality)
+3. Prompt for free API keys: Reddit API, X API Essential, YouTube Data API, Google Keyword Planner
+4. After each key entered, marks capability as active, updates agent availability in real-time
 
 ---
 
@@ -577,27 +706,18 @@ The Settings → Service Registry page in the dashboard shows:
 │   │   │   └── references/
 │   │   │       ├── keyword-strategy.md
 │   │   │       └── brief-template.md
-│   │   ├── content-writing-procedures/        ← How to write articles
-│   │   │   ├── SKILL.md
-│   │   │   ├── scripts/
-│   │   │   │   ├── check_readability.py
-│   │   │   │   ├── check_keyword_density.py
-│   │   │   │   └── format_article.py
-│   │   │   └── references/
-│   │   │       ├── content-frameworks.md      ← AIDA, PAS, BAB, etc.
-│   │   │       └── seo-on-page-checklist.md
+│   │   ├── content-writing-procedures/        ← Shared SOP for ALL writing agents
+│   │   │   └── SKILL.md                       ← Brief→Research→Outline→Draft→Review→Output
 │   │   ├── content-review-procedures/         ← How to review content
 │   │   ├── orchestrator-procedures/           ← Orchestration + safety net logic
 │   │   ├── audience-analysis-procedures/      ← How to parse/generate audiences
 │   │   ├── audience-research-procedures/      ← How to research from scratch
 │   │   ├── audience-enrichment-procedures/    ← How to enrich existing data
-│   │   ├── social-writing-procedures/         ← Social post creation
-│   │   ├── email-writing-procedures/          ← Email sequence writing
-│   │   ├── landing-page-procedures/           ← Landing page copy
-│   │   ├── ebook-procedures/                  ← Ebook creation
-│   │   ├── ad-copy-procedures/                ← Ad writing
+│   │   ├── ebook-procedures/                  ← Ebook/lead magnet creation
+│   │   ├── video-script-guide/                ← Video script creation (8 formats)
 │   │   ├── competitor-procedures/             ← Competitor intelligence
 │   │   ├── image-direction-procedures/        ← Image prompt engineering
+│   │   ├── image-generation-procedures/       ← Image generation via services
 │   │   │
 │   │   ├── humanizer/                         ← FROM skills.sh — AI pattern detection
 │   │   │   └── SKILL.md                       ← 16 pattern categories (Wikipedia-grade)
@@ -763,6 +883,9 @@ The Settings → Service Registry page in the dashboard shows:
 │   │       └── WritingStrategySummary.vue      ← Read-only skill config summary
 │   └── package.json
 ├── scripts/                                   ← Shared utility scripts
+│   ├── setup.sh                               ← Platform setup: MCPs, Docker, API keys, Convex seed
+│   ├── docker-compose.services.yml            ← Self-hosted services (Crawl4AI, LanguageTool)
+│   ├── health-check.py                        ← Service health monitoring (cron)
 │   ├── invoke-agent.sh                        ← Agent invocation wrapper
 │   ├── sync-skills.ts                         ← Filesystem → Convex skill sync (NEW)
 │   ├── setup-crons.sh                         ← Install all cron jobs
@@ -975,14 +1098,24 @@ Use @all for everyone. Use @human for Telegram notification to owner.
 
 ## 7. MCP Server Configuration
 
+All MCP servers the platform can use are declared in `.mcp.json`. Each has env var placeholders -- they are installed but inactive until API keys are provided:
+
 ```json
 {
   "mcpServers": {
+    // ── Search ──
     "brave-search": {
       "command": "npx",
       "args": ["-y", "@anthropic-ai/mcp-server-brave-search"],
       "env": { "BRAVE_API_KEY": "${BRAVE_API_KEY}" }
     },
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "perplexityai/modelcontextprotocol"],
+      "env": { "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}" }
+    },
+
+    // ── Scraping ──
     "firecrawl": {
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
@@ -992,10 +1125,93 @@ Use @all for everyone. Use @human for Telegram notification to owner.
       "command": "npx",
       "args": ["-y", "@anthropic-ai/mcp-server-fetch"]
     },
+
+    // ── SEO ──
+    "dataforseo": {
+      "command": "uvx",
+      "args": ["dataforseo-mcp-server"],
+      "env": { "DATAFORSEO_LOGIN": "${DATAFORSEO_LOGIN}", "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}" }
+    },
+    "ahrefs": {
+      "url": "https://mcp.ahrefs.com/v1/sse",
+      "env": { "AHREFS_API_KEY": "${AHREFS_API_KEY}" }
+    },
+
+    // ── Social ──
+    "reddit": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-reddit"],
+      "env": { "REDDIT_CLIENT_ID": "${REDDIT_CLIENT_ID}", "REDDIT_CLIENT_SECRET": "${REDDIT_CLIENT_SECRET}" }
+    },
+    "youtube": {
+      "command": "npx",
+      "args": ["-y", "@kirbah/mcp-youtube"],
+      "env": { "YOUTUBE_API_KEY": "${YOUTUBE_API_KEY}" }
+    },
+
+    // ── Images ──
+    "fal-ai": {
+      "command": "npx",
+      "args": ["-y", "mcp-fal-ai-image"],
+      "env": { "FAL_KEY": "${FAL_KEY}" }
+    },
+
+    // ── Video ──
+    "runway": {
+      "command": "npx",
+      "args": ["-y", "wheattoast11/mcp-video-gen"],
+      "env": { "RUNWAY_API_KEY": "${RUNWAY_API_KEY}" }
+    },
+
+    // ── Voice ──
+    "elevenlabs": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "ELEVENLABS_API_KEY", "mcp/elevenlabs"],
+      "env": { "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}" }
+    },
+
+    // ── Email ──
+    "mailgun": {
+      "command": "npx",
+      "args": ["-y", "mailgun/mailgun-mcp-server"],
+      "env": { "MAILGUN_API_KEY": "${MAILGUN_API_KEY}", "MAILGUN_DOMAIN": "${MAILGUN_DOMAIN}" }
+    },
+
+    // ── CMS ──
+    "wordpress": {
+      "command": "npx",
+      "args": ["-y", "WordPress/mcp-adapter"],
+      "env": { "WORDPRESS_URL": "${WORDPRESS_URL}", "WORDPRESS_APP_PASSWORD": "${WORDPRESS_APP_PASSWORD}" }
+    },
+    "webflow": {
+      "command": "npx",
+      "args": ["-y", "webflow/mcp-server"],
+      "env": { "WEBFLOW_API_TOKEN": "${WEBFLOW_API_TOKEN}" }
+    },
+
+    // ── Notifications ──
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}" }
+    },
+
+    // ── Analytics ──
+    "google-search-console": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-gsc"],
+      "env": { "GSC_SERVICE_ACCOUNT_JSON": "${GSC_SERVICE_ACCOUNT_JSON}" }
+    },
+
+    // ── Infrastructure ──
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
+    },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem",
-               "/home/deploy/vibe-marketing"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/deploy/vibe-marketing"]
     }
   }
 }
@@ -2996,6 +3212,75 @@ Pipeline builder validates on save:
 - Audience researcher + campaign already has rich focus groups selected → "Did you mean vibe-audience-enricher?"
 - Audience enricher + no focus groups selected → "No focus groups to enrich. Add groups or use vibe-audience-researcher."
 
+#### Agent Availability Gating (Service Dependencies)
+
+The pipeline builder checks each agent's service dependencies before allowing it to be placed:
+
+```
+Agent palette states:
+─────────────────────
+● ENABLED (draggable)     — All REQUIRED capabilities have ≥1 active provider
+◐ DEGRADED (draggable)    — All required met, but OPTIONAL capabilities missing
+                            Shows warning badge: "Limited: no [capability]"
+○ DISABLED (undraggable)  — ≥1 REQUIRED capability has 0 active providers
+                            Tooltip: "Requires: [capability]. Configure in Settings → Services."
+```
+
+The available agents sidebar reflects current service state:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  AVAILABLE AGENTS                                           │
+│                                                             │
+│  Research:                                                  │
+│  [● 🔍 Keyword Researcher]    ← seo_keywords active       │
+│  [● 📊 SERP Analyzer]         ← serp_tracking active      │
+│  [○ 🕵️ Competitor Analyst]    ← web_scraping: none        │
+│     ⚠ Requires: Web Scraping                               │
+│     Configure in Settings → Services                        │
+│                                                             │
+│  Content:                                                   │
+│  [● ✍️ Content Writer]        ← no external deps          │
+│  [● 📄 Landing Page Writer]   ← no external deps          │
+│  [● 📧 Email Writer]          ← no external deps          │
+│                                                             │
+│  Media:                                                     │
+│  [● 🎨 Image Director]        ← no external deps          │
+│  [○ 🖼 Image Generator]       ← image_generation: none    │
+│     ⚠ Requires: Image Generation                           │
+│  [○ 🎬 Video Generator]       ← video_generation: none    │
+│     ⚠ Requires: Video Generation                           │
+│                                                             │
+│  Social:                                                    │
+│  [○ 🐦 Twitter Scout]         ← social_scraping_x: none   │
+│  [● 🤖 Reddit Scout]          ← reddit API active         │
+│  [○ 💼 LinkedIn Scout]        ← social_scraping_li: none  │
+│                                                             │
+│  Quality:                                                   │
+│  [◐ ✅ Content Reviewer]      ← Limited: no plagiarism    │
+│  [● 🤖 Humanizer]             ← no external deps          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+When a disabled agent is clicked, a popover explains what's needed:
+
+```
+┌───────────────────────────────────────────┐
+│  🖼 Image Generator                       │
+│                                           │
+│  This agent requires at least one         │
+│  image generation service.                │
+│                                           │
+│  Available options:                       │
+│  • FLUX Pro (fal.ai) — $0.05/img         │
+│  • FLUX Schnell — $0.003/img             │
+│  • DALL-E 3 — $0.04/img                  │
+│  • Ideogram 3.0 — $7/mo                  │
+│                                           │
+│  [Configure Services →]                   │
+└───────────────────────────────────────────┘
+```
+
 #### How Pipelines Attach to Campaigns
 
 ```typescript
@@ -3691,8 +3976,8 @@ The `agents.dynamicSkillIds` field is configured in the dashboard (`/agents/:nam
 | `vibe-email-writer` | content-writing-procedures | hormozi-leads, brunson-dotcom (L2); sugarman, voss (L3); halbert, storybrand (L4) |
 | `vibe-ad-writer` | content-writing-procedures | hormozi-offers (L2); cialdini, sugarman (L3); halbert, ogilvy (L4) |
 | `vibe-social-writer` | content-writing-procedures | — (L2); sugarman (L3); — (L4) |
-| `vibe-ebook-writer` | content-writing-procedures | hormozi-leads (L2); cialdini (L3); storybrand, brunson-expert (L4) |
-| `vibe-script-writer` | content-writing-procedures | — (L2); voss (L3); storybrand, brunson-expert (L4) |
+| `vibe-ebook-writer` | ebook-procedures, content-writing-procedures | hormozi-leads (L2); cialdini (L3); storybrand, brunson-expert (L4) |
+| `vibe-script-writer` | video-script-guide, content-writing-procedures | — (L2); voss (L3); storybrand, brunson-expert (L4) |
 | `vibe-press-writer` | content-writing-procedures | — (L2); cialdini [authority] (L3); ogilvy (L4) |
 | `vibe-content-repurposer` | content-writing-procedures | Inherits from source content's pipeline step skills |
 | `vibe-image-director` | — | — (no mbook skills — images don't use copy frameworks) |
@@ -4887,15 +5172,44 @@ TELEGRAM_CHAT_ID=...
 
 ## Appendix B: Marketing Frameworks
 
-All embedded in agent skill reference files:
-- Copywriting: AIDA, PAS, BAB, PASTOR, FAB, 4 U's, StoryBrand → `quill/references/content-frameworks.md`
-- Marketing Psychology: 40+ mental models (from skills.sh) → `.claude/skills/shared-references/marketing-psychology/SKILL.md`
-- Persuasion: Schwartz, Cialdini, Hormozi, Ogilvy → `landing-craft/references/persuasion-frameworks.md`
-- SEO: On-page checklist, E-E-A-T → `quill/references/seo-on-page-checklist.md`
-- Humanization: 16 AI pattern categories (from skills.sh) → `.claude/skills/humanizer/SKILL.md`
-- Fact-checking: 7-phase claim investigation (from skills.sh) → `.claude/skills/fact-checker/SKILL.md`
-- Audience: Maslow, VALS, lifestyle segmentation → `audience-researcher/references/psychographic-frameworks.md`
-- Referral/Viral: Program design, incentive sizing (from skills.sh) → `.claude/skills/shared-references/referral-program/SKILL.md`
+All frameworks live inside installed skills (`.claude/skills/`). No separate reference files needed.
+
+**L1 Audience Understanding (auto-active):**
+- Schwartz 5 Stages of Awareness + Market Sophistication → `.claude/skills/mbook-schwarz-awareness/SKILL.md`
+
+**L2 Offer Structure (campaign-selectable, pick 0-1):**
+- Hormozi Value Equation, Grand Slam Offers → `.claude/skills/mbook-hormozi-offers/SKILL.md`
+- Hormozi Lead Gen, Lead Magnets → `.claude/skills/mbook-hormozi-leads/SKILL.md`
+- Brunson Value Ladder, Funnels → `.claude/skills/mbook-brunson-dotcom/SKILL.md`
+
+**L3 Persuasion (campaign-selectable, pick 1-2):**
+- Cialdini 7 Principles (reciprocity, scarcity, authority, etc.) → `.claude/skills/mbook-cialdini-influence/SKILL.md`
+- Voss Tactical Empathy, Labeling, Mirroring → `.claude/skills/mbook-voss-negotiation/SKILL.md`
+- Sugarman Slippery Slide, 31 Triggers → `.claude/skills/mbook-sugarman-copywriting/SKILL.md`
+- 40+ mental models (community skill) → `.claude/skills/marketing-psychology/SKILL.md`
+
+**L4 Craft (campaign-selectable, pick 1 primary):**
+- Ogilvy Headlines, Body Copy, Research-Heavy Style → `.claude/skills/mbook-ogilvy-advertising/SKILL.md`
+- Halbert Direct Response, AIDA, Market Selection → `.claude/skills/mbook-halbert-boron/SKILL.md`
+- Miller StoryBrand 7-Part Framework → `.claude/skills/mbook-miller-storybrand/SKILL.md`
+- Brunson Expert Positioning, Epiphany Bridge → `.claude/skills/mbook-brunson-expert/SKILL.md`
+
+**L5 Quality (auto-active):**
+- AI pattern removal (16 categories) → `.claude/skills/humanizer/SKILL.md`
+- Strunk-based clarity rules → `.claude/skills/writing-clearly-and-concisely/SKILL.md`
+
+**Format guides (per-agent static skills):**
+- General copywriting (AIDA, PAS, BAB, FAB) → `.claude/skills/copywriting/SKILL.md`
+- Landing page optimization → `.claude/skills/page-cro/SKILL.md`
+- Email sequences → `.claude/skills/email-sequence/SKILL.md`
+- Ad copy (Google, Meta, LinkedIn) → `.claude/skills/paid-ads/SKILL.md`
+- Social media (multi-platform) → `.claude/skills/social-content/SKILL.md`
+- Ebook/lead magnet creation → `.claude/skills/ebook-procedures/SKILL.md`
+
+**Other:**
+- Fact-checking: 7-phase claim investigation → `.claude/skills/claim-investigation/SKILL.md`
+- Referral program design → `.claude/skills/referral-program/SKILL.md`
+- Audience psychographics → `.claude/skills/audience-research-procedures/SKILL.md` (to be created)
 
 ## Appendix C: Knowledge Base (via ebook-analysis skill)
 

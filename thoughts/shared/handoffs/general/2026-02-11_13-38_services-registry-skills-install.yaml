@@ -1,0 +1,109 @@
+---
+session: general
+date: 2026-02-11
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Built capability-first external services architecture + skills registry + agent gating for vibe-marketing platform
+now: Begin implementing actual code (Convex schema, setup.sh, dashboard Vue components) from the spec docs
+
+test: "wc -l external-services-registry.md vibe-marketing-platform-v3.md marketing-books.md"
+
+done_this_session:
+  - task: Added skills registry + skillCategories Convex tables to v3 doc
+    files: [vibe-marketing-platform-v3.md]
+  - task: Extended agents table with staticSkillIds/dynamicSkillIds/agentFilePath
+    files: [vibe-marketing-platform-v3.md]
+  - task: Added skillConfig to campaigns table + skillOverrides to pipeline steps
+    files: [vibe-marketing-platform-v3.md]
+  - task: Created section 13 Writing Strategy System (layer model, seed data, agent assignments, wizard, UI mockups)
+    files: [vibe-marketing-platform-v3.md]
+  - task: Partial merge of marketing-books.md into v3 (cross-references, removed duplicates)
+    files: [marketing-books.md, vibe-marketing-platform-v3.md]
+  - task: Created external-services-registry.md v1 (48 services, MCP availability, MVP stack)
+    files: [external-services-registry.md]
+  - task: Restructured external-services-registry.md to capability-first architecture (483 -> 1438 lines)
+    files: [external-services-registry.md]
+  - task: Extended v3 serviceCategories/services tables with scope, costTier, docker, healthStatus fields
+    files: [vibe-marketing-platform-v3.md]
+  - task: Added agentServiceDeps table to v3 (agent->capability dependency mapping)
+    files: [vibe-marketing-platform-v3.md]
+  - task: Added agent availability gating to pipeline builder section with UI wireframes
+    files: [vibe-marketing-platform-v3.md]
+  - task: Expanded .mcp.json from 4 to 18 servers in v3 (30 in registry doc)
+    files: [vibe-marketing-platform-v3.md, external-services-registry.md]
+  - task: Updated v3 dashboard service registry page with full wireframe including blocked agents panel
+    files: [vibe-marketing-platform-v3.md]
+  - task: Added setup.sh, docker-compose.services.yml, health-check.py to v3 file tree
+    files: [vibe-marketing-platform-v3.md]
+  - task: Installed 17 antfu/skills (vue, nuxt, pinia, vite, vitest, unocss, etc.)
+    files: [.claude/skills/]
+  - task: Evaluated gopher-lab for social scraping (rejected - X only, cookie-based, immature)
+    files: []
+
+blockers: []
+
+questions:
+  - Should setup.sh be implemented as bash or as a Node/Python CLI with interactive prompts?
+  - Should the dashboard first-time wizard auto-run setup.sh or assume it was already run from CLI?
+  - Need to decide on exact Convex schema field types for encrypted API key storage
+
+decisions:
+  - capability_first_architecture: Agents depend on abstract capabilities not specific services. Enables zero-code vendor swapping.
+  - agent_gating_in_pipeline: Agents with missing required services are DISABLED (undraggable). Optional missing = DEGRADED (draggable with warning).
+  - install_everything_upfront: Setup script installs all MCPs and Docker containers regardless of API keys. Services activate when keys are added later.
+  - self_hosted_preferred: Crawl4AI and LanguageTool as self-hosted Docker containers replace paid cloud equivalents.
+  - partial_merge_marketing_books: Structural/integration content moved to v3 section 13. Book-by-book details stay in marketing-books.md.
+  - skill_wizard_for_new_skills: New skills detected on filesystem get pending_setup status until user classifies them in 3-step wizard.
+  - rejected_gopher_lab: X-only, cookie-based scraping, crypto network, no LinkedIn/Reddit/TikTok. Too immature and risky.
+
+findings:
+  - free_minimum_stack: 23 of 31 agents can run at $0/mo using free API tiers and self-hosted services
+  - only_paid_agents: vibe-linkedin-scout (PhantomBuster $69/mo) and vibe-plagiarism-checker (Copyscape $0.03/check) have no free path
+  - mcp_coverage: 16 official + 17 community MCP servers available for platform services
+  - antfu_skills: 17 Vue/Nuxt ecosystem skills installed from antfu/skills repo via npx skills install
+
+worked:
+  - Parallel kraken agents for registry restructure + v3 schema updates simultaneously
+  - Capability abstraction layer cleanly separates agent logic from vendor specifics
+  - Self-hosted Docker containers for zero-cost service tiers
+
+failed:
+  - npx skills install path needed doubled skills/ dir (antfu/skills/skills/name not antfu/skills/name)
+
+next:
+  - Implement Convex schema (skills, skillCategories, serviceCategories, services, agentServiceDeps tables)
+  - Build scripts/setup.sh with interactive API key prompts
+  - Create docker-compose.services.yml for Crawl4AI + LanguageTool
+  - Build dashboard Settings/Services page (Vue + shadcn-vue)
+  - Build Skills Registry page and New Skill Wizard
+  - Add agent gating logic to pipeline builder component
+  - Create the 23 missing procedure-type skills referenced by agents
+  - Build scripts/resolve_service.py with fallback chain
+  - Build scripts/health-check.py for service monitoring
+
+files:
+  created:
+    - external-services-registry.md
+    - thoughts/shared/handoffs/general/2026-02-11_13-38_services-registry-skills-install.yaml
+    - .claude/skills/antfu/
+    - .claude/skills/nuxt/
+    - .claude/skills/pinia/
+    - .claude/skills/pnpm/
+    - .claude/skills/slidev/
+    - .claude/skills/tsdown/
+    - .claude/skills/turborepo/
+    - .claude/skills/unocss/
+    - .claude/skills/vite/
+    - .claude/skills/vitepress/
+    - .claude/skills/vitest/
+    - .claude/skills/vue/
+    - .claude/skills/vue-best-practices/
+    - .claude/skills/vue-router-best-practices/
+    - .claude/skills/vue-testing-best-practices/
+    - .claude/skills/vueuse-functions/
+    - .claude/skills/web-design-guidelines/
+  modified:
+    - vibe-marketing-platform-v3.md
+    - marketing-books.md
