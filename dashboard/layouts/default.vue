@@ -2,6 +2,7 @@
 import {
   LayoutDashboard,
   FolderKanban,
+  FolderOpen,
   Workflow,
   Bot,
   Server,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-vue-next'
 
 const { user, logout } = useAuth()
+const { open: openArtifacts } = useArtifactsBrowser()
 const route = useRoute()
 
 // Breadcrumbs
@@ -141,6 +143,13 @@ function isActive(path: string) {
 
         <!-- Right side -->
         <div class="flex items-center gap-2">
+          <button
+            class="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title="Artifacts Browser"
+            @click="openArtifacts()"
+          >
+            <FolderOpen :size="18" />
+          </button>
           <NotificationDropdown />
         </div>
       </div>
@@ -149,5 +158,7 @@ function isActive(path: string) {
         <slot />
       </div>
     </main>
+
+    <ArtifactsBrowser />
   </div>
 </template>

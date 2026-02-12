@@ -502,6 +502,7 @@ export default defineSchema({
     focusGroupIds: v.optional(v.array(v.id("focusGroups"))),
     publishedUrl: v.optional(v.string()),
     subscriberNames: v.array(v.string()),
+    pendingBranches: v.optional(v.array(v.string())),
     metadata: v.optional(v.any()),
   }).index("by_status", ["status"])
     .index("by_campaign", ["campaignId"])

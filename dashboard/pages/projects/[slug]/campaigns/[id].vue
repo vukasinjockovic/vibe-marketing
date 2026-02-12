@@ -22,6 +22,7 @@ const { data: focusGroups } = useConvexQuery(
 
 const { mutate: activateCampaign } = useConvexMutation(api.campaigns.activate)
 const { mutate: pauseCampaign } = useConvexMutation(api.campaigns.pause)
+const { mutate: resumeCampaign } = useConvexMutation(api.campaigns.resume)
 const { mutate: completeCampaign } = useConvexMutation(api.campaigns.complete)
 const toast = useToast()
 
@@ -54,6 +55,15 @@ async function pause() {
   }
 }
 
+async function resume() {
+  try {
+    await resumeCampaign({ id: campaignId.value as any })
+    toast.success('Campaign resumed!')
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to resume campaign')
+  }
+}
+
 async function complete() {
   try {
     await completeCampaign({ id: campaignId.value as any })
@@ -82,12 +92,19 @@ const taskColumns = [
 ]
 
 const taskStats = computed(() => {
-  if (!tasks.value) return { total: 0, completed: 0, inProgress: 0 }
+  if (!tasks.value) return { total: 0, completed: 0, inProgress: 0, backlog: 0, blocked: 0 }
   return {
     total: tasks.value.length,
     completed: tasks.value.filter((t: any) => t.status === 'completed').length,
     inProgress: tasks.value.filter((t: any) => !['completed', 'cancelled', 'blocked', 'backlog'].includes(t.status)).length,
+    backlog: tasks.value.filter((t: any) => t.status === 'backlog').length,
+    blocked: tasks.value.filter((t: any) => t.status === 'blocked').length,
   }
+})
+
+const progressPercent = computed(() => {
+  if (!taskStats.value.total) return 0
+  return Math.round((taskStats.value.completed / taskStats.value.total) * 100)
 })
 </script>
 
@@ -117,11 +134,18 @@ const taskStats = computed(() => {
         </div>
         <div class="flex items-center gap-2">
           <button
-            v-if="campaign.status === 'planning' || campaign.status === 'paused'"
+            v-if="campaign.status === 'planning'"
             class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
             @click="showConfirmActivate = true"
           >
             Activate
+          </button>
+          <button
+            v-if="campaign.status === 'paused'"
+            class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
+            @click="resume"
+          >
+            Resume
           </button>
           <button
             v-if="campaign.status === 'active'"
@@ -192,6 +216,41 @@ const taskStats = computed(() => {
             </p>
           </div>
           <p v-else class="text-sm text-muted-foreground/60">Unknown</p>
+        </div>
+      </div>
+
+      <!-- Pipeline Progress -->
+      <div v-if="taskStats.total > 0" class="mb-6">
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-foreground">Pipeline Progress</h3>
+            <span class="text-sm font-medium text-foreground">{{ progressPercent }}%</span>
+          </div>
+          <div class="w-full bg-muted rounded-full h-2.5 mb-3">
+            <div
+              class="h-2.5 rounded-full transition-all duration-500"
+              :class="progressPercent === 100 ? 'bg-green-500' : 'bg-primary'"
+              :style="{ width: `${progressPercent}%` }"
+            />
+          </div>
+          <div class="flex gap-3 text-xs">
+            <span v-if="taskStats.completed" class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-green-500" />
+              {{ taskStats.completed }} completed
+            </span>
+            <span v-if="taskStats.inProgress" class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              {{ taskStats.inProgress }} in progress
+            </span>
+            <span v-if="taskStats.backlog" class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-muted-foreground/40" />
+              {{ taskStats.backlog }} queued
+            </span>
+            <span v-if="taskStats.blocked" class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-red-500" />
+              {{ taskStats.blocked }} blocked
+            </span>
+          </div>
         </div>
       </div>
 

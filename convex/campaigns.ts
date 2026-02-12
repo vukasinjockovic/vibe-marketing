@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 // List campaigns by project
 export const list = query({
@@ -199,24 +200,88 @@ export const update = mutation({
   },
 });
 
-// Activate campaign
+// Activate campaign — generates tasks and dispatches first agent
 export const activate = mutation({
   args: { id: v.id("campaigns") },
   handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.id);
+    if (!campaign) throw new Error("Campaign not found");
+
+    // Snapshot pipeline if not already done
+    if (!campaign.pipelineSnapshot) {
+      const pipeline = await ctx.db.get(campaign.pipelineId);
+      if (pipeline) {
+        await ctx.db.patch(args.id, { pipelineSnapshot: pipeline });
+      }
+    }
+
     await ctx.db.patch(args.id, {
       status: "active" as const,
       activatedAt: Date.now(),
     });
+
+    // Generate tasks from pipeline template
+    await ctx.scheduler.runAfter(0, internal.orchestrator.generateTasksForCampaign, {
+      campaignId: args.id,
+    });
+
+    // Dispatch first task's first agent (slight delay to let tasks generate)
+    await ctx.scheduler.runAfter(500, internal.orchestrator.dispatchNextTask, {
+      campaignId: args.id,
+    });
   },
 });
 
-// Pause campaign
+// Pause campaign — running agents finish current step but no further dispatch
 export const pause = mutation({
   args: { id: v.id("campaigns") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       status: "paused" as const,
       pausedAt: Date.now(),
+    });
+  },
+});
+
+// Resume campaign — re-dispatch any stuck tasks
+export const resume = mutation({
+  args: { id: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.id);
+    if (!campaign) throw new Error("Campaign not found");
+
+    await ctx.db.patch(args.id, {
+      status: "active" as const,
+    });
+
+    // Find tasks that are mid-pipeline but have no lock (agent finished or crashed)
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.id))
+      .collect();
+
+    for (const task of tasks) {
+      if (
+        task.status !== "completed" &&
+        task.status !== "cancelled" &&
+        task.status !== "blocked" &&
+        task.status !== "backlog" &&
+        !task.lockedBy
+      ) {
+        // Task is mid-pipeline with no lock — re-dispatch current step agent
+        const currentStep = task.pipeline[task.pipelineStep];
+        if (currentStep?.agent) {
+          await ctx.scheduler.runAfter(0, internal.orchestrator.requestDispatch, {
+            taskId: task._id,
+            agentName: currentStep.agent,
+          });
+        }
+      }
+    }
+
+    // Also try dispatching next task if none are running
+    await ctx.scheduler.runAfter(100, internal.orchestrator.dispatchNextTask, {
+      campaignId: args.id,
     });
   },
 });

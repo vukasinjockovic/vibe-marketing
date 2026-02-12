@@ -61,6 +61,7 @@ import type * as focusGroupStaging from "../focusGroupStaging.js";
 import type * as focusGroups from "../focusGroups.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
+import type * as orchestrator from "../orchestrator.js";
 import type * as pipeline from "../pipeline.js";
 import type * as pipelines from "../pipelines.js";
 import type * as products from "../products.js";
@@ -130,6 +131,7 @@ declare const fullApi: ApiFromModules<{
   focusGroups: typeof focusGroups;
   messages: typeof messages;
   notifications: typeof notifications;
+  orchestrator: typeof orchestrator;
   pipeline: typeof pipeline;
   pipelines: typeof pipelines;
   products: typeof products;

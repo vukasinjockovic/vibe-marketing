@@ -32,6 +32,7 @@ const form = reactive({
   seedKeywords: [] as string[],
   competitorUrls: [] as string[],
   notes: '',
+  targetArticleCount: 5,
   deliverableConfig: {
     heroImage: true,
     socialX: true,
@@ -152,6 +153,7 @@ async function submit() {
       seedKeywords: form.seedKeywords,
       competitorUrls: form.competitorUrls,
       notes: form.notes || undefined,
+      targetArticleCount: form.targetArticleCount,
       deliverableConfig: form.deliverableConfig,
     })
     toast.success('Campaign created!')
@@ -342,6 +344,16 @@ async function submit() {
 
     <!-- Step 4: Config -->
     <div v-if="step === 4" class="space-y-4">
+      <VFormField label="Number of Articles" hint="How many content pieces to generate for this campaign.">
+        <input
+          v-model.number="form.targetArticleCount"
+          type="number"
+          min="1"
+          max="50"
+          class="w-32 border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        />
+      </VFormField>
+
       <VFormField label="Seed Keywords">
         <VChipInput v-model="form.seedKeywords" placeholder="Add keywords..." />
       </VFormField>

@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
+import { internal } from "./_generated/api";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
@@ -161,11 +162,145 @@ export const completeStep = mutation({
 
     await ctx.db.patch(args.taskId, patch);
 
+    // ── Auto-dispatch next agent or handle branches ──
+
+    if (hasNextStep) {
+      // Check if campaign is paused — skip dispatch if so
+      let campaignPaused = false;
+      if (task.campaignId) {
+        const campaign = await ctx.db.get(task.campaignId);
+        if (campaign && campaign.status === "paused") {
+          campaignPaused = true;
+        }
+      }
+
+      if (!campaignPaused) {
+        // Check for parallel branches triggered after the completed step
+        let branchesDispatched = false;
+
+        if (task.campaignId) {
+          const campaign = await ctx.db.get(task.campaignId);
+          const snapshot = campaign?.pipelineSnapshot as any;
+          const parallelBranches = snapshot?.parallelBranches as any[] | undefined;
+
+          if (parallelBranches?.length) {
+            const completedStepOrder = pipeline[currentStepIndex].step;
+            const triggered = parallelBranches.filter(
+              (b: any) => b.triggerAfterStep === completedStepOrder
+            );
+
+            if (triggered.length > 0) {
+              branchesDispatched = true;
+
+              // Set pendingBranches on task
+              const branchLabels = triggered.map((b: any) => b.label);
+              await ctx.db.patch(args.taskId, { pendingBranches: branchLabels });
+
+              // Group branches by model for efficient dispatch
+              const byModel: Record<string, { label: string; agent: string }[]> = {};
+              for (const b of triggered) {
+                const model = b.model || "sonnet";
+                if (!byModel[model]) byModel[model] = [];
+                byModel[model].push({ label: b.label, agent: b.agent });
+              }
+
+              for (const [model, branches] of Object.entries(byModel)) {
+                await ctx.scheduler.runAfter(
+                  0,
+                  internal.orchestrator.requestBranchDispatch,
+                  { taskId: args.taskId, branches, model }
+                );
+              }
+            }
+          }
+        }
+
+        // If no branches triggered, dispatch the next main step agent
+        if (!branchesDispatched) {
+          const nextAgent = pipeline[nextStepIndex].agent;
+          if (nextAgent) {
+            await ctx.scheduler.runAfter(
+              0,
+              internal.orchestrator.requestDispatch,
+              { taskId: args.taskId, agentName: nextAgent }
+            );
+          }
+        }
+      }
+    } else {
+      // Task completed — dispatch next task in campaign + check campaign completion
+      if (task.campaignId) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.orchestrator.dispatchNextTask,
+          { campaignId: task.campaignId }
+        );
+        await ctx.scheduler.runAfter(
+          100,
+          internal.orchestrator.checkCampaignCompletion,
+          { campaignId: task.campaignId }
+        );
+      }
+    }
+
     return {
       completed: true,
       nextStep: hasNextStep ? nextStepIndex : null,
       newStatus,
     };
+  },
+});
+
+// ═══════════════════════════════════════════
+// completeBranch — Mark a parallel branch as done
+// ═══════════════════════════════════════════
+
+export const completeBranch = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    branchLabel: v.string(),
+    agentName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new ConvexError("Task not found");
+
+    const pending = (task.pendingBranches || []).filter(
+      (label) => label !== args.branchLabel
+    );
+
+    await ctx.db.patch(args.taskId, { pendingBranches: pending });
+
+    if (pending.length === 0) {
+      // All branches done — advance to next main step agent
+      const currentStep = task.pipelineStep;
+      const pipeline = [...task.pipeline];
+      const nextStepIndex = currentStep + 1;
+
+      if (nextStepIndex < pipeline.length) {
+        // Check campaign pause gate
+        let campaignPaused = false;
+        if (task.campaignId) {
+          const campaign = await ctx.db.get(task.campaignId);
+          if (campaign && campaign.status === "paused") {
+            campaignPaused = true;
+          }
+        }
+
+        if (!campaignPaused) {
+          const nextAgent = pipeline[nextStepIndex].agent;
+          if (nextAgent) {
+            await ctx.scheduler.runAfter(
+              0,
+              internal.orchestrator.requestDispatch,
+              { taskId: args.taskId, agentName: nextAgent }
+            );
+          }
+        }
+      }
+    }
+
+    return { remaining: pending.length };
   },
 });
 
