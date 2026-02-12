@@ -11,18 +11,23 @@ vi.stubGlobal('$fetch', mockFetch)
 // Mock useArtifactsBrowser
 const mockIsOpen = ref(false)
 const mockInitialPath = ref<string | null>(null)
+const mockProjectSlug = ref<string | null>('gymzilla-tribe')
 const mockClose = vi.fn(() => {
   mockIsOpen.value = false
   mockInitialPath.value = null
+  mockProjectSlug.value = null
 })
-const mockOpen = vi.fn((path?: string) => {
+const mockOpen = vi.fn((path?: string, slug?: string) => {
+  if (!slug) return
   mockIsOpen.value = true
   mockInitialPath.value = path || null
+  mockProjectSlug.value = slug
 })
 
 vi.stubGlobal('useArtifactsBrowser', () => ({
   isOpen: mockIsOpen,
   initialPath: mockInitialPath,
+  projectSlug: mockProjectSlug,
   open: mockOpen,
   close: mockClose,
 }))
@@ -32,6 +37,7 @@ describe('ArtifactsBrowser', () => {
     vi.clearAllMocks()
     mockIsOpen.value = false
     mockInitialPath.value = null
+    mockProjectSlug.value = 'gymzilla-tribe'
     mockFetch.mockReset()
   })
 

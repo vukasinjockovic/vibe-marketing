@@ -18,20 +18,24 @@
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
 import { spawn } from "child_process";
-import { appendFileSync, mkdirSync, existsSync } from "fs";
+import { appendFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const PORT = 3212;
+const STREAM_DIR = "/tmp/vibe-streams";
 const __filename = fileURLToPath(import.meta.url);
 const PROJECT_DIR = resolve(dirname(__filename), "..");
 const INVOKE_SCRIPT = resolve(PROJECT_DIR, "scripts/invoke-agent.sh");
 const LOG_DIR = resolve(PROJECT_DIR, "logs");
 const LOG_FILE = resolve(LOG_DIR, "dispatcher.log");
 
-// Ensure logs directory exists
+// Ensure logs and stream directories exist
 if (!existsSync(LOG_DIR)) {
   mkdirSync(LOG_DIR, { recursive: true });
+}
+if (!existsSync(STREAM_DIR)) {
+  mkdirSync(STREAM_DIR, { recursive: true });
 }
 
 let activeProcesses = 0;
@@ -99,9 +103,10 @@ function spawnBranchGroup(
   const prompt = `You are a multi-agent dispatcher. Execute these agents sequentially for task ${taskId}:\n\n${agentInstructions}\n\nFor each agent, read its skill file, perform the work, and call completeBranch when done.`;
 
   const agentLog = resolve(LOG_DIR, `branch-${taskId.slice(-8)}-${model}.log`);
+  const streamFile = resolve(STREAM_DIR, `${taskId}-${model}.jsonl`);
   const child = spawn(
     "claude",
-    ["-p", prompt, "--model", model, "--dangerously-skip-permissions"],
+    ["-p", prompt, "--model", model, "--dangerously-skip-permissions", "--output-format", "stream-json"],
     {
       cwd: PROJECT_DIR,
       stdio: ["ignore", "pipe", "pipe"],
@@ -111,6 +116,7 @@ function spawnBranchGroup(
   );
 
   child.stdout?.on("data", (data: Buffer) => {
+    try { appendFileSync(streamFile, data); } catch {}
     try { appendFileSync(agentLog, data); } catch {}
   });
   child.stderr?.on("data", (data: Buffer) => {
@@ -120,11 +126,14 @@ function spawnBranchGroup(
   child.on("exit", (code) => {
     activeProcesses--;
     log(`BRANCH-DONE task=${taskId} branches=[${branchLabels}] exit=${code} (active=${activeProcesses})`);
+    // Clean up stream file
+    try { unlinkSync(streamFile); } catch {}
   });
 
   child.on("error", (err) => {
     activeProcesses--;
     log(`BRANCH-ERROR task=${taskId} err=${err.message}`);
+    try { unlinkSync(streamFile); } catch {}
   });
 
   child.unref();
@@ -186,7 +195,7 @@ const server = createServer(async (req, res) => {
   return json(res, { error: "Not found" }, 404);
 });
 
-server.listen(PORT, "127.0.0.1", () => {
+server.listen(PORT, "0.0.0.0", () => {
   log(`Dispatcher listening on http://127.0.0.1:${PORT}`);
   log(`Project dir: ${PROJECT_DIR}`);
   log(`Invoke script: ${INVOKE_SCRIPT}`);

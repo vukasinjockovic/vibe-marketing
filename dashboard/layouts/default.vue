@@ -16,6 +16,12 @@ const { user, logout } = useAuth()
 const { open: openArtifacts } = useArtifactsBrowser()
 const route = useRoute()
 
+// Artifacts button only visible on project-scoped pages
+const currentProjectSlug = computed(() => {
+  const match = route.path.match(/^\/projects\/([^/]+)/)
+  return match ? match[1] : null
+})
+
 // Breadcrumbs
 const breadcrumbs = computed(() => {
   const segments = route.path.split('/').filter(Boolean)
@@ -144,9 +150,10 @@ function isActive(path: string) {
         <!-- Right side -->
         <div class="flex items-center gap-2">
           <button
+            v-if="currentProjectSlug"
             class="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="Artifacts Browser"
-            @click="openArtifacts()"
+            title="Project Files"
+            @click="openArtifacts(undefined, currentProjectSlug!)"
           >
             <FolderOpen :size="18" />
           </button>

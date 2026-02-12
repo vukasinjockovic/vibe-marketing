@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { api } from '../../convex/_generated/api'
-import { Check, FileText } from 'lucide-vue-next'
+import { Check, FileText, Radio, RotateCcw, X } from 'lucide-vue-next'
 
 const props = defineProps<{
   modelValue: boolean
@@ -11,10 +11,55 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
+const toast = useToast()
+const { mutate: updateTask } = useConvexMutation(api.tasks.update)
+const retrying = ref(false)
+
 const { data: task } = useConvexQuery(
   api.tasks.get,
   computed(() => props.taskId ? { id: props.taskId as any } : 'skip'),
 )
+
+async function retryTask() {
+  if (!task.value || !props.taskId) return
+  retrying.value = true
+  try {
+    // Get the current step's agent
+    const currentStep = task.value.pipeline[task.value.pipelineStep]
+    const agentName = currentStep?.agent
+
+    // Unblock the task
+    await updateTask({
+      id: props.taskId as any,
+      status: 'backlog' as any,
+      rejectionNotes: '',
+    })
+
+    // Dispatch the agent
+    if (agentName) {
+      await $fetch('/api/dispatch', {
+        method: 'POST',
+        body: { taskId: props.taskId, agentName },
+      })
+    }
+
+    toast.success('Task retried — agent dispatched')
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to retry task')
+  } finally {
+    retrying.value = false
+  }
+}
+
+async function cancelTask() {
+  if (!props.taskId) return
+  try {
+    await updateTask({ id: props.taskId as any, status: 'cancelled' as any })
+    toast.success('Task cancelled')
+  } catch (e: any) {
+    toast.error(e.message || 'Failed to cancel task')
+  }
+}
 
 const { data: pipelineStatus } = useConvexQuery(
   api.pipeline.getTaskPipelineStatus,
@@ -31,7 +76,102 @@ const { data: documents } = useConvexQuery(
   computed(() => props.taskId ? { taskId: props.taskId as any } : 'skip'),
 )
 
-const activeTab = ref<'overview' | 'messages' | 'documents'>('overview')
+const activeTab = ref<'overview' | 'messages' | 'documents' | 'live'>('overview')
+
+// Live streaming log
+interface StreamEntry {
+  type: string
+  message?: string
+  tool?: string
+  content?: string
+  result?: string
+  _source?: string
+  [key: string]: any
+}
+
+const streamEntries = ref<StreamEntry[]>([])
+const streamConnected = ref(false)
+let eventSource: EventSource | null = null
+const logContainer = ref<HTMLElement | null>(null)
+
+function connectStream() {
+  if (!props.taskId || eventSource) return
+  eventSource = new EventSource(`/api/stream/${props.taskId}`)
+  streamConnected.value = true
+
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data)
+      streamEntries.value.push(data)
+      // Auto-scroll to bottom
+      nextTick(() => {
+        if (logContainer.value) {
+          logContainer.value.scrollTop = logContainer.value.scrollHeight
+        }
+      })
+    } catch {}
+  }
+
+  eventSource.onerror = () => {
+    streamConnected.value = false
+    eventSource?.close()
+    eventSource = null
+  }
+}
+
+function disconnectStream() {
+  eventSource?.close()
+  eventSource = null
+  streamConnected.value = false
+}
+
+// Auto-connect when switching to live tab, disconnect on close
+watch(activeTab, (tab) => {
+  if (tab === 'live') connectStream()
+  else disconnectStream()
+})
+
+watch(() => props.modelValue, (open) => {
+  if (!open) {
+    disconnectStream()
+    streamEntries.value = []
+    activeTab.value = 'overview'
+  }
+})
+
+// Auto-switch to live tab when task is actively running
+watch(() => task.value?.status, (status) => {
+  if (status === 'in_progress' || status === 'backlog') {
+    // Check if there's an active agent (lockedBy set)
+    if (task.value?.lockedBy && activeTab.value === 'overview') {
+      activeTab.value = 'live'
+    }
+  }
+}, { immediate: true })
+
+onUnmounted(() => disconnectStream())
+
+function streamEntryLabel(entry: StreamEntry): string {
+  switch (entry.type) {
+    case 'assistant': return entry.message?.slice(0, 200) || 'Thinking...'
+    case 'tool_use': return `Tool: ${entry.tool || 'unknown'}`
+    case 'tool_result': return `Result: ${(entry.content || entry.result || '').slice(0, 150)}`
+    case 'system': return entry.message || 'System'
+    case 'stream_end': return `Stream ended (${entry.source || 'main'})`
+    default: return JSON.stringify(entry).slice(0, 150)
+  }
+}
+
+function streamEntryClass(entry: StreamEntry): string {
+  switch (entry.type) {
+    case 'assistant': return 'text-foreground'
+    case 'tool_use': return 'text-blue-400'
+    case 'tool_result': return 'text-green-400'
+    case 'system': return 'text-amber-400'
+    case 'stream_end': return 'text-muted-foreground/60 italic'
+    default: return 'text-muted-foreground'
+  }
+}
 
 function stepStatusClass(status: string) {
   switch (status) {
@@ -161,15 +301,36 @@ function formatTimestamp(ts: number) {
         v-if="pipelineStatus?.rejectionNotes"
         class="bg-red-50 border border-red-200 rounded-lg p-3"
       >
-        <h4 class="text-xs font-medium text-red-800 uppercase tracking-wide mb-1">Revision Notes</h4>
+        <h4 class="text-xs font-medium text-red-800 uppercase tracking-wide mb-1">Blocked Reason</h4>
         <p class="text-sm text-red-700">{{ pipelineStatus.rejectionNotes }}</p>
       </div>
 
+      <!-- Action buttons -->
+      <div v-if="task.status === 'blocked' || (task.status !== 'completed' && task.status !== 'cancelled')" class="flex gap-2">
+        <button
+          v-if="task.status === 'blocked'"
+          :disabled="retrying"
+          class="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+          @click="retryTask"
+        >
+          <RotateCcw class="w-3.5 h-3.5" />
+          {{ retrying ? 'Retrying...' : 'Retry' }}
+        </button>
+        <button
+          v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+          class="flex items-center gap-1.5 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          @click="cancelTask"
+        >
+          <X class="w-3.5 h-3.5" />
+          Cancel
+        </button>
+      </div>
+
       <!-- Tabs: Messages & Documents -->
-      <div class="border-t border-border pt-4">
+      <div class="border-t border-border pt-4 min-h-[18rem]">
         <div class="flex gap-4 mb-4">
           <button
-            v-for="tab in (['overview', 'messages', 'documents'] as const)"
+            v-for="tab in (task.status === 'completed' || task.status === 'cancelled' ? ['overview', 'messages', 'documents'] as const : ['overview', 'live', 'messages', 'documents'] as const)"
             :key="tab"
             class="text-sm font-medium pb-2 border-b-2 transition-colors capitalize"
             :class="activeTab === tab
@@ -177,7 +338,11 @@ function formatTimestamp(ts: number) {
               : 'border-transparent text-muted-foreground hover:text-foreground'"
             @click="activeTab = tab"
           >
-            {{ tab }}
+            <span v-if="tab === 'live'" class="inline-flex items-center gap-1">
+              <Radio class="w-3 h-3" :class="streamConnected ? 'text-green-500 animate-pulse' : ''" />
+              Live
+            </span>
+            <span v-else>{{ tab }}</span>
             <span v-if="tab === 'messages' && messages?.length" class="ml-1 text-xs">
               ({{ messages.length }})
             </span>
@@ -185,6 +350,41 @@ function formatTimestamp(ts: number) {
               ({{ documents.length }})
             </span>
           </button>
+        </div>
+
+        <!-- Live tab -->
+        <div v-if="activeTab === 'live'">
+          <div
+            ref="logContainer"
+            class="bg-zinc-950 rounded-lg p-3 font-mono text-xs max-h-[32rem] overflow-y-auto space-y-0.5"
+          >
+            <div v-if="!streamEntries.length && !streamConnected" class="text-muted-foreground/60 text-center py-4">
+              No active stream. Agent output will appear here when running.
+            </div>
+            <div v-else-if="!streamEntries.length && streamConnected" class="text-muted-foreground/60 text-center py-4 animate-pulse">
+              Connected. Waiting for agent output...
+            </div>
+            <div
+              v-for="(entry, idx) in streamEntries"
+              :key="idx"
+              class="leading-relaxed"
+              :class="streamEntryClass(entry)"
+            >
+              <span v-if="entry._source && entry._source !== 'main'" class="text-purple-400 mr-1">[{{ entry._source }}]</span>
+              <span>{{ streamEntryLabel(entry) }}</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-xs text-muted-foreground/60">
+              {{ streamEntries.length }} events
+            </span>
+            <button
+              class="text-xs text-muted-foreground hover:text-foreground"
+              @click="streamEntries = []"
+            >
+              Clear
+            </button>
+          </div>
         </div>
 
         <!-- Overview tab -->
@@ -197,7 +397,7 @@ function formatTimestamp(ts: number) {
 
         <!-- Messages tab -->
         <div v-if="activeTab === 'messages'">
-          <div v-if="messages?.length" class="space-y-3 max-h-64 overflow-y-auto">
+          <div v-if="messages?.length" class="space-y-3 max-h-[32rem] overflow-y-auto">
             <div
               v-for="msg in messages"
               :key="msg._id"

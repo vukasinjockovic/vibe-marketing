@@ -149,6 +149,35 @@ function completenessColor(score: number) {
   return 'text-red-600'
 }
 
+function hasEnrichmentData(record: any): boolean {
+  return !!(record.awarenessStage || record.sophisticationLevel ||
+    record.purchaseBehavior || record.contentPreferences ||
+    record.influenceSources || record.competitorContext ||
+    record.communicationStyle || record.seasonalContext || record.negativeTriggers)
+}
+
+function awarenessLabel(stage: string): string {
+  const labels: Record<string, string> = {
+    unaware: 'Unaware',
+    problem_aware: 'Problem Aware',
+    solution_aware: 'Solution Aware',
+    product_aware: 'Product Aware',
+    most_aware: 'Most Aware',
+  }
+  return labels[stage] || stage
+}
+
+function sophLabel(stage: string): string {
+  const labels: Record<string, string> = {
+    stage1: '1 — First to Market',
+    stage2: '2 — Enlarged Claims',
+    stage3: '3 — Mechanism',
+    stage4: '4 — Specific Mechanism',
+    stage5: '5 — Proof & Identification',
+  }
+  return labels[stage] || stage
+}
+
 const backUrl = computed(() => {
   if (!project.value?.slug) return '#'
   return `/projects/${project.value.slug}/audiences`
@@ -182,6 +211,14 @@ const backUrl = computed(() => {
           @click="approveAll"
         >
           Approve All
+        </button>
+        <button
+          v-if="stagingSummary?.approved"
+          class="bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+          :disabled="importing"
+          @click="importAllApproved"
+        >
+          {{ importing ? 'Importing...' : `Import (${stagingSummary.approved})` }}
         </button>
         <button
           class="border border-red-200 text-red-600 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-50 transition-colors"
@@ -245,7 +282,7 @@ const backUrl = computed(() => {
             :key="record._id"
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
-            <div class="p-4">
+            <div class="p-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="togglePreview(record._id)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
@@ -264,23 +301,20 @@ const backUrl = computed(() => {
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                    @click="approve(record._id)"
+                    @click.stop="approve(record._id)"
                   >
                     Approve
                   </button>
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                    @click="reject(record._id)"
+                    @click.stop="reject(record._id)"
                   >
                     Reject
                   </button>
-                  <button
-                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    @click="togglePreview(record._id)"
-                  >
-                    {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
-                  </button>
+                  <span class="text-xs text-muted-foreground/60">
+                    {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
+                  </span>
                 </div>
               </div>
               <p v-if="record.overview" class="text-sm text-muted-foreground mt-1 line-clamp-2">{{ record.overview }}</p>
@@ -326,6 +360,179 @@ const backUrl = computed(() => {
                 <span class="text-xs text-muted-foreground">Transformation:</span>
                 <p class="italic text-foreground">"{{ record.transformationPromise }}"</p>
               </div>
+
+              <!-- Parser-only fields -->
+              <div v-if="record.fears?.length">
+                <span class="text-xs text-muted-foreground">Fears:</span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="f in record.fears" :key="f" class="bg-orange-50 text-orange-700 text-xs px-2 py-0.5 rounded-full">{{ f }}</span>
+                </div>
+              </div>
+              <div v-if="record.objections?.length">
+                <span class="text-xs text-muted-foreground">Objections:</span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="o in record.objections" :key="o" class="bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full">{{ o }}</span>
+                </div>
+              </div>
+              <div v-if="record.emotionalTriggers?.length">
+                <span class="text-xs text-muted-foreground">Emotional Triggers:</span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="t in record.emotionalTriggers" :key="t" class="bg-pink-50 text-pink-700 text-xs px-2 py-0.5 rounded-full">{{ t }}</span>
+                </div>
+              </div>
+              <div v-if="record.languagePatterns?.length">
+                <span class="text-xs text-muted-foreground">Language Patterns:</span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="l in record.languagePatterns" :key="l" class="bg-violet-50 text-violet-700 text-xs px-2 py-0.5 rounded-full">{{ l }}</span>
+                </div>
+              </div>
+              <div v-if="record.psychographics">
+                <span class="text-xs text-muted-foreground">Psychographics:</span>
+                <div class="grid grid-cols-2 gap-2 mt-1">
+                  <div v-if="record.psychographics.identity"><span class="text-muted-foreground">Identity:</span> {{ record.psychographics.identity }}</div>
+                  <div v-if="record.psychographics.lifestyle"><span class="text-muted-foreground">Lifestyle:</span> {{ record.psychographics.lifestyle }}</div>
+                  <div v-if="record.psychographics.values?.length" class="col-span-2">
+                    <span class="text-muted-foreground">Values:</span>
+                    <span v-for="val in record.psychographics.values" :key="val" class="ml-1 bg-cyan-50 text-cyan-700 text-xs px-2 py-0.5 rounded-full">{{ val }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Enrichment Data -->
+              <template v-if="hasEnrichmentData(record)">
+                <div class="border-t border-border pt-3 mt-3">
+                  <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Enrichment Data</span>
+                </div>
+
+                <div v-if="record.awarenessStage || record.sophisticationLevel" class="grid grid-cols-2 gap-4">
+                  <div v-if="record.awarenessStage">
+                    <span class="text-xs text-muted-foreground">Awareness Stage:</span>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="font-medium text-foreground">{{ awarenessLabel(record.awarenessStage) }}</span>
+                      <span v-if="record.awarenessConfidence" class="text-xs px-1.5 py-0.5 rounded-full"
+                        :class="{ 'bg-green-100 text-green-700': record.awarenessConfidence === 'high', 'bg-yellow-100 text-yellow-700': record.awarenessConfidence === 'medium', 'bg-red-100 text-red-700': record.awarenessConfidence === 'low' }"
+                      >{{ record.awarenessConfidence }}</span>
+                    </div>
+                  </div>
+                  <div v-if="record.sophisticationLevel">
+                    <span class="text-xs text-muted-foreground">Market Sophistication:</span>
+                    <p class="font-medium text-foreground mt-0.5">{{ sophLabel(record.sophisticationLevel) }}</p>
+                  </div>
+                </div>
+
+                <div v-if="record.awarenessSignals" class="text-xs text-muted-foreground/80">
+                  <span class="text-muted-foreground">Signals:</span>
+                  <span v-if="record.awarenessSignals.beliefsSignal" class="ml-1">Beliefs: {{ record.awarenessSignals.beliefsSignal }}</span>
+                  <span v-if="record.awarenessSignals.languageSignal" class="ml-2">Language: {{ record.awarenessSignals.languageSignal }}</span>
+                </div>
+
+                <div v-if="record.purchaseBehavior" class="grid grid-cols-3 gap-2">
+                  <div v-if="record.purchaseBehavior.priceRange">
+                    <span class="text-xs text-muted-foreground">Price Range:</span>
+                    <p class="text-foreground">{{ record.purchaseBehavior.priceRange }}</p>
+                  </div>
+                  <div v-if="record.purchaseBehavior.decisionProcess">
+                    <span class="text-xs text-muted-foreground">Decision Process:</span>
+                    <p class="text-foreground">{{ record.purchaseBehavior.decisionProcess }}</p>
+                  </div>
+                  <div v-if="record.purchaseBehavior.buyingTriggers?.length">
+                    <span class="text-xs text-muted-foreground">Buying Triggers:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="t in record.purchaseBehavior.buyingTriggers" :key="t" class="bg-emerald-50 text-emerald-700 text-xs px-1.5 py-0.5 rounded-full">{{ t }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="record.contentPreferences" class="grid grid-cols-3 gap-2">
+                  <div v-if="record.contentPreferences.attentionSpan">
+                    <span class="text-xs text-muted-foreground">Attention Span:</span>
+                    <p class="text-foreground">{{ record.contentPreferences.attentionSpan }}</p>
+                  </div>
+                  <div v-if="record.contentPreferences.tonePreference">
+                    <span class="text-xs text-muted-foreground">Tone Preference:</span>
+                    <p class="text-foreground">{{ record.contentPreferences.tonePreference }}</p>
+                  </div>
+                  <div v-if="record.contentPreferences.preferredFormats?.length">
+                    <span class="text-xs text-muted-foreground">Preferred Formats:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="f in record.contentPreferences.preferredFormats" :key="f" class="bg-sky-50 text-sky-700 text-xs px-1.5 py-0.5 rounded-full">{{ f }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="record.influenceSources">
+                  <div v-if="record.influenceSources.trustedVoices?.length">
+                    <span class="text-xs text-muted-foreground">Trusted Voices:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="v in record.influenceSources.trustedVoices" :key="v" class="bg-purple-50 text-purple-700 text-xs px-1.5 py-0.5 rounded-full">{{ v }}</span>
+                    </div>
+                  </div>
+                  <div v-if="record.influenceSources.socialPlatforms?.length" class="mt-1">
+                    <span class="text-xs text-muted-foreground">Social Platforms:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="s in record.influenceSources.socialPlatforms" :key="s" class="bg-blue-50 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">{{ s }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="record.competitorContext">
+                  <div v-if="record.competitorContext.currentSolutions?.length">
+                    <span class="text-xs text-muted-foreground">Current Solutions:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="c in record.competitorContext.currentSolutions" :key="c" class="bg-slate-100 text-slate-700 text-xs px-1.5 py-0.5 rounded-full">{{ c }}</span>
+                    </div>
+                  </div>
+                  <div v-if="record.competitorContext.switchMotivators?.length" class="mt-1">
+                    <span class="text-xs text-muted-foreground">Switch Motivators:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="m in record.competitorContext.switchMotivators" :key="m" class="bg-teal-50 text-teal-700 text-xs px-1.5 py-0.5 rounded-full">{{ m }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="record.communicationStyle" class="grid grid-cols-4 gap-2">
+                  <div v-if="record.communicationStyle.formalityLevel">
+                    <span class="text-xs text-muted-foreground">Formality:</span>
+                    <p class="text-foreground">{{ record.communicationStyle.formalityLevel }}</p>
+                  </div>
+                  <div v-if="record.communicationStyle.humorReceptivity">
+                    <span class="text-xs text-muted-foreground">Humor:</span>
+                    <p class="text-foreground">{{ record.communicationStyle.humorReceptivity }}</p>
+                  </div>
+                  <div v-if="record.communicationStyle.storyPreference">
+                    <span class="text-xs text-muted-foreground">Stories:</span>
+                    <p class="text-foreground">{{ record.communicationStyle.storyPreference }}</p>
+                  </div>
+                  <div v-if="record.communicationStyle.dataPreference">
+                    <span class="text-xs text-muted-foreground">Data:</span>
+                    <p class="text-foreground">{{ record.communicationStyle.dataPreference }}</p>
+                  </div>
+                </div>
+
+                <div v-if="record.negativeTriggers">
+                  <div v-if="record.negativeTriggers.dealBreakers?.length">
+                    <span class="text-xs text-muted-foreground">Deal Breakers:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="d in record.negativeTriggers.dealBreakers" :key="d" class="bg-red-50 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{{ d }}</span>
+                    </div>
+                  </div>
+                  <div v-if="record.negativeTriggers.toneAversions?.length" class="mt-1">
+                    <span class="text-xs text-muted-foreground">Tone Aversions:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="a in record.negativeTriggers.toneAversions" :key="a" class="bg-rose-50 text-rose-600 text-xs px-1.5 py-0.5 rounded-full">{{ a }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="record.seasonalContext">
+                  <div v-if="record.seasonalContext.peakInterestPeriods?.length">
+                    <span class="text-xs text-muted-foreground">Peak Periods:</span>
+                    <div class="flex flex-wrap gap-1 mt-0.5">
+                      <span v-for="p in record.seasonalContext.peakInterestPeriods" :key="p" class="bg-amber-50 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{{ p }}</span>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -343,7 +550,7 @@ const backUrl = computed(() => {
             :key="record._id"
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
-            <div class="p-4">
+            <div class="p-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="togglePreview(record._id)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
@@ -361,23 +568,20 @@ const backUrl = computed(() => {
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    @click="approve(record._id)"
+                    @click.stop="approve(record._id)"
                   >
                     Approve Merge
                   </button>
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                    @click="reject(record._id)"
+                    @click.stop="reject(record._id)"
                   >
                     Reject
                   </button>
-                  <button
-                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    @click="togglePreview(record._id)"
-                  >
-                    {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
-                  </button>
+                  <span class="text-xs text-muted-foreground/60">
+                    {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
+                  </span>
                 </div>
               </div>
               <p v-if="record.matchReason" class="text-sm text-muted-foreground mt-1">{{ record.matchReason }}</p>
@@ -397,6 +601,26 @@ const backUrl = computed(() => {
                   <span v-for="p in record.painPoints" :key="p" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">{{ p }}</span>
                 </div>
               </div>
+              <!-- Enrichment summary for merge candidates -->
+              <template v-if="hasEnrichmentData(record)">
+                <div class="border-t border-border pt-2 mt-2">
+                  <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Enrichment</span>
+                </div>
+                <div v-if="record.awarenessStage || record.sophisticationLevel" class="grid grid-cols-2 gap-2">
+                  <div v-if="record.awarenessStage">
+                    <span class="text-xs text-muted-foreground">Awareness:</span>
+                    <span class="font-medium text-foreground ml-1">{{ awarenessLabel(record.awarenessStage) }}</span>
+                  </div>
+                  <div v-if="record.sophisticationLevel">
+                    <span class="text-xs text-muted-foreground">Sophistication:</span>
+                    <span class="font-medium text-foreground ml-1">{{ sophLabel(record.sophisticationLevel) }}</span>
+                  </div>
+                </div>
+                <div v-if="record.purchaseBehavior?.priceRange">
+                  <span class="text-xs text-muted-foreground">Price Range:</span>
+                  <span class="text-foreground ml-1">{{ record.purchaseBehavior.priceRange }}</span>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -414,7 +638,7 @@ const backUrl = computed(() => {
             :key="record._id"
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
-            <div class="p-4">
+            <div class="p-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="togglePreview(record._id)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
@@ -432,23 +656,20 @@ const backUrl = computed(() => {
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                    @click="approve(record._id)"
+                    @click.stop="approve(record._id)"
                   >
                     Create as New
                   </button>
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs text-muted-foreground border rounded-md hover:bg-muted/50 transition-colors"
-                    @click="reject(record._id)"
+                    @click.stop="reject(record._id)"
                   >
                     Skip
                   </button>
-                  <button
-                    class="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    @click="togglePreview(record._id)"
-                  >
-                    {{ isPreviewExpanded(record._id) ? 'Collapse' : 'Preview' }}
-                  </button>
+                  <span class="text-xs text-muted-foreground/60">
+                    {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
+                  </span>
                 </div>
               </div>
               <p v-if="record.matchReason" class="text-sm text-muted-foreground mt-1">{{ record.matchReason }}</p>

@@ -73,6 +73,25 @@ const showImport = ref(false)
 const expandedCards = ref(new Set<string>())
 const deleteTarget = ref<string | null>(null)
 const showDeleteConfirm = ref(false)
+const showAuditTrail = ref(false)
+const auditTrailFg = ref<any>(null)
+
+function openAuditTrail(fg: any) {
+  auditTrailFg.value = fg
+  showAuditTrail.value = true
+}
+
+function formatAuditDate(ts: number) {
+  return new Date(ts).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+  })
+}
+
+function confidenceColor(c: string) {
+  if (c === 'high') return 'bg-green-100 text-green-700'
+  if (c === 'medium') return 'bg-yellow-100 text-yellow-700'
+  return 'bg-red-100 text-red-700'
+}
 
 function toggleExpand(id: string) {
   if (expandedCards.value.has(id)) {
@@ -164,18 +183,23 @@ const reviewUrl = computed(() => {
       </span>
     </div>
 
-    <!-- Pending Review Banner -->
-    <div v-if="hasPendingReview && stagingSummary" class="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-sm text-amber-800">
-          {{ stagingSummary.pending }} focus group{{ stagingSummary.pending === 1 ? '' : 's' }} pending review
+    <!-- Staging Review Banner -->
+    <div v-if="stagingSummary && stagingSummary.total > 0" class="mb-4 rounded-lg p-3 flex items-center justify-between"
+      :class="stagingSummary.pending > 0 ? 'bg-amber-50 border border-amber-200' : stagingSummary.approved > 0 ? 'bg-green-50 border border-green-200' : 'bg-muted border border-border'"
+    >
+      <div class="flex items-center gap-3">
+        <span class="text-sm" :class="stagingSummary.pending > 0 ? 'text-amber-800' : 'text-foreground'">
+          {{ stagingSummary.total }} staged
+          <template v-if="stagingSummary.pending > 0"> — {{ stagingSummary.pending }} pending review</template>
+          <template v-else-if="stagingSummary.approved > 0"> — {{ stagingSummary.approved }} approved, ready to import</template>
         </span>
       </div>
       <NuxtLink
         :to="reviewUrl"
-        class="text-sm font-medium text-amber-700 hover:text-amber-900 underline"
+        class="text-sm font-medium underline"
+        :class="stagingSummary.pending > 0 ? 'text-amber-700 hover:text-amber-900' : 'text-primary hover:text-primary/80'"
       >
-        Review &amp; Import
+        {{ stagingSummary.pending > 0 ? 'Review & Import' : 'View Staging & Import' }}
       </NuxtLink>
     </div>
 
@@ -241,6 +265,16 @@ const reviewUrl = computed(() => {
               <div class="w-20">
                 <EnrichmentProgressBar :score="getFgEnrichmentScore(fg)" :show-percentage="false" />
               </div>
+              <button
+                v-if="fg.enrichments?.length"
+                class="p-1 text-muted-foreground/60 hover:text-foreground transition-colors"
+                title="Audit Trail"
+                @click.stop="openAuditTrail(fg)"
+              >
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              </button>
               <button
                 class="p-1 text-red-400 hover:text-red-600 transition-colors"
                 title="Delete"
@@ -415,5 +449,67 @@ const reviewUrl = computed(() => {
       confirm-class="bg-red-600 hover:bg-red-700"
       @confirm="confirmDelete"
     />
+
+    <!-- Audit Trail Modal -->
+    <VModal v-model="showAuditTrail" :title="`Enrichment History — ${auditTrailFg?.name || ''}`" size="lg">
+      <div v-if="auditTrailFg?.enrichments?.length" class="space-y-0">
+        <div class="text-xs text-muted-foreground mb-3">
+          {{ auditTrailFg.enrichments.length }} enrichment{{ auditTrailFg.enrichments.length === 1 ? '' : 's' }}
+          <span v-if="auditTrailFg.lastEnriched" class="ml-2">
+            — last enriched {{ formatAuditDate(auditTrailFg.lastEnriched) }}
+          </span>
+        </div>
+
+        <!-- Timeline -->
+        <div class="relative pl-6 border-l-2 border-border space-y-4">
+          <div
+            v-for="(entry, idx) in [...auditTrailFg.enrichments].reverse()"
+            :key="idx"
+            class="relative"
+          >
+            <!-- Timeline dot -->
+            <div class="absolute -left-[1.6rem] top-1 w-3 h-3 rounded-full border-2 border-background"
+              :class="entry.confidence === 'high' ? 'bg-green-500' : entry.confidence === 'medium' ? 'bg-yellow-500' : 'bg-red-500'"
+            />
+
+            <div class="bg-muted/50 rounded-lg p-3 text-sm">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-foreground">{{ entry.field }}</span>
+                  <span class="text-xs px-1.5 py-0.5 rounded-full" :class="confidenceColor(entry.confidence)">
+                    {{ entry.confidence }}
+                  </span>
+                </div>
+                <span class="text-xs text-muted-foreground/60">{{ formatAuditDate(entry.timestamp) }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
+                <span>by {{ entry.agentName }}</span>
+                <span class="text-muted-foreground/40">via {{ entry.source }}</span>
+              </div>
+
+              <!-- Value change -->
+              <div v-if="entry.previousValue" class="flex items-start gap-2 text-xs mt-1">
+                <span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded line-through shrink-0">{{ entry.previousValue.slice(0, 80) }}</span>
+                <span class="text-muted-foreground/40">-></span>
+                <span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded shrink-0">{{ entry.newValue.slice(0, 80) }}</span>
+              </div>
+              <div v-else class="text-xs mt-1">
+                <span class="bg-green-50 text-green-600 px-1.5 py-0.5 rounded">{{ entry.newValue.slice(0, 120) }}</span>
+              </div>
+
+              <!-- Reasoning -->
+              <p v-if="entry.reasoning" class="text-xs text-muted-foreground/80 mt-1.5 italic">
+                {{ entry.reasoning }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="text-muted-foreground/60 text-center py-8 text-sm">
+        No enrichment history available.
+      </div>
+    </VModal>
   </div>
 </template>

@@ -2,7 +2,7 @@ import { internalAction, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
-const DISPATCHER_URL = "http://127.0.0.1:3212";
+const DISPATCHER_URL = "http://172.19.0.1:3212";
 
 // ═══════════════════════════════════════════
 // generateTasksForCampaign — Create pipeline tasks from campaign config

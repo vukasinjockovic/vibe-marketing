@@ -64,8 +64,9 @@ if [ ! -d "$SKILL_DIR" ]; then
   exit 1
 fi
 
-# Ensure logs directory exists
+# Ensure logs and stream directories exist
 mkdir -p "$PROJECT_DIR/logs"
+mkdir -p /tmp/vibe-streams
 
 # Log agent run start
 npx convex run analytics:startRun "{\"agentName\":\"${AGENT_NAME}\",\"model\":\"sonnet\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
@@ -83,11 +84,17 @@ if [ "$MODE" = "pipeline" ]; then
 
   # Invoke Claude Code for pipeline task
   LOG_FILE="$PROJECT_DIR/logs/${AGENT_NAME}-$(date +%Y%m%d-%H%M%S).log"
+  STREAM_FILE="/tmp/vibe-streams/${TASK_ID}.jsonl"
   cd "$PROJECT_DIR"
+
+  # Clean up stream file on exit
+  trap 'rm -f "$STREAM_FILE"' EXIT
+
   PROMPT="You are ${AGENT_NAME}. Task ID: ${TASK_ID}. Convex URL: ${CONVEX_URL}. Read your SKILL.md, check your WORKING memory, query the task from Convex, and execute your work. When done, call pipeline:completeStep."
   claude -p "$PROMPT" \
     --dangerously-skip-permissions \
-    2>&1 | tee "$LOG_FILE"
+    --output-format stream-json \
+    2>"$LOG_FILE" | tee "$STREAM_FILE" >> "$LOG_FILE"
 
   EXIT_CODE=${PIPESTATUS[0]}
 
@@ -104,7 +111,8 @@ else
   PROMPT="You are ${AGENT_NAME}. Convex URL: ${CONVEX_URL}. Execute heartbeat mode — check for focus groups or tasks needing attention. Read your SKILL.md first."
   claude -p "$PROMPT" \
     --dangerously-skip-permissions \
-    2>&1 | tee "$LOG_FILE"
+    --output-format stream-json \
+    2>"$LOG_FILE" | tee -a "$LOG_FILE"
 
   EXIT_CODE=${PIPESTATUS[0]}
 

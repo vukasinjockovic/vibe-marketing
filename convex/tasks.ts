@@ -108,6 +108,18 @@ export const create = mutation({
 export const update = mutation({
   args: {
     id: v.id("tasks"),
+    status: v.optional(v.union(
+      v.literal("backlog"),
+      v.literal("researched"),
+      v.literal("briefed"),
+      v.literal("drafted"),
+      v.literal("reviewed"),
+      v.literal("revision_needed"),
+      v.literal("humanized"),
+      v.literal("completed"),
+      v.literal("cancelled"),
+      v.literal("blocked")
+    )),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
     pipeline: v.optional(v.array(v.object({

@@ -27,8 +27,11 @@ export function useAudienceJobs(productId?: MaybeRefOrGetter<string | undefined>
 
   const hasActiveJob = computed(() => activeTasks.value.length > 0)
 
-  // Get staging summary for the most recent task
-  const latestTaskId = computed(() => audienceTasks.value[0]?._id)
+  // Get staging summary for the most recent non-cancelled task
+  const latestTaskId = computed(() => {
+    const active = audienceTasks.value.find((t: any) => t.status !== 'cancelled')
+    return active?._id || audienceTasks.value[0]?._id
+  })
   const { data: stagingSummary } = useConvexQuery(
     api.focusGroupStaging.getSummary,
     computed(() => latestTaskId.value ? { taskId: latestTaskId.value } : 'skip'),

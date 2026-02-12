@@ -89,19 +89,24 @@ async function submit() {
     })
 
     // 2. Build pipeline steps from the pipeline template
-    const pipelineSteps = pipeline.value?.mainSteps?.map((s: any) => ({
-      step: s.order,
-      status: s.order === 1 ? 'in_progress' : 'pending',
-      agent: s.agent,
-      model: s.model,
-      description: s.description || s.label,
-      outputDir: s.outputDir,
-    })) || [
-      { step: 1, status: 'in_progress', agent: 'vibe-audience-researcher', description: 'Parse document and extract focus groups' },
-    ]
+    // Re-index steps starting from 0 so pipelineStep:0 matches the first agent step
+    const rawSteps = pipeline.value?.mainSteps?.filter((s: any) => s.agent) || []
+    const pipelineSteps = rawSteps.length > 0
+      ? rawSteps.map((s: any, idx: number) => ({
+          step: idx,
+          status: idx === 0 ? 'in_progress' : 'pending',
+          agent: s.agent,
+          model: s.model,
+          description: s.description || s.label,
+          outputDir: s.outputDir,
+        }))
+      : [
+          { step: 0, status: 'in_progress', agent: 'vibe-audience-parser', model: 'sonnet', description: 'Parse document and extract focus groups', outputDir: 'research' },
+          { step: 1, status: 'pending', agent: 'vibe-audience-enricher', model: 'sonnet', description: 'Fill missing enrichment fields', outputDir: 'research' },
+        ]
 
     // 3. Create a task
-    await createTask({
+    const taskId = await createTask({
       projectId: props.projectId as any,
       title: `Import audiences from ${selectedFile.value.name}`,
       description: `Parse audience document and extract focus groups. Auto-enrich: ${autoEnrich.value}`,
@@ -116,6 +121,20 @@ async function submit() {
         uploadedFilePath: selectedFile.value.name,
       },
     })
+
+    // 4. Dispatch the first agent
+    const firstAgent = pipelineSteps[0]?.agent
+    if (firstAgent && taskId) {
+      try {
+        await $fetch('/api/dispatch', {
+          method: 'POST',
+          body: { taskId, agentName: firstAgent },
+        })
+      } catch {
+        // Dispatch failure is non-fatal — task is created, agent can be dispatched manually
+        console.warn('Auto-dispatch failed, task created but agent not started')
+      }
+    }
 
     toast.success('Audience import task created!')
     emit('created')
