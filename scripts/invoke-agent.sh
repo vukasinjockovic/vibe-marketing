@@ -82,6 +82,9 @@ if [ "$MODE" = "pipeline" ]; then
     exit 1
   fi
 
+  # Log agent start activity
+  npx convex run activities:log "{\"type\":\"info\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Agent invoked for task\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+
   # Invoke Claude Code for pipeline task
   LOG_FILE="$PROJECT_DIR/logs/${AGENT_NAME}-$(date +%Y%m%d-%H%M%S).log"
   STREAM_FILE="/tmp/vibe-streams/${TASK_ID}.jsonl"
@@ -98,10 +101,17 @@ if [ "$MODE" = "pipeline" ]; then
 
   EXIT_CODE=${PIPESTATUS[0]}
 
-  # If agent crashed, release lock and log error
+  # Log result
   if [ $EXIT_CODE -ne 0 ]; then
+    # Agent crashed — release lock and log error
     npx convex run pipeline:releaseLock "{\"taskId\":\"${TASK_ID}\",\"agentName\":\"${AGENT_NAME}\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
     npx convex run activities:log "{\"type\":\"error\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Agent crashed with exit code ${EXIT_CODE}\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+    npx convex run notifications:create "{\"mentionedAgent\":\"@human\",\"fromAgent\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"content\":\"Agent ${AGENT_NAME} crashed (exit ${EXIT_CODE})\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+    # TODO:NOTIFICATION_PREFERENCES — Agent crash Telegram notification
+    python3 "$SCRIPT_DIR/notify.py" "💥 Agent ${AGENT_NAME} crashed (exit ${EXIT_CODE}) on task ${TASK_ID}" 2>/dev/null || true
+  else
+    # Agent completed successfully
+    npx convex run activities:log "{\"type\":\"complete\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Agent completed successfully\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
   fi
 
 else

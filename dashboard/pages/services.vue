@@ -71,13 +71,16 @@ async function toggleActive(svc: any) {
             <div class="flex items-center gap-3">
               <VStatusBadge :status="svc.apiKeyConfigured ? 'configured' : 'needs_key'" />
               <button
-                class="px-3 py-1 text-xs rounded-full font-medium transition-colors"
-                :class="svc.isActive
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+                role="switch"
+                :aria-checked="svc.isActive"
+                class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                :class="svc.isActive ? 'bg-primary' : 'bg-input'"
                 @click="toggleActive(svc)"
               >
-                {{ svc.isActive ? 'Active' : 'Inactive' }}
+                <span
+                  class="pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform"
+                  :class="svc.isActive ? 'translate-x-4' : 'translate-x-0'"
+                />
               </button>
             </div>
           </div>

@@ -56,6 +56,17 @@ export const acquireLock = mutation({
       lockedAt: now,
     });
 
+    // Log activity
+    const stepDesc = task.pipeline?.[task.pipelineStep]?.description || `step ${task.pipelineStep}`;
+    await ctx.db.insert("activities", {
+      projectId: task.projectId,
+      type: "start",
+      agentName: args.agentName,
+      taskId: args.taskId,
+      campaignId: task.campaignId,
+      message: `Started working on "${stepDesc}"`,
+    });
+
     return { acquired: true };
   },
 });
@@ -161,6 +172,63 @@ export const completeStep = mutation({
     }
 
     await ctx.db.patch(args.taskId, patch);
+
+    // ── Log activity + notification ──
+
+    const completedStepDesc = pipeline[currentStepIndex].description || `step ${currentStepIndex + 1}`;
+    const taskTitle = task.title || "Untitled task";
+
+    if (hasNextStep) {
+      const nextStepDesc = pipeline[nextStepIndex].description || `step ${nextStepIndex + 1}`;
+      const nextAgent = pipeline[nextStepIndex].agent || "unknown";
+      // Activity: step advanced
+      await ctx.db.insert("activities", {
+        projectId: task.projectId,
+        type: "progress",
+        agentName: args.agentName,
+        taskId: args.taskId,
+        campaignId: task.campaignId,
+        message: `Completed "${completedStepDesc}", advancing to "${nextStepDesc}"`,
+        metadata: args.qualityScore !== undefined ? { qualityScore: args.qualityScore } : undefined,
+      });
+
+      // TODO:NOTIFICATION_PREFERENCES — Step transition notification
+      const stepMsg = `${args.agentName} finished "${completedStepDesc}" → ${nextAgent} starting "${nextStepDesc}" (${taskTitle})`;
+      await ctx.db.insert("notifications", {
+        mentionedAgent: "@human",
+        fromAgent: args.agentName,
+        taskId: args.taskId,
+        content: stepMsg,
+        delivered: false,
+      });
+      await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+        message: `🔄 ${stepMsg}`,
+      });
+    } else {
+      // Activity: task completed
+      await ctx.db.insert("activities", {
+        projectId: task.projectId,
+        type: "complete",
+        agentName: args.agentName,
+        taskId: args.taskId,
+        campaignId: task.campaignId,
+        message: `Task "${taskTitle}" completed all pipeline steps`,
+        metadata: args.qualityScore !== undefined ? { qualityScore: args.qualityScore } : undefined,
+      });
+
+      // TODO:NOTIFICATION_PREFERENCES — Task completion notification
+      const doneMsg = `Task completed: ${taskTitle}`;
+      await ctx.db.insert("notifications", {
+        mentionedAgent: "@human",
+        fromAgent: args.agentName,
+        taskId: args.taskId,
+        content: doneMsg,
+        delivered: false,
+      });
+      await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+        message: `✅ ${doneMsg}`,
+      });
+    }
 
     // ── Auto-dispatch next agent or handle branches ──
 
@@ -270,6 +338,16 @@ export const completeBranch = mutation({
     );
 
     await ctx.db.patch(args.taskId, { pendingBranches: pending });
+
+    // Log activity for branch completion
+    await ctx.db.insert("activities", {
+      projectId: task.projectId,
+      type: "progress",
+      agentName: args.agentName,
+      taskId: args.taskId,
+      campaignId: task.campaignId,
+      message: `Branch "${args.branchLabel}" completed (${pending.length} remaining)`,
+    });
 
     if (pending.length === 0) {
       // All branches done — advance to next main step agent

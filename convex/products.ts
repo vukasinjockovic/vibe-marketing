@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { logActivity } from "./activities";
 
 // List products by project
 export const list = query({
@@ -67,10 +68,17 @@ export const create = mutation({
       throw new Error(`Product with slug "${args.slug}" already exists`);
     }
 
-    return await ctx.db.insert("products", {
+    const id = await ctx.db.insert("products", {
       ...args,
       status: "active",
     });
+    await logActivity(ctx, {
+      projectId: args.projectId,
+      type: "product_created",
+      agentName: "dashboard",
+      message: `Created product "${args.name}"`,
+    });
+    return id;
   },
 });
 

@@ -642,23 +642,22 @@ let epubJsPromise: Promise<void> | null = null
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     // Temporarily hide AMD define/require so CDN scripts don't conflict with Monaco's AMD loader
-    const savedDefine = (window as any).define
-    const savedRequire = (window as any).require
-    delete (window as any).define
+    const w = window as any
+    const savedDefine = w.define
+    const savedRequire = w.require
+    try { w.define = undefined } catch {}
+
+    const restore = () => {
+      try {
+        if (savedDefine) w.define = savedDefine
+        if (savedRequire) w.require = savedRequire
+      } catch {}
+    }
 
     const script = document.createElement('script')
     script.src = src
-    script.onload = () => {
-      // Restore AMD loader
-      if (savedDefine) (window as any).define = savedDefine
-      if (savedRequire) (window as any).require = savedRequire
-      resolve()
-    }
-    script.onerror = () => {
-      if (savedDefine) (window as any).define = savedDefine
-      if (savedRequire) (window as any).require = savedRequire
-      reject(new Error(`Failed to load ${src}`))
-    }
+    script.onload = () => { restore(); resolve() }
+    script.onerror = () => { restore(); reject(new Error(`Failed to load ${src}`)) }
     document.head.appendChild(script)
   })
 }

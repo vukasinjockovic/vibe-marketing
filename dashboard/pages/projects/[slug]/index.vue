@@ -5,6 +5,10 @@ import { api } from '../../../../convex/_generated/api'
 const { project } = useCurrentProject()
 const projectId = computed(() => project.value?._id)
 
+const { data: liveStats } = useConvexQuery(
+  api.projects.getStats,
+  computed(() => projectId.value ? { projectId: projectId.value } : 'skip'),
+)
 const { data: campaigns } = useConvexQuery(
   api.campaigns.list,
   computed(() => projectId.value ? { projectId: projectId.value } : 'skip'),
@@ -13,8 +17,12 @@ const { data: activities } = useConvexQuery(
   api.activities.listByProject,
   computed(() => projectId.value ? { projectId: projectId.value } : 'skip'),
 )
+const { data: tasks } = useConvexQuery(
+  api.tasks.listByProject,
+  computed(() => projectId.value ? { projectId: projectId.value } : 'skip'),
+)
 
-const stats = computed(() => project.value?.stats || {
+const stats = computed(() => liveStats.value || {
   productCount: 0,
   campaignCount: 0,
   taskCount: 0,
@@ -30,6 +38,11 @@ const statCards = computed(() => [
 
 const recentCampaigns = computed(() => (campaigns.value || []).slice(0, 5))
 const recentActivities = computed(() => (activities.value || []).slice(0, 10))
+const recentTasks = computed(() =>
+  [...(tasks.value || [])]
+    .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
+    .slice(0, 10),
+)
 
 function formatTime(ts: number) {
   if (!ts) return ''
@@ -103,30 +116,53 @@ function formatTime(ts: number) {
         <div class="px-4 py-3 border-b">
           <h3 class="font-semibold text-foreground">Recent Activity</h3>
         </div>
-        <div v-if="!recentActivities.length" class="p-6 text-center text-sm text-muted-foreground">
-          No activity yet
-        </div>
-        <div v-else class="divide-y divide-border">
-          <div
-            v-for="activity in recentActivities"
-            :key="activity._id"
-            class="px-4 py-3"
-          >
-            <div class="flex items-start gap-2">
-              <span class="inline-block w-6 h-6 rounded-full bg-muted text-xs flex items-center justify-center text-muted-foreground font-medium flex-shrink-0 mt-0.5">
-                {{ (activity.agentName || '?')[0].toUpperCase() }}
-              </span>
-              <div class="min-w-0 flex-1">
-                <p class="text-sm text-foreground">
-                  <span class="font-medium">{{ activity.agentName }}</span>
-                  {{ activity.message }}
-                </p>
-                <p v-if="activity._creationTime" class="text-xs text-muted-foreground/70 mt-0.5">
-                  {{ formatTime(activity._creationTime) }}
-                </p>
+        <!-- Agent activities -->
+        <template v-if="recentActivities.length">
+          <div class="divide-y divide-border">
+            <div
+              v-for="activity in recentActivities"
+              :key="activity._id"
+              class="px-4 py-3"
+            >
+              <div class="flex items-start gap-2">
+                <span class="inline-block w-6 h-6 rounded-full bg-muted text-xs flex items-center justify-center text-muted-foreground font-medium flex-shrink-0 mt-0.5">
+                  {{ (activity.agentName || '?')[0].toUpperCase() }}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm text-foreground">
+                    <span class="font-medium">{{ activity.agentName }}</span>
+                    {{ activity.message }}
+                  </p>
+                  <p v-if="activity._creationTime" class="text-xs text-muted-foreground/70 mt-0.5">
+                    {{ formatTime(activity._creationTime) }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+        </template>
+        <!-- Fallback: show tasks as activity when no agent logs yet -->
+        <template v-else-if="recentTasks.length">
+          <div class="divide-y divide-border">
+            <div
+              v-for="task in recentTasks"
+              :key="task._id"
+              class="px-4 py-3"
+            >
+              <div class="flex items-center justify-between">
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-medium text-foreground truncate">{{ task.title }}</p>
+                  <p class="text-xs text-muted-foreground mt-0.5">
+                    {{ task.contentType?.replace(/_/g, ' ') || 'task' }}
+                  </p>
+                </div>
+                <VStatusBadge :status="task.status" size="sm" />
+              </div>
+            </div>
+          </div>
+        </template>
+        <div v-else class="p-6 text-center text-sm text-muted-foreground">
+          No activity yet
         </div>
       </div>
     </div>

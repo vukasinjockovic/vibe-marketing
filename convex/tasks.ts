@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { logActivity } from "./activities";
 
 // List tasks by project
 export const listByProject = query({
@@ -94,13 +95,22 @@ export const create = mutation({
     metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("tasks", {
+    const id = await ctx.db.insert("tasks", {
       ...args,
       status: "backlog",
       pipelineStep: 0,
       subscriberNames: [],
       assigneeNames: [],
     });
+    await logActivity(ctx, {
+      projectId: args.projectId,
+      type: "task_created",
+      agentName: args.createdBy || "dashboard",
+      message: `Created task "${args.title}"`,
+      taskId: id,
+      campaignId: args.campaignId,
+    });
+    return id;
   },
 });
 
@@ -188,7 +198,18 @@ export const updateStatus = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.id);
     await ctx.db.patch(args.id, { status: args.status });
+    if (task) {
+      await logActivity(ctx, {
+        projectId: task.projectId,
+        type: "task_status_changed",
+        agentName: "system",
+        message: `Task "${task.title}" status changed to ${args.status}`,
+        taskId: args.id,
+        campaignId: task.campaignId,
+      });
+    }
   },
 });
 

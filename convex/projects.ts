@@ -118,6 +118,33 @@ export const updateStats = mutation({
   },
 });
 
+// Compute live stats for a project (not denormalized)
+export const getStats = query({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, args) => {
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+    const campaigns = await ctx.db
+      .query("campaigns")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+
+    return {
+      productCount: products.length,
+      campaignCount: campaigns.length,
+      activeCampaignCount: campaigns.filter((c) => c.status === "active").length,
+      taskCount: tasks.length,
+      completedTaskCount: tasks.filter((t) => t.status === "completed").length,
+    };
+  },
+});
+
 // Delete a project
 export const remove = mutation({
   args: { id: v.id("projects") },

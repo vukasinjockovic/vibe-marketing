@@ -1,5 +1,30 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
+
+// Internal helper — call from other mutations to log activity inline
+export async function logActivity(
+  ctx: MutationCtx,
+  opts: {
+    projectId?: Id<"projects">;
+    type: string;
+    agentName: string;
+    message: string;
+    taskId?: Id<"tasks">;
+    campaignId?: Id<"campaigns">;
+    metadata?: any;
+  },
+) {
+  await ctx.db.insert("activities", {
+    projectId: opts.projectId,
+    type: opts.type,
+    agentName: opts.agentName,
+    message: opts.message,
+    taskId: opts.taskId,
+    campaignId: opts.campaignId,
+    metadata: opts.metadata,
+  });
+}
 
 // List latest 50 activities (newest first)
 export const list = query({

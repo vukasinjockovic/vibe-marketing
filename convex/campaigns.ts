@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { logActivity } from "./activities";
 
 // List campaigns by project
 export const list = query({
@@ -120,10 +121,18 @@ export const create = mutation({
       throw new Error(`Campaign with slug "${args.slug}" already exists`);
     }
 
-    return await ctx.db.insert("campaigns", {
+    const id = await ctx.db.insert("campaigns", {
       ...args,
       status: "planning",
     });
+    await logActivity(ctx, {
+      projectId: args.projectId,
+      type: "campaign_created",
+      agentName: "dashboard",
+      message: `Created campaign "${args.name}"`,
+      campaignId: id,
+    });
+    return id;
   },
 });
 
@@ -220,6 +229,14 @@ export const activate = mutation({
       activatedAt: Date.now(),
     });
 
+    await logActivity(ctx, {
+      projectId: campaign.projectId,
+      type: "campaign_activated",
+      agentName: "dashboard",
+      message: `Activated campaign "${campaign.name}"`,
+      campaignId: args.id,
+    });
+
     // Generate tasks from pipeline template
     await ctx.scheduler.runAfter(0, internal.orchestrator.generateTasksForCampaign, {
       campaignId: args.id,
@@ -290,9 +307,19 @@ export const resume = mutation({
 export const complete = mutation({
   args: { id: v.id("campaigns") },
   handler: async (ctx, args) => {
+    const campaign = await ctx.db.get(args.id);
     await ctx.db.patch(args.id, {
       status: "completed" as const,
       completedAt: Date.now(),
     });
+    if (campaign) {
+      await logActivity(ctx, {
+        projectId: campaign.projectId,
+        type: "campaign_completed",
+        agentName: "system",
+        message: `Campaign "${campaign.name}" completed`,
+        campaignId: args.id,
+      });
+    }
   },
 });
