@@ -160,14 +160,14 @@ async function submit() {
         @drop.prevent="onDrop"
         @click="($refs.fileInput as HTMLInputElement)?.click()"
       >
-        <FileUp class="w-8 h-8 text-muted-foreground/60 mb-2 mx-auto" />
+        <FileUp class="w-8 h-8 text-muted-foreground/70 mb-2 mx-auto" />
         <p v-if="selectedFile" class="text-sm text-foreground font-medium">
           {{ selectedFile.name }}
           <span class="text-muted-foreground">({{ (selectedFile.size / 1024).toFixed(1) }}KB)</span>
         </p>
         <template v-else>
           <p class="text-sm text-muted-foreground mb-1">Drop a file here or click to browse</p>
-          <p class="text-xs text-muted-foreground/60">Accepts .md, .txt, .docx, .pdf</p>
+          <p class="text-xs text-muted-foreground/70">Accepts .md, .txt, .docx, .pdf</p>
         </template>
       </div>
 

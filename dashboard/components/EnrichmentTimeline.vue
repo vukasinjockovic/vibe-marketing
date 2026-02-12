@@ -40,7 +40,7 @@ function formatFieldName(field: string) {
 
 <template>
   <div>
-    <div v-if="!enrichments.length" class="text-sm text-muted-foreground/60 italic py-4 text-center">
+    <div v-if="!enrichments.length" class="text-sm text-muted-foreground/70 italic py-4 text-center">
       No enrichment history
     </div>
 
@@ -65,9 +65,9 @@ function formatFieldName(field: string) {
           <div class="flex items-center justify-between mb-1">
             <div class="flex items-center gap-2">
               <span class="text-xs font-semibold text-foreground">{{ entry.field }}</span>
-              <span class="text-xs text-muted-foreground/60">{{ formatFieldName(entry.field) }}</span>
+              <span class="text-xs text-muted-foreground/70">{{ formatFieldName(entry.field) }}</span>
             </div>
-            <span class="text-xs text-muted-foreground/60">{{ formatTimestamp(entry.timestamp) }}</span>
+            <span class="text-xs text-muted-foreground/70">{{ formatTimestamp(entry.timestamp) }}</span>
           </div>
 
           <div class="flex items-center gap-1 text-xs text-muted-foreground mb-1">

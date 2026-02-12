@@ -286,7 +286,7 @@ const backUrl = computed(() => {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
-                  <span class="text-xs text-muted-foreground/60">{{ record.nickname || '' }}</span>
+                  <span class="text-xs text-muted-foreground/70">{{ record.nickname || '' }}</span>
                   <span
                     class="text-xs px-2 py-0.5 rounded-full font-medium"
                     :class="reviewStatusColor(record.reviewStatus)"
@@ -312,7 +312,7 @@ const backUrl = computed(() => {
                   >
                     Reject
                   </button>
-                  <span class="text-xs text-muted-foreground/60">
+                  <span class="text-xs text-muted-foreground/70">
                     {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
                   </span>
                 </div>
@@ -426,22 +426,24 @@ const backUrl = computed(() => {
                   <span v-if="record.awarenessSignals.languageSignal" class="ml-2">Language: {{ record.awarenessSignals.languageSignal }}</span>
                 </div>
 
-                <div v-if="record.purchaseBehavior" class="grid grid-cols-3 gap-2">
-                  <div v-if="record.purchaseBehavior.priceRange">
-                    <span class="text-xs text-muted-foreground">Price Range:</span>
-                    <p class="text-foreground">{{ record.purchaseBehavior.priceRange }}</p>
-                  </div>
-                  <div v-if="record.purchaseBehavior.decisionProcess">
-                    <span class="text-xs text-muted-foreground">Decision Process:</span>
-                    <p class="text-foreground">{{ record.purchaseBehavior.decisionProcess }}</p>
+                <template v-if="record.purchaseBehavior">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div v-if="record.purchaseBehavior.priceRange">
+                      <span class="text-xs text-muted-foreground">Price Range:</span>
+                      <p class="text-foreground">{{ record.purchaseBehavior.priceRange }}</p>
+                    </div>
+                    <div v-if="record.purchaseBehavior.decisionProcess">
+                      <span class="text-xs text-muted-foreground">Decision Process:</span>
+                      <p class="text-foreground">{{ record.purchaseBehavior.decisionProcess }}</p>
+                    </div>
                   </div>
                   <div v-if="record.purchaseBehavior.buyingTriggers?.length">
                     <span class="text-xs text-muted-foreground">Buying Triggers:</span>
-                    <div class="flex flex-wrap gap-1 mt-0.5">
-                      <span v-for="t in record.purchaseBehavior.buyingTriggers" :key="t" class="bg-emerald-50 text-emerald-700 text-xs px-1.5 py-0.5 rounded-full">{{ t }}</span>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                      <span v-for="t in record.purchaseBehavior.buyingTriggers" :key="t" class="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full">{{ t }}</span>
                     </div>
                   </div>
-                </div>
+                </template>
 
                 <div v-if="record.contentPreferences" class="grid grid-cols-3 gap-2">
                   <div v-if="record.contentPreferences.attentionSpan">
@@ -579,7 +581,7 @@ const backUrl = computed(() => {
                   >
                     Reject
                   </button>
-                  <span class="text-xs text-muted-foreground/60">
+                  <span class="text-xs text-muted-foreground/70">
                     {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
                   </span>
                 </div>
@@ -667,7 +669,7 @@ const backUrl = computed(() => {
                   >
                     Skip
                   </button>
-                  <span class="text-xs text-muted-foreground/60">
+                  <span class="text-xs text-muted-foreground/70">
                     {{ isPreviewExpanded(record._id) ? '▲' : '▼' }}
                   </span>
                 </div>

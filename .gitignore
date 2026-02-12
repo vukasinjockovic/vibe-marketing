@@ -8,3 +8,4 @@ dist/
 logs/
 .tldr/
 /claude/tsc-cache
+/projects/*

@@ -38,7 +38,7 @@ async function handleLogin() {
         </div>
       </div>
       <h1 class="text-3xl font-bold text-white">Vibe Marketing</h1>
-      <p class="text-muted-foreground/60 mt-2">AI Content Platform</p>
+      <p class="text-muted-foreground/70 mt-2">AI Content Platform</p>
     </div>
 
     <form class="rounded-lg border bg-card text-card-foreground shadow-lg p-8" @submit.prevent="handleLogin">

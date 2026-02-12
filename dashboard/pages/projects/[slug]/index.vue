@@ -121,7 +121,7 @@ function formatTime(ts: number) {
                   <span class="font-medium">{{ activity.agentName }}</span>
                   {{ activity.message }}
                 </p>
-                <p v-if="activity._creationTime" class="text-xs text-muted-foreground/60 mt-0.5">
+                <p v-if="activity._creationTime" class="text-xs text-muted-foreground/70 mt-0.5">
                   {{ formatTime(activity._creationTime) }}
                 </p>
               </div>

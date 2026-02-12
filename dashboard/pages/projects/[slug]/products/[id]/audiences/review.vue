@@ -266,7 +266,7 @@ const backUrl = computed(() => {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
-                  <span class="text-xs text-muted-foreground/60">{{ record.nickname || '' }}</span>
+                  <span class="text-xs text-muted-foreground/70">{{ record.nickname || '' }}</span>
                   <span
                     class="text-xs px-2 py-0.5 rounded-full font-medium"
                     :class="reviewStatusColor(record.reviewStatus)"

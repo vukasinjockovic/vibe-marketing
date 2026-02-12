@@ -81,7 +81,7 @@ async function handleMarkAllRead() {
               <p class="font-medium text-foreground">{{ n.fromAgent }}</p>
               <p class="text-muted-foreground mt-0.5 line-clamp-2">{{ n.content }}</p>
             </div>
-            <span class="text-xs text-muted-foreground/60 whitespace-nowrap shrink-0">
+            <span class="text-xs text-muted-foreground/70 whitespace-nowrap shrink-0">
               {{ formatTime(n._creationTime) }}
             </span>
           </div>

@@ -16,7 +16,7 @@ const colorMap: Record<string, string> = {
   revision_needed: 'bg-red-100 text-red-700',
   humanized: 'bg-teal-100 text-teal-700',
   completed: 'bg-green-100 text-green-700',
-  cancelled: 'bg-muted text-muted-foreground/60',
+  cancelled: 'bg-muted text-muted-foreground/70',
   blocked: 'bg-red-100 text-red-700',
   // Campaign statuses
   planning: 'bg-muted text-muted-foreground',
@@ -25,7 +25,7 @@ const colorMap: Record<string, string> = {
   in_revision: 'bg-orange-100 text-orange-700',
   // Agent statuses
   idle: 'bg-muted text-muted-foreground',
-  offline: 'bg-muted text-muted-foreground/60',
+  offline: 'bg-muted text-muted-foreground/70',
   // Service statuses
   configured: 'bg-green-100 text-green-700',
   needs_key: 'bg-yellow-100 text-yellow-700',

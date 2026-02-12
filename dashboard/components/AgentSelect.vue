@@ -129,7 +129,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside, true))
             v-model="searchQuery"
             type="text"
             placeholder="Search agents..."
-            class="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground/60"
+            class="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-muted-foreground/70"
           />
         </div>
       </div>

@@ -168,7 +168,7 @@ function streamEntryClass(entry: StreamEntry): string {
     case 'tool_use': return 'text-blue-400'
     case 'tool_result': return 'text-green-400'
     case 'system': return 'text-amber-400'
-    case 'stream_end': return 'text-muted-foreground/60 italic'
+    case 'stream_end': return 'text-muted-foreground/70 italic'
     default: return 'text-muted-foreground'
   }
 }
@@ -233,7 +233,7 @@ function formatTimestamp(ts: number) {
               <span class="text-xs text-muted-foreground mt-1 max-w-16 text-center truncate">
                 {{ pStep.description || `Step ${idx + 1}` }}
               </span>
-              <span v-if="pStep.agent" class="text-xs text-muted-foreground/60 truncate max-w-16">
+              <span v-if="pStep.agent" class="text-xs text-muted-foreground/70 truncate max-w-16">
                 {{ pStep.agent }}
               </span>
             </div>
@@ -278,7 +278,7 @@ function formatTimestamp(ts: number) {
           <div>
             <span class="text-xs text-muted-foreground block">Assigned Agent</span>
             <span v-if="task.lockedBy" class="text-sm font-medium text-muted-foreground">{{ task.lockedBy }}</span>
-            <span v-else class="text-sm text-muted-foreground/60">Unassigned</span>
+            <span v-else class="text-sm text-muted-foreground/70">Unassigned</span>
           </div>
           <div v-if="pipelineStatus?.qualityScore">
             <span class="text-xs text-muted-foreground block">Quality Score</span>
@@ -358,10 +358,10 @@ function formatTimestamp(ts: number) {
             ref="logContainer"
             class="bg-zinc-950 rounded-lg p-3 font-mono text-xs max-h-[32rem] overflow-y-auto space-y-0.5"
           >
-            <div v-if="!streamEntries.length && !streamConnected" class="text-muted-foreground/60 text-center py-4">
+            <div v-if="!streamEntries.length && !streamConnected" class="text-muted-foreground/70 text-center py-4">
               No active stream. Agent output will appear here when running.
             </div>
-            <div v-else-if="!streamEntries.length && streamConnected" class="text-muted-foreground/60 text-center py-4 animate-pulse">
+            <div v-else-if="!streamEntries.length && streamConnected" class="text-muted-foreground/70 text-center py-4 animate-pulse">
               Connected. Waiting for agent output...
             </div>
             <div
@@ -375,7 +375,7 @@ function formatTimestamp(ts: number) {
             </div>
           </div>
           <div class="flex items-center justify-between mt-2">
-            <span class="text-xs text-muted-foreground/60">
+            <span class="text-xs text-muted-foreground/70">
               {{ streamEntries.length }} events
             </span>
             <button
@@ -392,7 +392,7 @@ function formatTimestamp(ts: number) {
           <div v-if="task.description" class="text-sm text-muted-foreground whitespace-pre-wrap">
             {{ task.description }}
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">No description.</p>
+          <p v-else class="text-sm text-muted-foreground/70">No description.</p>
         </div>
 
         <!-- Messages tab -->
@@ -405,7 +405,7 @@ function formatTimestamp(ts: number) {
             >
               <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-medium text-primary">{{ msg.fromAgent }}</span>
-                <span class="text-xs text-muted-foreground/60">{{ formatTimestamp(msg._creationTime) }}</span>
+                <span class="text-xs text-muted-foreground/70">{{ formatTimestamp(msg._creationTime) }}</span>
               </div>
               <p class="text-sm text-muted-foreground whitespace-pre-wrap">{{ msg.content }}</p>
               <div v-if="msg.mentions?.length" class="flex gap-1 mt-1">
@@ -419,7 +419,7 @@ function formatTimestamp(ts: number) {
               </div>
             </div>
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">No messages yet.</p>
+          <p v-else class="text-sm text-muted-foreground/70">No messages yet.</p>
         </div>
 
         <!-- Documents tab -->
@@ -430,14 +430,14 @@ function formatTimestamp(ts: number) {
               :key="doc._id"
               class="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
             >
-              <FileText class="w-5 h-5 text-muted-foreground/60" />
+              <FileText class="w-5 h-5 text-muted-foreground/70" />
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-muted-foreground truncate">{{ doc.title || doc.path }}</p>
                 <p class="text-xs text-muted-foreground">{{ doc.type || 'Document' }}</p>
               </div>
             </div>
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">No documents attached.</p>
+          <p v-else class="text-sm text-muted-foreground/70">No documents attached.</p>
         </div>
       </div>
     </div>

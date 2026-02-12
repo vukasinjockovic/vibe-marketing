@@ -79,7 +79,7 @@ function timeAgo(ts: number) {
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-sm font-medium text-primary">{{ notif.fromAgent }}</span>
-            <span v-if="notif._creationTime" class="text-xs text-muted-foreground/60">
+            <span v-if="notif._creationTime" class="text-xs text-muted-foreground/70">
               {{ timeAgo(notif._creationTime) }}
             </span>
           </div>

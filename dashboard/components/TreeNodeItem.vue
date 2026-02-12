@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 import {
-  Folder,
-  FolderOpen,
-  FileText,
-  FileImage,
-  FileVideo,
-  FileCode,
-  File,
   ChevronRight,
   ChevronDown,
   Loader2,
@@ -36,38 +29,6 @@ const emit = defineEmits<{
   contextmenu: [event: MouseEvent, node: TreeNode]
   drop: [sourcePath: string, destDirPath: string]
 }>()
-
-const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'])
-const VIDEO_EXTENSIONS = new Set(['.mp4', '.webm'])
-const CODE_EXTENSIONS = new Set(['.js', '.ts', '.vue', '.jsx', '.tsx', '.py', '.go', '.rs', '.java', '.c', '.cpp', '.h', '.sh'])
-const TEXT_EXTENSIONS = new Set(['.md', '.txt', '.json', '.yaml', '.yml', '.html', '.css', '.xml', '.csv', '.toml', '.sql'])
-
-function getExtension(name: string): string {
-  const dotIndex = name.lastIndexOf('.')
-  return dotIndex >= 0 ? name.slice(dotIndex).toLowerCase() : ''
-}
-
-function getFileIcon(node: TreeNode) {
-  if (node.isDirectory) {
-    return node.expanded ? FolderOpen : Folder
-  }
-  const ext = getExtension(node.name)
-  if (IMAGE_EXTENSIONS.has(ext)) return FileImage
-  if (VIDEO_EXTENSIONS.has(ext)) return FileVideo
-  if (CODE_EXTENSIONS.has(ext)) return FileCode
-  if (TEXT_EXTENSIONS.has(ext)) return FileText
-  return File
-}
-
-function getFileIconColor(node: TreeNode): string {
-  if (node.isDirectory) return 'text-blue-400'
-  const ext = getExtension(node.name)
-  if (IMAGE_EXTENSIONS.has(ext)) return 'text-green-400'
-  if (VIDEO_EXTENSIONS.has(ext)) return 'text-purple-400'
-  if (CODE_EXTENSIONS.has(ext)) return 'text-yellow-400'
-  if (TEXT_EXTENSIONS.has(ext)) return 'text-muted-foreground'
-  return 'text-muted-foreground/50'
-}
 
 function handleClick() {
   if (props.node.isDirectory) {
@@ -167,12 +128,12 @@ onUnmounted(() => {
       </template>
       <span v-else class="w-3 shrink-0" />
 
-      <!-- File icon -->
-      <component
-        :is="getFileIcon(node)"
-        :size="14"
-        class="shrink-0"
-        :class="getFileIconColor(node)"
+      <!-- File icon (Material) -->
+      <MaterialFileIcon
+        :name="node.name"
+        :is-directory="node.isDirectory"
+        :expanded="node.expanded"
+        :size="16"
       />
 
       <!-- File name -->

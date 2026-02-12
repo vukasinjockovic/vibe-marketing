@@ -28,6 +28,7 @@ const BINARY_MIME_MAP: Record<string, string> = {
   '.xls': 'application/vnd.ms-excel',
   '.ppt': 'application/vnd.ms-powerpoint',
   '.epub': 'application/epub+zip',
+  '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
 }
 
 export default defineEventHandler(async (event) => {

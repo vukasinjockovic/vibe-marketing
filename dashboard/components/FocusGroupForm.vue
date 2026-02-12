@@ -191,7 +191,7 @@ const sections = [
       >
         <span class="text-sm font-semibold text-foreground">{{ section.label }}</span>
         <ChevronDown
-          class="w-4 h-4 text-muted-foreground/60 transition-transform"
+          class="w-4 h-4 text-muted-foreground/70 transition-transform"
           :class="{ 'rotate-180': isSectionOpen(section.key) }"
         />
       </button>

@@ -254,7 +254,7 @@ const reviewUrl = computed(() => {
                   >
                     {{ fg.name }}
                   </NuxtLink>
-                  <span class="text-xs text-muted-foreground/60">{{ fg.nickname }}</span>
+                  <span class="text-xs text-muted-foreground/70">{{ fg.nickname }}</span>
                 </div>
                 <div class="flex items-center gap-2 mt-0.5">
                   <VStatusBadge :status="fg.category" size="sm" />
@@ -277,7 +277,7 @@ const reviewUrl = computed(() => {
                 </svg>
               </button>
               <svg
-                class="w-4 h-4 text-muted-foreground/60 transition-transform"
+                class="w-4 h-4 text-muted-foreground/70 transition-transform"
                 :class="{ 'rotate-180': isExpanded(fg._id) }"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

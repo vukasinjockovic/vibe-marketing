@@ -45,6 +45,42 @@ interface TreeNode extends FileEntry {
   loading?: boolean
 }
 
+// --- Resizable sidebar ---
+
+const SIDEBAR_STORAGE_KEY = 'artifacts-sidebar-width'
+const SIDEBAR_MIN_PX = 180
+const SIDEBAR_DEFAULT_PX = 288 // 18rem = w-72
+
+const sidebarWidth = ref(
+  parseInt(localStorage.getItem(SIDEBAR_STORAGE_KEY) || '', 10) || SIDEBAR_DEFAULT_PX,
+)
+const isResizing = ref(false)
+let resizeContainerEl: HTMLElement | null = null
+
+function onResizeStart(e: MouseEvent) {
+  e.preventDefault()
+  isResizing.value = true
+  resizeContainerEl = (e.target as HTMLElement).closest('[data-testid="artifacts-browser"]')?.querySelector('.flex.flex-1.min-h-0') as HTMLElement | null
+
+  const onMove = (ev: MouseEvent) => {
+    if (!resizeContainerEl) return
+    const containerRect = resizeContainerEl.getBoundingClientRect()
+    const maxWidth = containerRect.width * 0.5
+    const newWidth = Math.min(maxWidth, Math.max(SIDEBAR_MIN_PX, ev.clientX - containerRect.left))
+    sidebarWidth.value = newWidth
+  }
+
+  const onUp = () => {
+    isResizing.value = false
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(Math.round(sidebarWidth.value)))
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+}
+
 // --- State ---
 
 const treeRoots = ref<TreeNode[]>([])
@@ -70,6 +106,8 @@ const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.svg', '.web
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.webm'])
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.ogg', '.flac'])
 const EPUB_EXTENSIONS = new Set(['.epub'])
+const DOCX_EXTENSIONS = new Set(['.docx', '.doc'])
+const SPREADSHEET_EXTENSIONS = new Set(['.xlsx', '.xls', '.ods', '.csv'])
 const PDF_EXTENSIONS = new Set(['.pdf'])
 
 function getExtension(name: string): string {
@@ -77,7 +115,7 @@ function getExtension(name: string): string {
   return dotIndex >= 0 ? name.slice(dotIndex).toLowerCase() : ''
 }
 
-type FileType = 'text' | 'image' | 'video' | 'audio' | 'epub' | 'pdf' | 'unknown'
+type FileType = 'text' | 'image' | 'video' | 'audio' | 'epub' | 'docx' | 'spreadsheet' | 'pdf' | 'unknown'
 
 function getFileType(name: string): FileType {
   const ext = getExtension(name)
@@ -86,6 +124,8 @@ function getFileType(name: string): FileType {
   if (VIDEO_EXTENSIONS.has(ext)) return 'video'
   if (AUDIO_EXTENSIONS.has(ext)) return 'audio'
   if (EPUB_EXTENSIONS.has(ext)) return 'epub'
+  if (DOCX_EXTENSIONS.has(ext)) return 'docx'
+  if (SPREADSHEET_EXTENSIONS.has(ext)) return 'spreadsheet'
   if (PDF_EXTENSIONS.has(ext)) return 'pdf'
   return 'unknown'
 }
@@ -202,6 +242,12 @@ async function selectFile(entry: FileEntry) {
   } else if (fileType === 'epub') {
     const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
     openEpub(url)
+  } else if (fileType === 'docx') {
+    const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
+    openDocx(url)
+  } else if (fileType === 'spreadsheet') {
+    const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
+    openSpreadsheet(url)
   }
 }
 
@@ -505,6 +551,84 @@ const selectedFileServeUrl = computed(() => {
   return `/api/file-serve?path=${encodeURIComponent(selectedFile.value.path)}`
 })
 
+// --- DOCX viewer (mammoth.js) ---
+
+const docxHtml = ref('')
+const docxLoading = ref(false)
+const docxFailed = ref(false)
+let mammothPromise: Promise<void> | null = null
+
+function loadMammoth(): Promise<void> {
+  if (mammothPromise) return mammothPromise
+  if ((window as any).mammoth) return Promise.resolve()
+  mammothPromise = loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js')
+  return mammothPromise
+}
+
+async function openDocx(url: string) {
+  docxLoading.value = true
+  docxHtml.value = ''
+  docxFailed.value = false
+  try {
+    await loadMammoth()
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const arrayBuffer = await response.arrayBuffer()
+    const result = await (window as any).mammoth.convertToHtml({ arrayBuffer })
+    docxHtml.value = result.value
+  } catch (err) {
+    console.warn('DOCX preview unavailable:', err)
+    docxFailed.value = true
+  }
+  docxLoading.value = false
+}
+
+// --- Spreadsheet viewer (SheetJS) ---
+
+const sheetHtml = ref('')
+const sheetNames = ref<string[]>([])
+const activeSheet = ref(0)
+const sheetLoading = ref(false)
+let sheetWorkbook: any = null
+let xlsxPromise: Promise<void> | null = null
+
+function loadXlsx(): Promise<void> {
+  if (xlsxPromise) return xlsxPromise
+  if ((window as any).XLSX) return Promise.resolve()
+  xlsxPromise = loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js')
+  return xlsxPromise
+}
+
+async function openSpreadsheet(url: string) {
+  sheetLoading.value = true
+  sheetHtml.value = ''
+  sheetNames.value = []
+  activeSheet.value = 0
+  sheetWorkbook = null
+  try {
+    await loadXlsx()
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const arrayBuffer = await response.arrayBuffer()
+    const XLSX = (window as any).XLSX
+    sheetWorkbook = XLSX.read(arrayBuffer, { type: 'array' })
+    sheetNames.value = sheetWorkbook.SheetNames
+    renderSheet(0)
+  } catch (err) {
+    console.error('Failed to load spreadsheet:', err)
+    errorMessage.value = 'Failed to load spreadsheet'
+  }
+  sheetLoading.value = false
+}
+
+function renderSheet(index: number) {
+  if (!sheetWorkbook) return
+  activeSheet.value = index
+  const XLSX = (window as any).XLSX
+  const ws = sheetWorkbook.Sheets[sheetWorkbook.SheetNames[index]]
+  sheetHtml.value = XLSX.utils.sheet_to_html(ws, { editable: false })
+}
+
 // --- EPUB reader ---
 
 const epubContainerRef = ref<HTMLDivElement | null>(null)
@@ -515,17 +639,41 @@ const epubCurrentPage = ref('')
 
 let epubJsPromise: Promise<void> | null = null
 
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    // Temporarily hide AMD define/require so CDN scripts don't conflict with Monaco's AMD loader
+    const savedDefine = (window as any).define
+    const savedRequire = (window as any).require
+    delete (window as any).define
+
+    const script = document.createElement('script')
+    script.src = src
+    script.onload = () => {
+      // Restore AMD loader
+      if (savedDefine) (window as any).define = savedDefine
+      if (savedRequire) (window as any).require = savedRequire
+      resolve()
+    }
+    script.onerror = () => {
+      if (savedDefine) (window as any).define = savedDefine
+      if (savedRequire) (window as any).require = savedRequire
+      reject(new Error(`Failed to load ${src}`))
+    }
+    document.head.appendChild(script)
+  })
+}
+
 function loadEpubJs(): Promise<void> {
   if (epubJsPromise) return epubJsPromise
   if ((window as any).ePub) return Promise.resolve()
 
-  epubJsPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js'
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Failed to load epub.js'))
-    document.head.appendChild(script)
-  })
+  epubJsPromise = (async () => {
+    // epub.js requires JSZip
+    if (!(window as any).JSZip) {
+      await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js')
+    }
+    await loadScript('https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js')
+  })()
   return epubJsPromise
 }
 
@@ -535,11 +683,25 @@ async function openEpub(url: string) {
     await loadEpubJs()
     destroyEpub()
 
+    // Wait for the container to render (it's now always in DOM when fileType is epub)
     await nextTick()
-    if (!epubContainerRef.value) return
+    await nextTick()
+
+    if (!epubContainerRef.value) {
+      console.error('EPUB container ref not available')
+      errorMessage.value = 'Failed to initialize EPUB viewer'
+      epubLoading.value = false
+      return
+    }
 
     const ePub = (window as any).ePub
-    epubBook = ePub(url)
+
+    // Fetch as ArrayBuffer for reliable binary handling
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const arrayBuffer = await response.arrayBuffer()
+
+    epubBook = ePub(arrayBuffer)
     epubRendition = epubBook.renderTo(epubContainerRef.value, {
       width: '100%',
       height: '100%',
@@ -721,7 +883,8 @@ onUnmounted(() => {
             <!-- Left panel: File tree -->
             <div
               data-testid="file-tree-panel"
-              class="w-72 border-r border-border bg-card/50 flex flex-col shrink-0 overflow-hidden"
+              class="border-r border-border bg-card/50 flex flex-col shrink-0 overflow-hidden relative"
+              :style="{ width: `${sidebarWidth}px` }"
             >
               <div class="px-3 py-2 border-b border-border/50">
                 <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Files</p>
@@ -753,10 +916,18 @@ onUnmounted(() => {
               </div>
             </div>
 
+            <!-- Resize handle -->
+            <div
+              class="w-1 hover:w-1.5 cursor-col-resize bg-transparent hover:bg-primary/30 transition-all shrink-0"
+              :class="isResizing ? 'w-1.5 bg-primary/40' : ''"
+              @mousedown="onResizeStart"
+            />
+
             <!-- Right panel: File viewer -->
             <div
               data-testid="file-viewer-panel"
               class="flex-1 flex flex-col min-w-0 overflow-hidden"
+              :class="isResizing ? 'select-none' : ''"
             >
               <!-- No file selected -->
               <div v-if="!selectedFile" class="flex-1 flex items-center justify-center">
@@ -866,25 +1037,82 @@ onUnmounted(() => {
 
               <!-- EPUB file -->
               <template v-else-if="selectedFileType === 'epub'">
-                <div v-if="epubLoading" class="flex-1 flex items-center justify-center">
+                <div class="flex-1 min-h-0 relative">
+                  <div ref="epubContainerRef" class="absolute inset-0 bg-[#1a1b26]" />
+                  <div v-if="epubLoading" class="absolute inset-0 flex items-center justify-center bg-[#1a1b26]">
+                    <Loader2 :size="24" class="animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2 border-t border-border bg-card/50 shrink-0">
+                  <button
+                    class="px-3 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+                    @click="epubPrev"
+                  >
+                    Previous
+                  </button>
+                  <span class="text-xs text-muted-foreground">{{ epubCurrentPage }}</span>
+                  <button
+                    class="px-3 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+                    @click="epubNext"
+                  >
+                    Next
+                  </button>
+                </div>
+              </template>
+
+              <!-- DOCX file -->
+              <template v-else-if="selectedFileType === 'docx'">
+                <div v-if="docxLoading" class="flex-1 flex items-center justify-center">
+                  <Loader2 :size="24" class="animate-spin text-muted-foreground" />
+                </div>
+                <div v-else-if="docxFailed" class="flex-1 flex items-center justify-center">
+                  <div class="text-center space-y-3">
+                    <File :size="48" class="text-muted-foreground/30 mx-auto" />
+                    <div>
+                      <p class="text-sm font-medium text-foreground">{{ selectedFile!.name }}</p>
+                      <p class="text-xs text-muted-foreground mt-1">Preview not available for this file format</p>
+                      <p class="text-xs text-muted-foreground">Size: {{ formatFileSize(selectedFile!.size) }}</p>
+                    </div>
+                    <a
+                      :href="selectedFileServeUrl"
+                      download
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      <Download :size="14" />
+                      Download File
+                    </a>
+                  </div>
+                </div>
+                <div v-else class="flex-1 overflow-auto p-6 bg-white">
+                  <div
+                    class="max-w-3xl mx-auto prose prose-sm text-gray-900"
+                    v-html="docxHtml"
+                  />
+                </div>
+              </template>
+
+              <!-- Spreadsheet file -->
+              <template v-else-if="selectedFileType === 'spreadsheet'">
+                <div v-if="sheetLoading" class="flex-1 flex items-center justify-center">
                   <Loader2 :size="24" class="animate-spin text-muted-foreground" />
                 </div>
                 <template v-else>
-                  <div ref="epubContainerRef" class="flex-1 min-h-0 bg-[#1a1b26]" />
-                  <div class="flex items-center justify-between px-4 py-2 border-t border-border bg-card/50 shrink-0">
+                  <!-- Sheet tabs -->
+                  <div v-if="sheetNames.length > 1" class="flex items-center gap-1 px-3 py-1.5 bg-muted/50 border-b border-border shrink-0 overflow-x-auto">
                     <button
-                      class="px-3 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
-                      @click="epubPrev"
+                      v-for="(name, i) in sheetNames"
+                      :key="name"
+                      class="px-3 py-1 text-xs rounded-md transition-colors whitespace-nowrap"
+                      :class="activeSheet === i
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted'"
+                      @click="renderSheet(i)"
                     >
-                      Previous
+                      {{ name }}
                     </button>
-                    <span class="text-xs text-muted-foreground">{{ epubCurrentPage }}</span>
-                    <button
-                      class="px-3 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
-                      @click="epubNext"
-                    >
-                      Next
-                    </button>
+                  </div>
+                  <div class="flex-1 overflow-auto bg-white">
+                    <div class="sheet-viewer" v-html="sheetHtml" />
                   </div>
                 </template>
               </template>
@@ -1007,3 +1235,26 @@ onUnmounted(() => {
     </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+.sheet-viewer :deep(table) {
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-width: 100%;
+}
+.sheet-viewer :deep(td),
+.sheet-viewer :deep(th) {
+  border: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  white-space: nowrap;
+  color: #1a202c;
+}
+.sheet-viewer :deep(th) {
+  background: #f7fafc;
+  font-weight: 600;
+}
+.sheet-viewer :deep(tr:nth-child(even) td) {
+  background: #f8fafc;
+}
+</style>

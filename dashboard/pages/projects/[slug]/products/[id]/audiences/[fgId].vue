@@ -150,7 +150,7 @@ const backUrl = computed(() => {
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-sm text-muted-foreground">{{ fg.nickname }}</span>
                 <VStatusBadge :status="fg.category" size="sm" />
-                <span class="text-xs text-muted-foreground/60">{{ fg.source }}</span>
+                <span class="text-xs text-muted-foreground/70">{{ fg.source }}</span>
               </div>
             </div>
           </div>

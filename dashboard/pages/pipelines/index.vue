@@ -117,7 +117,7 @@ function onCreated(slug: string) {
                 class="w-3 h-0.5 bg-border"
               />
             </div>
-            <span v-if="(p.mainSteps || []).length > 7" class="text-xs text-muted-foreground/60 ml-1">
+            <span v-if="(p.mainSteps || []).length > 7" class="text-xs text-muted-foreground/70 ml-1">
               +{{ (p.mainSteps || []).length - 7 }}
             </span>
           </div>

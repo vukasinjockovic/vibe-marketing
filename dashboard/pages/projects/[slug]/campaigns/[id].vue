@@ -188,7 +188,7 @@ const progressPercent = computed(() => {
               {{ fg.name }}
             </span>
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">None selected</p>
+          <p v-else class="text-sm text-muted-foreground/70">None selected</p>
         </div>
 
         <!-- Keywords -->
@@ -203,7 +203,7 @@ const progressPercent = computed(() => {
               {{ kw }}
             </span>
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">None</p>
+          <p v-else class="text-sm text-muted-foreground/70">None</p>
         </div>
 
         <!-- Pipeline info -->
@@ -215,7 +215,7 @@ const progressPercent = computed(() => {
               {{ campaign.pipelineSnapshot.mainSteps?.length || 0 }} steps
             </p>
           </div>
-          <p v-else class="text-sm text-muted-foreground/60">Unknown</p>
+          <p v-else class="text-sm text-muted-foreground/70">Unknown</p>
         </div>
       </div>
 
@@ -294,11 +294,11 @@ const progressPercent = computed(() => {
           </template>
           <template #cell-lockedBy="{ row }">
             <span v-if="row.lockedBy" class="text-sm text-foreground">{{ row.lockedBy }}</span>
-            <span v-else class="text-xs text-muted-foreground/60">Unassigned</span>
+            <span v-else class="text-xs text-muted-foreground/70">Unassigned</span>
           </template>
           <template #cell-qualityScore="{ row }">
             <span v-if="row.qualityScore" class="font-medium">{{ row.qualityScore }}/10</span>
-            <span v-else class="text-xs text-muted-foreground/60">--</span>
+            <span v-else class="text-xs text-muted-foreground/70">--</span>
           </template>
         </VDataTable>
       </div>

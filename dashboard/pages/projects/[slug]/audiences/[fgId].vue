@@ -135,7 +135,7 @@ const backUrl = computed(() => {
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-sm text-muted-foreground">{{ fg.nickname }}</span>
                 <VStatusBadge :status="fg.category" size="sm" />
-                <span class="text-xs text-muted-foreground/60">{{ fg.source }}</span>
+                <span class="text-xs text-muted-foreground/70">{{ fg.source }}</span>
               </div>
             </div>
           </div>
@@ -278,7 +278,7 @@ const backUrl = computed(() => {
       <!-- Enrichment Field Status -->
       <div class="rounded-lg border bg-card shadow-sm p-6 mb-6">
         <h3 class="font-semibold text-foreground mb-4">Enrichment Field Status</h3>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-4">
           <EnrichmentFieldStatus
             v-for="field in enrichmentFields"
             :key="field.key"

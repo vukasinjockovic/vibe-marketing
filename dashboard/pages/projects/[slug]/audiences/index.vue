@@ -252,7 +252,7 @@ const reviewUrl = computed(() => {
                   >
                     {{ fg.name }}
                   </NuxtLink>
-                  <span class="text-xs text-muted-foreground/60">{{ fg.nickname }}</span>
+                  <span class="text-xs text-muted-foreground/70">{{ fg.nickname }}</span>
                 </div>
                 <div class="flex items-center gap-2 mt-0.5">
                   <VStatusBadge :status="fg.category" size="sm" />
@@ -267,7 +267,7 @@ const reviewUrl = computed(() => {
               </div>
               <button
                 v-if="fg.enrichments?.length"
-                class="p-1 text-muted-foreground/60 hover:text-foreground transition-colors"
+                class="p-1 text-muted-foreground/70 hover:text-foreground transition-colors"
                 title="Audit Trail"
                 @click.stop="openAuditTrail(fg)"
               >
@@ -285,7 +285,7 @@ const reviewUrl = computed(() => {
                 </svg>
               </button>
               <svg
-                class="w-4 h-4 text-muted-foreground/60 transition-transform"
+                class="w-4 h-4 text-muted-foreground/70 transition-transform"
                 :class="{ 'rotate-180': isExpanded(fg._id) }"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -480,7 +480,7 @@ const reviewUrl = computed(() => {
                     {{ entry.confidence }}
                   </span>
                 </div>
-                <span class="text-xs text-muted-foreground/60">{{ formatAuditDate(entry.timestamp) }}</span>
+                <span class="text-xs text-muted-foreground/70">{{ formatAuditDate(entry.timestamp) }}</span>
               </div>
 
               <div class="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
@@ -507,7 +507,7 @@ const reviewUrl = computed(() => {
         </div>
       </div>
 
-      <div v-else class="text-muted-foreground/60 text-center py-8 text-sm">
+      <div v-else class="text-muted-foreground/70 text-center py-8 text-sm">
         No enrichment history available.
       </div>
     </VModal>
