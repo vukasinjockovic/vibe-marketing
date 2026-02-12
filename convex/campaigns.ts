@@ -128,7 +128,7 @@ export const create = mutation({
     await logActivity(ctx, {
       projectId: args.projectId,
       type: "campaign_created",
-      agentName: "dashboard",
+      agentName: "wookashin",
       message: `Created campaign "${args.name}"`,
       campaignId: id,
     });
@@ -232,7 +232,7 @@ export const activate = mutation({
     await logActivity(ctx, {
       projectId: campaign.projectId,
       type: "campaign_activated",
-      agentName: "dashboard",
+      agentName: "wookashin",
       message: `Activated campaign "${campaign.name}"`,
       campaignId: args.id,
     });

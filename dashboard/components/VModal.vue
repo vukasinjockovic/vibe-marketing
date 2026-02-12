@@ -6,6 +6,7 @@ const props = defineProps<{
   modelValue: boolean
   title: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
+  persistent?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -26,11 +27,11 @@ function close() {
 }
 
 function onBackdrop(e: MouseEvent) {
-  if (e.target === e.currentTarget) close()
+  if (!props.persistent && e.target === e.currentTarget) close()
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') close()
+  if (!props.persistent && e.key === 'Escape') close()
 }
 
 watch(() => props.modelValue, (open) => {

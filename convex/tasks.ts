@@ -105,7 +105,7 @@ export const create = mutation({
     await logActivity(ctx, {
       projectId: args.projectId,
       type: "task_created",
-      agentName: args.createdBy || "dashboard",
+      agentName: args.createdBy || "wookashin",
       message: `Created task "${args.title}"`,
       taskId: id,
       campaignId: args.campaignId,

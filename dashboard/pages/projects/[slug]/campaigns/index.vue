@@ -113,7 +113,7 @@ function formatDate(ts: number) {
     </div>
 
     <!-- Create campaign modal -->
-    <VModal v-model="showCreateModal" title="New Campaign" size="xl">
+    <VModal v-model="showCreateModal" title="New Campaign" size="xl" persistent>
       <CampaignForm
         v-if="projectId"
         :project-id="projectId"

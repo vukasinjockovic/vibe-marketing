@@ -31,6 +31,18 @@ export const create = mutation({
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
     color: v.string(),
+    website: v.optional(v.string()),
+    competitors: v.optional(v.array(v.string())),
+    brandVoice: v.optional(v.object({
+      tone: v.string(),
+      style: v.string(),
+      vocabulary: v.object({
+        preferred: v.array(v.string()),
+        avoided: v.array(v.string()),
+      }),
+      examples: v.optional(v.string()),
+      notes: v.optional(v.string()),
+    })),
   },
   handler: async (ctx, args) => {
     // Check slug uniqueness
@@ -47,6 +59,9 @@ export const create = mutation({
       name: args.name,
       slug: args.slug,
       description: args.description,
+      website: args.website,
+      competitors: args.competitors,
+      brandVoice: args.brandVoice,
       appearance: {
         icon: args.icon,
         color: args.color,
@@ -72,6 +87,18 @@ export const update = mutation({
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    website: v.optional(v.string()),
+    competitors: v.optional(v.array(v.string())),
+    brandVoice: v.optional(v.object({
+      tone: v.string(),
+      style: v.string(),
+      vocabulary: v.object({
+        preferred: v.array(v.string()),
+        avoided: v.array(v.string()),
+      }),
+      examples: v.optional(v.string()),
+      notes: v.optional(v.string()),
+    })),
   },
   handler: async (ctx, args) => {
     const project = await ctx.db.get(args.id);
@@ -80,6 +107,9 @@ export const update = mutation({
     const updates: Record<string, unknown> = {};
     if (args.name !== undefined) updates.name = args.name;
     if (args.description !== undefined) updates.description = args.description;
+    if (args.website !== undefined) updates.website = args.website;
+    if (args.competitors !== undefined) updates.competitors = args.competitors;
+    if (args.brandVoice !== undefined) updates.brandVoice = args.brandVoice;
     if (args.icon !== undefined || args.color !== undefined) {
       updates.appearance = {
         ...project.appearance,

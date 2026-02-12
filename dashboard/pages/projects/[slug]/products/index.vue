@@ -11,6 +11,19 @@ const { data: products, loading } = useConvexQuery(
 )
 
 const showCreate = ref(false)
+const search = ref('')
+
+const filteredProducts = computed(() => {
+  if (!products.value) return []
+  const q = search.value.toLowerCase().trim()
+  if (!q) return products.value
+  return products.value.filter((p: any) =>
+    p.name?.toLowerCase().includes(q)
+    || p.description?.toLowerCase().includes(q)
+    || p.context?.usps?.some((u: string) => u.toLowerCase().includes(q))
+    || p.context?.targetMarket?.toLowerCase().includes(q),
+  )
+})
 
 function onCreated() {
   showCreate.value = false
@@ -51,10 +64,25 @@ function onCreated() {
       </button>
     </VEmptyState>
 
-    <div v-else class="grid grid-cols-3 gap-6">
-      <NuxtLink
-        v-for="product in products"
-        :key="product._id"
+    <template v-else>
+      <!-- Search -->
+      <div class="mb-4">
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search products..."
+          class="flex h-9 w-full max-w-sm rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        />
+      </div>
+
+      <div v-if="!filteredProducts.length" class="text-sm text-muted-foreground py-8 text-center">
+        No products matching "{{ search }}"
+      </div>
+
+      <div v-else class="grid grid-cols-3 gap-6">
+        <NuxtLink
+          v-for="product in filteredProducts"
+          :key="product._id"
         :to="`/projects/${project?.slug}/products/${product._id}`"
         class="rounded-lg border bg-card shadow-sm p-6 hover:shadow-md transition-shadow"
       >
@@ -73,10 +101,11 @@ function onCreated() {
           </span>
         </div>
       </NuxtLink>
-    </div>
+      </div>
+    </template>
 
     <!-- Create Product Modal -->
-    <VModal v-model="showCreate" title="New Product" size="xl">
+    <VModal v-model="showCreate" title="New Product" size="xl" persistent>
       <ProductForm
         v-if="projectId"
         :project-id="projectId"

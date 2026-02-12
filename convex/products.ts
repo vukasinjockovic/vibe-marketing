@@ -45,10 +45,10 @@ export const create = mutation({
       pricing: v.optional(v.string()),
       usps: v.array(v.string()),
       targetMarket: v.string(),
-      website: v.optional(v.string()),
-      competitors: v.array(v.string()),
+      productUrl: v.optional(v.string()),
     }),
-    brandVoice: v.object({
+    competitorsOverride: v.optional(v.array(v.string())),
+    brandVoiceOverride: v.optional(v.object({
       tone: v.string(),
       style: v.string(),
       vocabulary: v.object({
@@ -57,7 +57,7 @@ export const create = mutation({
       }),
       examples: v.optional(v.string()),
       notes: v.optional(v.string()),
-    }),
+    })),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -69,13 +69,19 @@ export const create = mutation({
     }
 
     const id = await ctx.db.insert("products", {
-      ...args,
+      projectId: args.projectId,
+      name: args.name,
+      slug: args.slug,
+      description: args.description,
+      context: args.context,
+      competitorsOverride: args.competitorsOverride,
+      brandVoiceOverride: args.brandVoiceOverride,
       status: "active",
     });
     await logActivity(ctx, {
       projectId: args.projectId,
       type: "product_created",
-      agentName: "dashboard",
+      agentName: "wookashin",
       message: `Created product "${args.name}"`,
     });
     return id;
@@ -94,10 +100,10 @@ export const update = mutation({
       pricing: v.optional(v.string()),
       usps: v.array(v.string()),
       targetMarket: v.string(),
-      website: v.optional(v.string()),
-      competitors: v.array(v.string()),
+      productUrl: v.optional(v.string()),
     })),
-    brandVoice: v.optional(v.object({
+    competitorsOverride: v.optional(v.array(v.string())),
+    brandVoiceOverride: v.optional(v.object({
       tone: v.string(),
       style: v.string(),
       vocabulary: v.object({
@@ -116,7 +122,8 @@ export const update = mutation({
     if (args.name !== undefined) updates.name = args.name;
     if (args.description !== undefined) updates.description = args.description;
     if (args.context !== undefined) updates.context = args.context;
-    if (args.brandVoice !== undefined) updates.brandVoice = args.brandVoice;
+    if (args.competitorsOverride !== undefined) updates.competitorsOverride = args.competitorsOverride;
+    if (args.brandVoiceOverride !== undefined) updates.brandVoiceOverride = args.brandVoiceOverride;
 
     await ctx.db.patch(args.id, updates);
   },
@@ -127,5 +134,13 @@ export const archive = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { status: "archived" as const });
+  },
+});
+
+// Delete a product permanently
+export const remove = mutation({
+  args: { id: v.id("products") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
   },
 });

@@ -34,6 +34,18 @@ export default defineSchema({
     name: v.string(),
     slug: v.string(),
     description: v.optional(v.string()),
+    website: v.optional(v.string()),
+    competitors: v.optional(v.array(v.string())),
+    brandVoice: v.optional(v.object({
+      tone: v.string(),
+      style: v.string(),
+      vocabulary: v.object({
+        preferred: v.array(v.string()),
+        avoided: v.array(v.string()),
+      }),
+      examples: v.optional(v.string()),
+      notes: v.optional(v.string()),
+    })),
     appearance: v.object({
       icon: v.optional(v.string()),
       color: v.string(),
@@ -68,10 +80,11 @@ export default defineSchema({
       pricing: v.optional(v.string()),
       usps: v.array(v.string()),
       targetMarket: v.string(),
-      website: v.optional(v.string()),
-      competitors: v.array(v.string()),
+      productUrl: v.optional(v.string()),
     }),
-    brandVoice: v.object({
+    // Optional overrides — when set, these take precedence over project-level values
+    competitorsOverride: v.optional(v.array(v.string())),
+    brandVoiceOverride: v.optional(v.object({
       tone: v.string(),
       style: v.string(),
       vocabulary: v.object({
@@ -80,7 +93,7 @@ export default defineSchema({
       }),
       examples: v.optional(v.string()),
       notes: v.optional(v.string()),
-    }),
+    })),
     status: v.union(v.literal("active"), v.literal("archived")),
   }).index("by_slug", ["slug"])
     .index("by_status", ["status"])

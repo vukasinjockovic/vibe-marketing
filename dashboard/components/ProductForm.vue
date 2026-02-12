@@ -17,6 +17,10 @@ const { mutate: updateProduct, loading: updateLoading } = useConvexMutation(api.
 const saving = computed(() => createLoading.value || updateLoading.value)
 const isEdit = computed(() => !!props.product)
 
+const showOverrides = ref(
+  !!(props.product?.brandVoiceOverride || props.product?.competitorsOverride?.length),
+)
+
 const form = reactive({
   name: props.product?.name || '',
   slug: props.product?.slug || '',
@@ -27,15 +31,16 @@ const form = reactive({
   pricing: props.product?.context?.pricing || '',
   usps: [...(props.product?.context?.usps || [])],
   targetMarket: props.product?.context?.targetMarket || '',
-  website: props.product?.context?.website || '',
-  competitors: [...(props.product?.context?.competitors || [])],
-  // Brand Voice
-  tone: props.product?.brandVoice?.tone || '',
-  style: props.product?.brandVoice?.style || '',
-  preferred: [...(props.product?.brandVoice?.vocabulary?.preferred || [])],
-  avoided: [...(props.product?.brandVoice?.vocabulary?.avoided || [])],
-  examples: props.product?.brandVoice?.examples || '',
-  notes: props.product?.brandVoice?.notes || '',
+  productUrl: props.product?.context?.productUrl || '',
+  // Overrides (optional — override project-level)
+  competitorsOverride: [...(props.product?.competitorsOverride || [])],
+  // Brand Voice Override
+  tone: props.product?.brandVoiceOverride?.tone || '',
+  style: props.product?.brandVoiceOverride?.style || '',
+  preferred: [...(props.product?.brandVoiceOverride?.vocabulary?.preferred || [])],
+  avoided: [...(props.product?.brandVoiceOverride?.vocabulary?.avoided || [])],
+  examples: props.product?.brandVoiceOverride?.examples || '',
+  notes: props.product?.brandVoiceOverride?.notes || '',
 })
 
 // Auto-generate slug from name (only in create mode)
@@ -53,38 +58,45 @@ function validate(): boolean {
   errors.description = form.description ? '' : 'Description is required'
   errors.whatItIs = form.whatItIs ? '' : 'Required'
   errors.targetMarket = form.targetMarket ? '' : 'Required'
-  errors.tone = form.tone ? '' : 'Required'
-  errors.style = form.style ? '' : 'Required'
   return !Object.values(errors).some(e => !!e)
+}
+
+function buildBrandVoiceOverride() {
+  if (!form.tone && !form.style) return undefined
+  return {
+    tone: form.tone,
+    style: form.style,
+    vocabulary: {
+      preferred: form.preferred,
+      avoided: form.avoided,
+    },
+    examples: form.examples || undefined,
+    notes: form.notes || undefined,
+  }
 }
 
 async function submit() {
   if (!validate()) return
   try {
+    const context = {
+      whatItIs: form.whatItIs,
+      features: form.features,
+      pricing: form.pricing || undefined,
+      usps: form.usps,
+      targetMarket: form.targetMarket,
+      productUrl: form.productUrl || undefined,
+    }
+    const competitorsOverride = form.competitorsOverride.length ? form.competitorsOverride : undefined
+    const brandVoiceOverride = buildBrandVoiceOverride()
+
     if (isEdit.value) {
       await updateProduct({
         id: props.product._id,
         name: form.name,
         description: form.description,
-        context: {
-          whatItIs: form.whatItIs,
-          features: form.features,
-          pricing: form.pricing || undefined,
-          usps: form.usps,
-          targetMarket: form.targetMarket,
-          website: form.website || undefined,
-          competitors: form.competitors,
-        },
-        brandVoice: {
-          tone: form.tone,
-          style: form.style,
-          vocabulary: {
-            preferred: form.preferred,
-            avoided: form.avoided,
-          },
-          examples: form.examples || undefined,
-          notes: form.notes || undefined,
-        },
+        context,
+        competitorsOverride,
+        brandVoiceOverride,
       })
     } else {
       await createProduct({
@@ -92,25 +104,9 @@ async function submit() {
         name: form.name,
         slug: form.slug,
         description: form.description,
-        context: {
-          whatItIs: form.whatItIs,
-          features: form.features,
-          pricing: form.pricing || undefined,
-          usps: form.usps,
-          targetMarket: form.targetMarket,
-          website: form.website || undefined,
-          competitors: form.competitors,
-        },
-        brandVoice: {
-          tone: form.tone,
-          style: form.style,
-          vocabulary: {
-            preferred: form.preferred,
-            avoided: form.avoided,
-          },
-          examples: form.examples || undefined,
-          notes: form.notes || undefined,
-        },
+        context,
+        competitorsOverride,
+        brandVoiceOverride,
       })
     }
     emit('saved')
@@ -200,75 +196,97 @@ async function submit() {
           />
         </VFormField>
 
-        <VFormField label="Website">
+        <VFormField label="Product URL" hint="Landing page or product link">
           <input
-            v-model="form.website"
-            data-field="website"
+            v-model="form.productUrl"
+            data-field="productUrl"
             type="url"
-            placeholder="https://..."
+            placeholder="https://yoursite.com/product"
             class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
-        </VFormField>
-
-        <VFormField label="Competitors">
-          <VChipInput v-model="form.competitors" placeholder="Add competitor names" />
         </VFormField>
       </div>
     </div>
 
-    <!-- Brand Voice -->
+    <!-- Project-Level Overrides (collapsible) -->
     <div>
-      <h3 class="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">Brand Voice</h3>
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <VFormField label="Tone" :error="errors.tone" required>
-            <textarea
-              v-model="form.tone"
-              data-field="tone"
-              rows="2"
-              placeholder="e.g. Motivational, Friendly"
-              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            />
-          </VFormField>
+      <button
+        type="button"
+        class="flex items-center gap-2 text-sm font-semibold text-foreground uppercase tracking-wide"
+        @click="showOverrides = !showOverrides"
+      >
+        <svg
+          class="w-4 h-4 transition-transform"
+          :class="showOverrides ? 'rotate-90' : ''"
+          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+        >
+          <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+        </svg>
+        Project-Level Overrides
+      </button>
+      <p class="text-xs text-muted-foreground mt-1 mb-4">Only fill these if this product needs different competitors or brand voice than the project defaults.</p>
 
-          <VFormField label="Style" :error="errors.style" required>
-            <textarea
-              v-model="form.style"
-              data-field="style"
-              rows="2"
-              placeholder="e.g. Bold, Casual"
-              class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            />
-          </VFormField>
+      <div v-if="showOverrides" class="space-y-6 pl-4 border-l-2 border-primary/20">
+        <!-- Competitors Override -->
+        <VFormField label="Competitors (overrides project-level)">
+          <VChipInput v-model="form.competitorsOverride" placeholder="Add product-specific competitors" />
+        </VFormField>
+
+        <!-- Brand Voice Override -->
+        <div>
+          <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Brand Voice (overrides project-level)</h4>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <VFormField label="Tone">
+                <textarea
+                  v-model="form.tone"
+                  data-field="tone"
+                  rows="2"
+                  placeholder="e.g. Motivational, Friendly"
+                  class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+              </VFormField>
+
+              <VFormField label="Style">
+                <textarea
+                  v-model="form.style"
+                  data-field="style"
+                  rows="2"
+                  placeholder="e.g. Bold, Casual"
+                  class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+              </VFormField>
+            </div>
+
+            <VFormField label="Preferred Vocabulary">
+              <VChipInput v-model="form.preferred" placeholder="Words to use" />
+            </VFormField>
+
+            <VFormField label="Avoided Vocabulary">
+              <VChipInput v-model="form.avoided" placeholder="Words to avoid" />
+            </VFormField>
+
+            <VFormField label="Examples">
+              <textarea
+                v-model="form.examples"
+                data-field="examples"
+                placeholder="Example copy or voice samples"
+                rows="2"
+                class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </VFormField>
+
+            <VFormField label="Notes">
+              <textarea
+                v-model="form.notes"
+                data-field="notes"
+                placeholder="Additional brand voice notes"
+                rows="2"
+                class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </VFormField>
+          </div>
         </div>
-
-        <VFormField label="Preferred Vocabulary">
-          <VChipInput v-model="form.preferred" placeholder="Words to use" />
-        </VFormField>
-
-        <VFormField label="Avoided Vocabulary">
-          <VChipInput v-model="form.avoided" placeholder="Words to avoid" />
-        </VFormField>
-
-        <VFormField label="Examples">
-          <textarea
-            v-model="form.examples"
-            data-field="examples"
-            placeholder="Example copy or voice samples"
-            rows="2"
-            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          />
-        </VFormField>
-
-        <VFormField label="Notes">
-          <textarea
-            v-model="form.notes"
-            data-field="notes"
-            placeholder="Additional brand voice notes"
-            rows="2"
-            class="w-full border border-input rounded-md px-3 py-2 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          />
-        </VFormField>
       </div>
     </div>
 

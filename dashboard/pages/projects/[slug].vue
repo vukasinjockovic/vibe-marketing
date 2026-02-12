@@ -10,6 +10,7 @@ const tabs = computed(() => [
   { name: 'Audiences', path: `/projects/${slug.value}/audiences` },
   { name: 'Campaigns', path: `/projects/${slug.value}/campaigns` },
   { name: 'Pipeline', path: `/projects/${slug.value}/pipeline` },
+  { name: 'Settings', path: `/projects/${slug.value}/settings` },
 ])
 
 function isActiveTab(tabPath: string) {

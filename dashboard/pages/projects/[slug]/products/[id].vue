@@ -136,18 +136,18 @@ async function confirmArchive() {
               <p class="text-sm text-foreground mt-1">{{ product.context?.targetMarket }}</p>
             </div>
 
-            <div v-if="product.context?.website">
-              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Website</p>
-              <a :href="product.context.website" target="_blank" class="text-sm text-primary hover:underline">
-                {{ product.context.website }}
+            <div v-if="product.context?.productUrl">
+              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Product URL</p>
+              <a :href="product.context.productUrl" target="_blank" class="text-sm text-primary hover:underline">
+                {{ product.context.productUrl }}
               </a>
             </div>
 
-            <div v-if="product.context?.competitors?.length">
-              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Competitors</p>
+            <div v-if="product.competitorsOverride?.length">
+              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Competitors <span class="text-primary/70">(product override)</span></p>
               <div class="flex flex-wrap gap-1.5 mt-1">
                 <span
-                  v-for="c in product.context.competitors"
+                  v-for="c in product.competitorsOverride"
                   :key="c"
                   class="inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full"
                 >
@@ -158,26 +158,27 @@ async function confirmArchive() {
           </div>
         </div>
 
-        <!-- Brand Voice Section -->
-        <div class="rounded-lg border bg-card shadow-sm p-6">
-          <h3 class="font-semibold text-foreground mb-4">Brand Voice</h3>
+        <!-- Brand Voice Override Section -->
+        <div v-if="product.brandVoiceOverride" class="rounded-lg border bg-card shadow-sm p-6">
+          <h3 class="font-semibold text-foreground mb-1">Brand Voice <span class="text-xs font-normal text-primary/70">(product override)</span></h3>
+          <p class="text-xs text-muted-foreground mb-4">This overrides the project-level brand voice for this product.</p>
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tone</p>
-                <p class="text-sm text-foreground mt-1">{{ product.brandVoice?.tone }}</p>
+                <p class="text-sm text-foreground mt-1">{{ product.brandVoiceOverride.tone }}</p>
               </div>
               <div>
                 <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Style</p>
-                <p class="text-sm text-foreground mt-1">{{ product.brandVoice?.style }}</p>
+                <p class="text-sm text-foreground mt-1">{{ product.brandVoiceOverride.style }}</p>
               </div>
             </div>
 
-            <div v-if="product.brandVoice?.vocabulary?.preferred?.length">
+            <div v-if="product.brandVoiceOverride.vocabulary?.preferred?.length">
               <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preferred Words</p>
               <div class="flex flex-wrap gap-1.5 mt-1">
                 <span
-                  v-for="w in product.brandVoice.vocabulary.preferred"
+                  v-for="w in product.brandVoiceOverride.vocabulary.preferred"
                   :key="w"
                   class="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full"
                 >
@@ -186,11 +187,11 @@ async function confirmArchive() {
               </div>
             </div>
 
-            <div v-if="product.brandVoice?.vocabulary?.avoided?.length">
+            <div v-if="product.brandVoiceOverride.vocabulary?.avoided?.length">
               <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avoided Words</p>
               <div class="flex flex-wrap gap-1.5 mt-1">
                 <span
-                  v-for="w in product.brandVoice.vocabulary.avoided"
+                  v-for="w in product.brandVoiceOverride.vocabulary.avoided"
                   :key="w"
                   class="inline-block bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full"
                 >
@@ -199,14 +200,14 @@ async function confirmArchive() {
               </div>
             </div>
 
-            <div v-if="product.brandVoice?.examples">
+            <div v-if="product.brandVoiceOverride.examples">
               <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Examples</p>
-              <p class="text-sm text-foreground mt-1">{{ product.brandVoice.examples }}</p>
+              <p class="text-sm text-foreground mt-1">{{ product.brandVoiceOverride.examples }}</p>
             </div>
 
-            <div v-if="product.brandVoice?.notes">
+            <div v-if="product.brandVoiceOverride.notes">
               <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notes</p>
-              <p class="text-sm text-foreground mt-1">{{ product.brandVoice.notes }}</p>
+              <p class="text-sm text-foreground mt-1">{{ product.brandVoiceOverride.notes }}</p>
             </div>
           </div>
         </div>
@@ -237,7 +238,7 @@ async function confirmArchive() {
       </div>
 
       <!-- Edit Modal -->
-      <VModal v-model="showEdit" title="Edit Product" size="xl">
+      <VModal v-model="showEdit" title="Edit Product" size="xl" persistent>
         <ProductForm
           :project-id="product.projectId"
           :product="product"

@@ -66,6 +66,23 @@ function getFgEnrichmentScore(fg: any): number {
   return score
 }
 
+// Search
+const search = ref('')
+
+const filteredFocusGroups = computed(() => {
+  if (!focusGroups.value) return []
+  const q = search.value.toLowerCase().trim()
+  if (!q) return focusGroups.value
+  return focusGroups.value.filter((fg: any) =>
+    fg.name?.toLowerCase().includes(q)
+    || fg.nickname?.toLowerCase().includes(q)
+    || fg.category?.toLowerCase().includes(q)
+    || fg.overview?.toLowerCase().includes(q)
+    || fg.coreDesires?.some((d: string) => d.toLowerCase().includes(q))
+    || fg.painPoints?.some((p: string) => p.toLowerCase().includes(q)),
+  )
+})
+
 // UI state
 const showCreate = ref(false)
 const showResearch = ref(false)
@@ -167,6 +184,16 @@ const reviewUrl = computed(() => {
       </template>
     </VPageHeader>
 
+    <!-- Search (visible when audiences exist) -->
+    <div v-if="focusGroups?.length && !loading" class="mb-4">
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Search audiences..."
+        class="flex h-9 w-full max-w-sm rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      />
+    </div>
+
     <!-- Active Jobs Banner -->
     <div v-if="hasActiveJob" class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -227,10 +254,15 @@ const reviewUrl = computed(() => {
       </button>
     </VEmptyState>
 
-    <div v-else class="space-y-4">
-      <div
-        v-for="fg in focusGroups"
-        :key="fg._id"
+    <template v-else>
+      <div v-if="search && !filteredFocusGroups.length" class="text-sm text-muted-foreground py-8 text-center">
+        No audiences matching "{{ search }}"
+      </div>
+
+      <div v-else class="space-y-4">
+        <div
+          v-for="fg in filteredFocusGroups"
+          :key="fg._id"
         class="rounded-lg border bg-card shadow-sm overflow-hidden"
       >
         <!-- Card Header (always visible) -->
@@ -414,6 +446,7 @@ const reviewUrl = computed(() => {
         </div>
       </div>
     </div>
+    </template>
 
     <!-- Create Modal -->
     <VModal v-model="showCreate" title="New Focus Group" size="xl">
