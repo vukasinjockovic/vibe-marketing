@@ -1,0 +1,93 @@
+---
+session: general
+date: 2026-02-12
+status: complete
+outcome: PARTIAL_PLUS
+---
+
+goal: Full Skill Management System - two-way sync, dashboard UI, skill builder wizard, 48 skills synced
+now: Navigate to http://localhost:3000/skills to visually verify the page, test edit flow round-trip, test skill builder dispatch
+
+test: "curl -s -X POST http://localhost:3000/api/skills/sync | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d['synced'], 'synced,', d['unchanged'], 'unchanged,', d['errors'] and 'ERRORS' or 'no errors')\""
+
+done_this_session:
+  - task: "Phase 1: Convex backend - skillCategories.ts (list, upsert), skills.ts (+update, remove, markMissing, listGroupedByCategory), agents.ts (+updateSkills, listWithSkills)"
+    files:
+      - convex/skillCategories.ts
+      - convex/skills.ts
+      - convex/agents.ts
+  - task: "Phase 2: Sync engine - filesystem↔Convex bidirectional sync with gray-matter frontmatter parsing, temp-file JSON for shell safety, symlink support, 10-min auto-sync cron"
+    files:
+      - scripts/sync-skills-config.json
+      - dashboard/server/api/skills/sync.post.ts
+      - dashboard/server/api/skills/write-back.post.ts
+      - dashboard/server/plugins/skill-sync-cron.ts
+  - task: "Phase 3: Dashboard UI - Skills page with search, category filter tabs, skill card grid, edit modal (SkillForm with sub-selections + agent assignment), build wizard (4-step: upload→configure→prompt→dispatch), view SKILL.md modal"
+    files:
+      - dashboard/pages/skills.vue
+      - dashboard/components/SkillForm.vue
+      - dashboard/components/SkillBuilderWizard.vue
+      - dashboard/layouts/default.vue
+  - task: "Phase 4: Seeded 9 skill categories, synced 48 skills from filesystem (32 tech skills excluded), deployed Convex, built dashboard, restarted PM2"
+    files:
+      - scripts/seed-skill-categories.sh
+
+blockers: []
+
+questions:
+  - "Skills page hasn't been visually tested in browser yet - needs manual verification"
+  - "SkillBuilderWizard dispatches to /api/dispatch with agent:'skill-builder' - does this agent exist in the dispatcher?"
+  - "4 empty categories in DB from prior data (research_method, content_format, visual_style, agent_procedure) - clean up or keep?"
+  - "3 skills categorized as 'Other' - may need manual category assignment"
+
+decisions:
+  temp_file_json: "Shell escaping for Convex CLI args uses temp files instead of inline quotes - avoids apostrophe/quote breakage in skill descriptions"
+  symlink_handling: "readdir filter includes isSymbolicLink() since 60 of 80 skill dirs are symlinks"
+  gray_matter: "Installed gray-matter npm package for robust YAML frontmatter parsing (used in both sync and write-back)"
+  category_detection: "Pattern-based category matching for skills without frontmatter metadata - regex patterns map slug prefixes to categories"
+  exclude_patterns: "32 tech reference skills excluded via sync-skills-config.json (antfu, convex-*, vue-*, nuxt, etc.)"
+
+findings:
+  symlinks_majority: "60 of 80 skill directories are symlinks, not real dirs. Node's readdir withFileTypes reports them as symlinks, not directories."
+  shell_escaping_critical: "Single-quote wrapping breaks on apostrophes in text. Double-quote with $(cat) works but needs temp files for reliability."
+  convex_cli_output_buffering: "grep on piped convex CLI output truncates - must redirect to file first for accurate counts"
+  skill_distribution: "L1:1, L2:4, L3:3, L4:3, L5:2, Research:2, Content:8, Media:2, Marketing:20, Other:3 = 48 total"
+
+worked:
+  - "Writing all 3 UI components in one pass (Write tool) rather than incremental edits"
+  - "Temp-file approach for shell JSON escaping - robust for any content"
+  - "gray-matter for frontmatter parsing instead of custom YAML parser"
+  - "Pattern-based category detection as fallback for skills without standard frontmatter"
+
+failed:
+  - "Initial convexRun with single-quoted args broke on apostrophes (Hormozi's, Halbert's)"
+  - "readdir without isSymbolicLink() only found 20 of 80 skill dirs"
+  - "grep on piped convex CLI output gave wrong counts due to buffer truncation"
+
+next:
+  - "Visual verification of Skills page in browser (http://localhost:3000/skills)"
+  - "Test edit flow: edit skill → verify Convex update + SKILL.md write-back"
+  - "Test skill builder wizard: upload → configure → prompt → verify dispatch creates task"
+  - "Clean up empty/stale skill categories from prior data"
+  - "Assign 'Other' category skills to proper categories"
+  - "Consider adding WritingStrategySummary compact badges to campaign list cards"
+  - "Pipeline builder UI or seed pipeline templates with skillOverrides per step"
+  - "pm2 save to persist dashboard process across reboots"
+
+files:
+  created:
+    - convex/skillCategories.ts
+    - scripts/seed-skill-categories.sh
+    - scripts/sync-skills-config.json
+    - dashboard/server/api/skills/sync.post.ts
+    - dashboard/server/api/skills/write-back.post.ts
+    - dashboard/server/plugins/skill-sync-cron.ts
+    - dashboard/pages/skills.vue
+    - dashboard/components/SkillForm.vue
+    - dashboard/components/SkillBuilderWizard.vue
+    - .claude/skill-builds/.gitkeep
+  modified:
+    - convex/skills.ts
+    - convex/agents.ts
+    - dashboard/layouts/default.vue
+    - dashboard/package.json

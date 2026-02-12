@@ -141,8 +141,17 @@ export const update = mutation({
   args: {
     id: v.id("campaigns"),
     name: v.optional(v.string()),
+    slug: v.optional(v.string()),
     description: v.optional(v.string()),
     notes: v.optional(v.string()),
+    products: v.optional(v.array(v.object({
+      productId: v.id("products"),
+      role: v.union(v.literal("main"), v.literal("upsell"), v.literal("addon"), v.literal("downsell")),
+    }))),
+    targetFocusGroupIds: v.optional(v.array(v.id("focusGroups"))),
+    pipelineId: v.optional(v.id("pipelines")),
+    pipelineSnapshot: v.optional(v.any()),
+    targetArticleCount: v.optional(v.number()),
     seedKeywords: v.optional(v.array(v.string())),
     competitorUrls: v.optional(v.array(v.string())),
     deliverableConfig: v.optional(v.object({

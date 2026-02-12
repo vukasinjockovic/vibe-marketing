@@ -6,6 +6,7 @@ import {
   Workflow,
   Bot,
   Server,
+  Sparkles,
   Activity,
   Settings,
   LogOut,
@@ -34,6 +35,7 @@ const breadcrumbs = computed(() => {
     pipelines: 'Pipelines',
     agents: 'Agents',
     services: 'Services',
+    skills: 'Skills',
     activity: 'Activity',
     settings: 'Settings',
     campaigns: 'Campaigns',
@@ -59,6 +61,7 @@ const navigation = [
   { name: 'Pipelines', path: '/pipelines', icon: Workflow },
   { name: 'Agents', path: '/agents', icon: Bot },
   { name: 'Services', path: '/services', icon: Server },
+  { name: 'Skills', path: '/skills', icon: Sparkles },
   { name: 'Activity', path: '/activity', icon: Activity },
   { name: 'Settings', path: '/settings', icon: Settings },
 ]

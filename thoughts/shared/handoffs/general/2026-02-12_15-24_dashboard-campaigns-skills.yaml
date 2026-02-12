@@ -1,0 +1,131 @@
+---
+session: general
+date: 2026-02-12
+status: complete
+outcome: PARTIAL_PLUS
+---
+
+goal: Dashboard UX improvements + Writing Strategy system (skills to campaigns) fully wired
+now: Verify campaign creation flow with writing strategy step, test skill selections persist on edit, consider adding preset skill combos per content type
+
+test: "cd /var/www/vibe-marketing/dashboard && npx nuxi build && npx convex data skills --url http://localhost:3210 | head -5"
+
+done_this_session:
+  - task: "Services page toggle switch (badge to proper switch with role=switch, aria-checked, sliding knob)"
+    files:
+      - dashboard/pages/services.vue
+  - task: "Project overview live stats (replaced denormalized 0s with live projects:getStats query)"
+    files:
+      - convex/projects.ts
+      - "dashboard/pages/projects/[slug]/index.vue"
+  - task: "Activity logging system - logActivity() helper called from campaigns, tasks, products mutations"
+    files:
+      - convex/activities.ts
+      - convex/campaigns.ts
+      - convex/tasks.ts
+      - convex/products.ts
+  - task: "Recent activity fallback - shows recent tasks when no agent activities exist yet"
+    files:
+      - "dashboard/pages/projects/[slug]/index.vue"
+  - task: "Brand Voice + Competitors + Website lifted from Product to Project level; Product gets productUrl + optional overrides"
+    files:
+      - convex/schema.ts
+      - convex/projects.ts
+      - convex/products.ts
+      - dashboard/pages/projects/new.vue
+      - "dashboard/pages/projects/[slug]/settings.vue"
+      - dashboard/components/ProductForm.vue
+      - "dashboard/pages/projects/[slug]/products/[id].vue"
+      - "dashboard/pages/projects/[slug].vue"
+  - task: "Persistent modals on Product and Campaign forms (VModal persistent prop)"
+    files:
+      - dashboard/components/VModal.vue
+      - "dashboard/pages/projects/[slug]/products/index.vue"
+      - "dashboard/pages/projects/[slug]/campaigns/index.vue"
+  - task: "Search on Products page and Audiences page"
+    files:
+      - "dashboard/pages/projects/[slug]/products/index.vue"
+      - "dashboard/pages/projects/[slug]/audiences/index.vue"
+  - task: "Campaign editing - Edit button opens CampaignForm in edit mode with all fields pre-populated"
+    files:
+      - "dashboard/pages/projects/[slug]/campaigns/[id].vue"
+      - dashboard/components/CampaignForm.vue
+      - convex/campaigns.ts
+  - task: "Campaign status badge moved beneath title"
+    files:
+      - "dashboard/pages/projects/[slug]/campaigns/[id].vue"
+  - task: "campaigns.update mutation expanded - supports slug, products, targetFocusGroupIds, pipelineId, pipelineSnapshot, targetArticleCount, skillConfig"
+    files:
+      - convex/campaigns.ts
+  - task: "convex/skills.ts - list, get, getBySlug, listByCategory, listCampaignSelectable, upsertBySlug"
+    files:
+      - convex/skills.ts
+  - task: "Seeded 11 mbook skills into Convex (1 auto-active L1 + 4 L2 offer + 4 L3 persuasion + 2 L4 craft)"
+    files:
+      - scripts/seed-skills.sh
+  - task: "Writing Strategy step added to CampaignForm (Step 4 of 5) - L2 radio, L3 multi-select with sub-selection chips, L4 radio"
+    files:
+      - dashboard/components/CampaignForm.vue
+  - task: "Writing Strategy summary card on campaign detail page - shows L1-L5 as colored badges"
+    files:
+      - "dashboard/pages/projects/[slug]/campaigns/[id].vue"
+
+blockers: []
+
+questions:
+  - "Should preset skill combos (blog, landing page, email, ad copy) be added as quick-apply buttons on Step 4?"
+  - "Pipeline steps currently dont have skillOverrides set - need pipeline builder UI or manual seeding"
+  - "18 inline SVGs from previous session may still need Lucide replacement (carried over)"
+
+decisions:
+  skill_layer_model: "L1 auto-active (Schwartz), L2 radio (offer), L3 checkbox+subs (persuasion), L4 radio (craft), L5 auto-active (quality). Matches v3 spec section 13."
+  brand_voice_at_project: "Brand voice, competitors, website are project-level. Products can optionally override."
+  skill_config_optional: "Writing strategy step (4) is optional - campaigns work without skill selections."
+  activity_logging_internal: "logActivity is an internal helper in activities.ts, called from mutation handlers."
+
+findings:
+  skills_table_was_empty: "skills table in schema existed but had 0 rows. Created skills.ts functions + seed script to populate 11 mbook skills."
+  convex_schema_migration: "Handled via 2-step deploy: make schema backwards-compatible, deploy + delete stale data, tighten schema + redeploy."
+  sub_selections_ui: "Cialdini has 7 principle chips, Sugarman has 5 trigger chips. Toggle as pill badges with sr-only checkboxes."
+
+worked:
+  - "Writing full CampaignForm.vue in one pass (Write tool) rather than incremental edits - cleaner for large restructuring"
+  - "Shell script for skill seeding (scripts/seed-skills.sh) - rerunnable via upsertBySlug"
+  - "Audiences search input placed outside v-else block with own v-if for visibility"
+
+failed:
+  - "Initial audiences search placement inside template v-else made it invisible below banners - moved to top with separate v-if"
+  - "npx convex deploy --admin-key doesnt work for self-hosted - must use npx convex dev --once --typecheck disable"
+
+next:
+  - "Add preset skill combos (quick-apply buttons) for common content types (blog, landing page, email, ad)"
+  - "Build pipeline builder UI or seed pipeline templates with skillOverrides per step"
+  - "Verify campaign edit flow preserves skillConfig round-trip"
+  - "Consider adding WritingStrategySummary to campaign list cards (compact badge preview)"
+  - "Pipelines:create bug verification (carried over from previous session)"
+  - "pm2 save to persist dashboard process across reboots"
+
+files:
+  created:
+    - convex/skills.ts
+    - scripts/seed-skills.sh
+    - "dashboard/pages/projects/[slug]/settings.vue"
+  modified:
+    - convex/schema.ts
+    - convex/projects.ts
+    - convex/products.ts
+    - convex/campaigns.ts
+    - convex/activities.ts
+    - convex/tasks.ts
+    - dashboard/components/VModal.vue
+    - dashboard/components/CampaignForm.vue
+    - dashboard/components/ProductForm.vue
+    - dashboard/pages/services.vue
+    - dashboard/pages/projects/new.vue
+    - "dashboard/pages/projects/[slug].vue"
+    - "dashboard/pages/projects/[slug]/index.vue"
+    - "dashboard/pages/projects/[slug]/products/index.vue"
+    - "dashboard/pages/projects/[slug]/products/[id].vue"
+    - "dashboard/pages/projects/[slug]/audiences/index.vue"
+    - "dashboard/pages/projects/[slug]/campaigns/index.vue"
+    - "dashboard/pages/projects/[slug]/campaigns/[id].vue"

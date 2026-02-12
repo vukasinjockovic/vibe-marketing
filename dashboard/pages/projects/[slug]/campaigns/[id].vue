@@ -20,12 +20,45 @@ const { data: focusGroups } = useConvexQuery(
   computed(() => campaignId.value ? { campaignId: campaignId.value as any } : 'skip'),
 )
 
+// Load skills for writing strategy display
+const { data: allSkills } = useConvexQuery(api.skills.list, {})
+
+const skillMap = computed(() => {
+  const map: Record<string, any> = {}
+  if (allSkills.value) {
+    for (const s of allSkills.value) map[s._id] = s
+  }
+  return map
+})
+
+const writingStrategySummary = computed(() => {
+  const sc = campaign.value?.skillConfig
+  if (!sc) return null
+  const items: { layer: string; name: string; subs?: string[] }[] = []
+  if (sc.offerFramework?.skillId) {
+    const s = skillMap.value[sc.offerFramework.skillId]
+    if (s) items.push({ layer: 'L2', name: s.displayName })
+  }
+  if (sc.persuasionSkills?.length) {
+    for (const ps of sc.persuasionSkills) {
+      const s = skillMap.value[ps.skillId]
+      if (s) items.push({ layer: 'L3', name: s.displayName, subs: ps.subSelections })
+    }
+  }
+  if (sc.primaryCopyStyle?.skillId) {
+    const s = skillMap.value[sc.primaryCopyStyle.skillId]
+    if (s) items.push({ layer: 'L4', name: s.displayName })
+  }
+  return items.length > 0 ? items : null
+})
+
 const { mutate: activateCampaign } = useConvexMutation(api.campaigns.activate)
 const { mutate: pauseCampaign } = useConvexMutation(api.campaigns.pause)
 const { mutate: resumeCampaign } = useConvexMutation(api.campaigns.resume)
 const { mutate: completeCampaign } = useConvexMutation(api.campaigns.complete)
 const toast = useToast()
 
+const showEdit = ref(false)
 const showConfirmActivate = ref(false)
 const showConfirmPause = ref(false)
 const showConfirmComplete = ref(false)
@@ -126,13 +159,21 @@ const progressPercent = computed(() => {
               <ArrowLeft :size="18" />
             </NuxtLink>
             <h1 class="text-2xl font-bold text-foreground">{{ campaign.name }}</h1>
-            <VStatusBadge :status="campaign.status" />
           </div>
-          <p v-if="campaign.description" class="text-sm text-muted-foreground mt-1 ml-9">
-            {{ campaign.description }}
-          </p>
+          <div class="flex items-center gap-2 mt-1 ml-9">
+            <VStatusBadge :status="campaign.status" />
+            <p v-if="campaign.description" class="text-sm text-muted-foreground">
+              {{ campaign.description }}
+            </p>
+          </div>
         </div>
         <div class="flex items-center gap-2">
+          <button
+            class="px-3 py-2 text-sm border border-border rounded-md text-muted-foreground hover:bg-muted transition-colors"
+            @click="showEdit = true"
+          >
+            Edit
+          </button>
           <button
             v-if="campaign.status === 'planning'"
             class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
@@ -219,6 +260,33 @@ const progressPercent = computed(() => {
         </div>
       </div>
 
+      <!-- Writing Strategy -->
+      <div v-if="writingStrategySummary" class="mb-6">
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <h3 class="text-sm font-medium text-foreground mb-3">Writing Strategy</h3>
+          <div class="flex flex-wrap gap-2 mb-2">
+            <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-medium">
+              L1: Schwartz Awareness
+              <span class="text-blue-400 font-normal">(auto)</span>
+            </span>
+            <span
+              v-for="item in writingStrategySummary"
+              :key="item.name"
+              class="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full font-medium"
+            >
+              {{ item.layer }}: {{ item.name }}
+              <template v-if="item.subs?.length">
+                <span class="text-primary/60 font-normal">[{{ item.subs.join(', ') }}]</span>
+              </template>
+            </span>
+            <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-medium">
+              L5: Quality
+              <span class="text-blue-400 font-normal">(auto)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
       <!-- Pipeline Progress -->
       <div v-if="taskStats.total > 0" class="mb-6">
         <div class="rounded-lg border bg-card shadow-sm p-4">
@@ -302,6 +370,16 @@ const progressPercent = computed(() => {
           </template>
         </VDataTable>
       </div>
+
+      <!-- Edit Modal -->
+      <VModal v-model="showEdit" title="Edit Campaign" size="xl" persistent>
+        <CampaignForm
+          v-if="campaign"
+          :project-id="campaign.projectId"
+          :campaign="campaign"
+          @saved="showEdit = false"
+        />
+      </VModal>
 
       <!-- Confirm dialogs -->
       <VConfirmDialog

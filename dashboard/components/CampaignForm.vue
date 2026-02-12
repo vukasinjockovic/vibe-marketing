@@ -4,14 +4,17 @@ import { Check } from 'lucide-vue-next'
 
 const props = defineProps<{
   projectId: string
+  campaign?: any
 }>()
 
 const emit = defineEmits<{
   created: []
+  saved: []
 }>()
 
 const step = ref(1)
-const totalSteps = 4
+const totalSteps = 5
+const stepLabels = ['Basic\nInformation', 'Products\n& Audiences', 'Pipeline\nSelection', 'Writing\nStrategy', 'Configuration']
 
 // Product role types
 type ProductRole = 'main' | 'upsell' | 'addon' | 'downsell'
@@ -19,6 +22,17 @@ type ProductRole = 'main' | 'upsell' | 'addon' | 'downsell'
 interface CampaignProduct {
   productId: string
   role: ProductRole
+}
+
+interface SkillSelection {
+  skillId: string
+  subSelections?: string[]
+}
+
+interface AgentOverride {
+  agentName: string
+  pipelineStep: number
+  skillOverrides: SkillSelection[]
 }
 
 // Form state
@@ -44,6 +58,13 @@ const form = reactive({
     leadMagnet: false,
     adCopySet: false,
     pressRelease: false,
+  },
+  // Writing Strategy (skillConfig)
+  skillConfig: {
+    offerFramework: null as { skillId: string } | null,
+    persuasionSkills: [] as SkillSelection[],
+    primaryCopyStyle: null as { skillId: string } | null,
+    agentOverrides: [] as AgentOverride[],
   },
 })
 
@@ -75,13 +96,69 @@ const { data: selectedPipeline } = useConvexQuery(
   computed(() => form.pipelineId ? { id: form.pipelineId as any } : 'skip'),
 )
 
+// Load campaign-selectable skills
+const { data: selectableSkills } = useConvexQuery(api.skills.listCampaignSelectable, {})
+
+// Group skills by category (layer)
+const skillsByLayer = computed(() => {
+  if (!selectableSkills.value) return {}
+  const grouped: Record<string, any[]> = {}
+  for (const s of selectableSkills.value) {
+    if (!grouped[s.category]) grouped[s.category] = []
+    grouped[s.category].push(s)
+  }
+  return grouped
+})
+
+const layerLabels: Record<string, string> = {
+  L2_offer: 'L2: Offer Framework',
+  L3_persuasion: 'L3: Persuasion & Narrative',
+  L4_craft: 'L4: Copy Style',
+}
+
+const layerOrder = ['L2_offer', 'L3_persuasion', 'L4_craft']
+
+// Pipeline writing steps (steps that have an agent — writing agents)
+const writingSteps = computed(() => {
+  if (!selectedPipeline.value?.mainSteps) return []
+  return selectedPipeline.value.mainSteps.filter((s: any) => s.agent)
+})
+
 const { mutate: createCampaign } = useConvexMutation(api.campaigns.create)
+const { mutate: updateCampaign } = useConvexMutation(api.campaigns.update)
 const saving = ref(false)
 const toast = useToast()
+const isEdit = computed(() => !!props.campaign)
 
-// Auto-generate slug from name
+// Pre-populate form when editing
+if (props.campaign) {
+  const c = props.campaign
+  form.name = c.name || ''
+  form.slug = c.slug || ''
+  form.description = c.description || ''
+  form.products = (c.products || []).map((p: any) => ({ productId: p.productId, role: p.role }))
+  form.targetFocusGroupIds = c.targetFocusGroupIds || []
+  form.pipelineId = c.pipelineId || ''
+  form.seedKeywords = c.seedKeywords || []
+  form.competitorUrls = c.competitorUrls || []
+  form.notes = c.notes || ''
+  form.targetArticleCount = c.targetArticleCount || 5
+  if (c.deliverableConfig) {
+    Object.assign(form.deliverableConfig, c.deliverableConfig)
+  }
+  if (c.skillConfig) {
+    if (c.skillConfig.offerFramework) form.skillConfig.offerFramework = c.skillConfig.offerFramework
+    if (c.skillConfig.persuasionSkills) form.skillConfig.persuasionSkills = c.skillConfig.persuasionSkills
+    if (c.skillConfig.primaryCopyStyle) form.skillConfig.primaryCopyStyle = c.skillConfig.primaryCopyStyle
+    if (c.skillConfig.agentOverrides) form.skillConfig.agentOverrides = c.skillConfig.agentOverrides
+  }
+}
+
+// Auto-generate slug from name (only for new campaigns)
 watch(() => form.name, (name) => {
-  form.slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  if (!isEdit.value) {
+    form.slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  }
 })
 
 // Step validation
@@ -90,7 +167,8 @@ const stepValid = computed(() => {
     case 1: return form.name.trim().length > 0 && form.slug.trim().length > 0
     case 2: return form.products.some(p => p.role === 'main') && form.targetFocusGroupIds.length > 0
     case 3: return !!form.pipelineId
-    case 4: return true
+    case 4: return true // Writing strategy is optional
+    case 5: return true
     default: return false
   }
 })
@@ -122,7 +200,6 @@ function toggleProduct(productId: string) {
   if (idx >= 0) {
     form.products.splice(idx, 1)
   } else {
-    // Default to 'main' if no main yet, otherwise 'upsell'
     const hasMain = form.products.some(p => p.role === 'main')
     form.products.push({ productId, role: hasMain ? 'upsell' : 'main' })
   }
@@ -137,29 +214,144 @@ function setProductRole(productId: string, role: ProductRole) {
   if (entry) entry.role = role
 }
 
+// ═══ Writing Strategy helpers ═══
+function setOfferFramework(skillId: string | null) {
+  form.skillConfig.offerFramework = skillId ? { skillId } : null
+}
+
+function togglePersuasionSkill(skillId: string) {
+  const idx = form.skillConfig.persuasionSkills.findIndex(s => s.skillId === skillId)
+  if (idx >= 0) {
+    form.skillConfig.persuasionSkills.splice(idx, 1)
+  } else {
+    form.skillConfig.persuasionSkills.push({ skillId })
+  }
+}
+
+function isPersuasionSelected(skillId: string): boolean {
+  return form.skillConfig.persuasionSkills.some(s => s.skillId === skillId)
+}
+
+function getPersuasionSelection(skillId: string): SkillSelection | undefined {
+  return form.skillConfig.persuasionSkills.find(s => s.skillId === skillId)
+}
+
+function toggleSubSelection(skillId: string, key: string) {
+  const sel = form.skillConfig.persuasionSkills.find(s => s.skillId === skillId)
+  if (!sel) return
+  if (!sel.subSelections) sel.subSelections = []
+  const idx = sel.subSelections.indexOf(key)
+  if (idx >= 0) {
+    sel.subSelections.splice(idx, 1)
+  } else {
+    sel.subSelections.push(key)
+  }
+}
+
+function setPrimaryCopyStyle(skillId: string | null) {
+  form.skillConfig.primaryCopyStyle = skillId ? { skillId } : null
+}
+
+function getSkillById(skillId: string) {
+  return selectableSkills.value?.find((s: any) => s._id === skillId)
+}
+
+// Selected focus groups (resolved objects for display)
+const selectedFocusGroups = computed(() => {
+  if (!focusGroups.value) return []
+  return form.targetFocusGroupIds
+    .map(id => focusGroups.value!.find((fg: any) => fg._id === id))
+    .filter(Boolean) as any[]
+})
+
+// Summary of selected skills for display
+const selectedSkillSummary = computed(() => {
+  const parts: string[] = []
+  if (form.skillConfig.offerFramework) {
+    const s = getSkillById(form.skillConfig.offerFramework.skillId)
+    if (s) parts.push(`L2: ${s.displayName}`)
+  }
+  for (const ps of form.skillConfig.persuasionSkills) {
+    const s = getSkillById(ps.skillId)
+    if (s) {
+      const subs = ps.subSelections?.length ? ` [${ps.subSelections.join(', ')}]` : ''
+      parts.push(`L3: ${s.displayName}${subs}`)
+    }
+  }
+  if (form.skillConfig.primaryCopyStyle) {
+    const s = getSkillById(form.skillConfig.primaryCopyStyle.skillId)
+    if (s) parts.push(`L4: ${s.displayName}`)
+  }
+  return parts
+})
+
+// Build skillConfig for submission
+function buildSkillConfig() {
+  const config: any = {}
+  if (form.skillConfig.offerFramework) {
+    config.offerFramework = { skillId: form.skillConfig.offerFramework.skillId }
+  }
+  if (form.skillConfig.persuasionSkills.length) {
+    config.persuasionSkills = form.skillConfig.persuasionSkills.map(s => ({
+      skillId: s.skillId,
+      subSelections: s.subSelections?.length ? s.subSelections : undefined,
+    }))
+  }
+  if (form.skillConfig.primaryCopyStyle) {
+    config.primaryCopyStyle = { skillId: form.skillConfig.primaryCopyStyle.skillId }
+  }
+  if (form.skillConfig.agentOverrides.length) {
+    config.agentOverrides = form.skillConfig.agentOverrides
+  }
+  return Object.keys(config).length > 0 ? config : undefined
+}
+
 async function submit() {
   if (!stepValid.value) return
   saving.value = true
   try {
-    await createCampaign({
-      projectId: props.projectId as any,
-      name: form.name,
-      slug: form.slug,
-      description: form.description,
-      products: form.products.map(p => ({ productId: p.productId as any, role: p.role })),
-      pipelineId: form.pipelineId as any,
-      pipelineSnapshot: selectedPipeline.value,
-      targetFocusGroupIds: form.targetFocusGroupIds as any[],
-      seedKeywords: form.seedKeywords,
-      competitorUrls: form.competitorUrls,
-      notes: form.notes || undefined,
-      targetArticleCount: form.targetArticleCount,
-      deliverableConfig: form.deliverableConfig,
-    })
-    toast.success('Campaign created!')
-    emit('created')
+    const skillConfig = buildSkillConfig()
+    if (isEdit.value) {
+      await updateCampaign({
+        id: props.campaign._id as any,
+        name: form.name,
+        slug: form.slug,
+        description: form.description,
+        products: form.products.map(p => ({ productId: p.productId as any, role: p.role })),
+        pipelineId: form.pipelineId as any,
+        pipelineSnapshot: selectedPipeline.value,
+        targetFocusGroupIds: form.targetFocusGroupIds as any[],
+        seedKeywords: form.seedKeywords,
+        competitorUrls: form.competitorUrls,
+        notes: form.notes || undefined,
+        targetArticleCount: form.targetArticleCount,
+        deliverableConfig: form.deliverableConfig,
+        skillConfig,
+      })
+      toast.success('Campaign updated!')
+      emit('saved')
+    } else {
+      await createCampaign({
+        projectId: props.projectId as any,
+        name: form.name,
+        slug: form.slug,
+        description: form.description,
+        products: form.products.map(p => ({ productId: p.productId as any, role: p.role })),
+        pipelineId: form.pipelineId as any,
+        pipelineSnapshot: selectedPipeline.value,
+        targetFocusGroupIds: form.targetFocusGroupIds as any[],
+        seedKeywords: form.seedKeywords,
+        competitorUrls: form.competitorUrls,
+        notes: form.notes || undefined,
+        targetArticleCount: form.targetArticleCount,
+        deliverableConfig: form.deliverableConfig,
+        skillConfig,
+      })
+      toast.success('Campaign created!')
+      emit('created')
+    }
   } catch (e: any) {
-    toast.error(e.message || 'Failed to create campaign')
+    toast.error(e.message || (isEdit.value ? 'Failed to update campaign' : 'Failed to create campaign'))
   } finally {
     saving.value = false
   }
@@ -169,37 +361,36 @@ async function submit() {
 <template>
   <div>
     <!-- Step indicator -->
-    <div class="flex items-center justify-center mb-8">
-      <div v-for="s in totalSteps" :key="s" class="flex items-center">
-        <div
-          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
-          :class="s < step
-            ? 'bg-primary text-primary-foreground'
-            : s === step
-              ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
-              : 'bg-muted text-muted-foreground'"
-        >
-          <Check v-if="s < step" class="w-4 h-4" />
-          <span v-else>{{ s }}</span>
+    <div class="flex items-center justify-between mb-8">
+      <template v-for="s in totalSteps" :key="s">
+        <div class="flex flex-col items-center" style="min-width: 4.5rem;">
+          <button
+            type="button"
+            class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
+            :class="[
+              s < step
+                ? 'bg-primary text-primary-foreground'
+                : s === step
+                  ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                  : 'bg-muted text-muted-foreground',
+              isEdit ? 'cursor-pointer hover:ring-2 hover:ring-primary/30' : s < step ? 'cursor-pointer' : 'cursor-default',
+            ]"
+            @click="isEdit ? (step = s) : s < step ? (step = s) : undefined"
+          >
+            <Check v-if="s < step" class="w-4 h-4" />
+            <span v-else>{{ s }}</span>
+          </button>
+          <span
+            class="text-[10px] leading-tight mt-1.5 text-center whitespace-pre-line"
+            :class="s === step ? 'text-foreground font-semibold' : 'text-muted-foreground'"
+          >{{ stepLabels[s - 1] }}</span>
         </div>
         <div
           v-if="s < totalSteps"
-          class="w-12 h-0.5 mx-1"
+          class="flex-1 h-0.5 mx-1 mt-[-1.25rem]"
           :class="s < step ? 'bg-primary' : 'bg-muted'"
         />
-      </div>
-    </div>
-
-    <div class="text-center mb-6">
-      <h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-        Step {{ step }} of {{ totalSteps }}
-      </h3>
-      <p class="text-lg font-semibold text-foreground mt-1">
-        <span v-if="step === 1">Basic Information</span>
-        <span v-else-if="step === 2">Products &amp; Audiences</span>
-        <span v-else-if="step === 3">Pipeline Selection</span>
-        <span v-else>Configuration</span>
-      </p>
+      </template>
     </div>
 
     <!-- Step 1: Basic info -->
@@ -269,6 +460,24 @@ async function submit() {
       </VFormField>
 
       <VFormField label="Target Audiences" hint="Select focus groups to target with this campaign." required>
+        <!-- Selected audiences summary -->
+        <div v-if="selectedFocusGroups.length" class="space-y-1 mb-3">
+          <div
+            v-for="fg in selectedFocusGroups"
+            :key="'sel-' + fg._id"
+            class="flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-md text-sm"
+          >
+            <span class="font-medium truncate flex-1">{{ fg.name }}</span>
+            <span v-if="fg.nickname" class="text-xs text-muted-foreground truncate">({{ fg.nickname }})</span>
+            <button
+              type="button"
+              class="shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              @click="toggleFocusGroup(fg._id)"
+            >
+              <span class="text-xs leading-none">&times;</span>
+            </button>
+          </div>
+        </div>
         <div v-if="focusGroups?.length" class="space-y-2 max-h-48 overflow-y-auto">
           <label
             v-for="fg in focusGroups"
@@ -342,8 +551,180 @@ async function submit() {
       </div>
     </div>
 
-    <!-- Step 4: Config -->
-    <div v-if="step === 4" class="space-y-4">
+    <!-- Step 4: Writing Strategy -->
+    <div v-if="step === 4" class="space-y-6">
+      <!-- Auto-active notice -->
+      <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
+        <p class="text-sm text-blue-800">
+          <strong>L1: Awareness</strong> (Schwartz) is auto-applied based on your selected focus groups.
+          <br />
+          <strong>L5: Quality</strong> (humanizer + writing-clearly) is auto-applied as post-processing.
+        </p>
+      </div>
+
+      <!-- L2: Offer Framework (radio — pick one or none) -->
+      <div v-if="skillsByLayer['L2_offer']?.length">
+        <h4 class="text-sm font-semibold text-foreground mb-1">{{ layerLabels['L2_offer'] }}</h4>
+        <p class="text-xs text-muted-foreground mb-3">Choose an offer framework (optional). Best for landing pages, sales pages, and ad copy.</p>
+        <div class="space-y-2">
+          <label
+            class="flex items-start gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="!form.skillConfig.offerFramework ? 'border-primary bg-primary/5' : ''"
+          >
+            <input
+              type="radio"
+              name="offerFramework"
+              :checked="!form.skillConfig.offerFramework"
+              class="mt-0.5"
+              @change="setOfferFramework(null)"
+            />
+            <div>
+              <span class="font-medium text-sm">None</span>
+              <p class="text-xs text-muted-foreground">No offer framework (blog posts, informational content)</p>
+            </div>
+          </label>
+          <label
+            v-for="skill in skillsByLayer['L2_offer']"
+            :key="skill._id"
+            class="flex items-start gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="form.skillConfig.offerFramework?.skillId === skill._id ? 'border-primary bg-primary/5' : ''"
+          >
+            <input
+              type="radio"
+              name="offerFramework"
+              :checked="form.skillConfig.offerFramework?.skillId === skill._id"
+              class="mt-0.5"
+              @change="setOfferFramework(skill._id)"
+            />
+            <div>
+              <span class="font-medium text-sm">{{ skill.displayName }}</span>
+              <span v-if="skill.tagline" class="text-xs text-muted-foreground ml-2 italic">{{ skill.tagline }}</span>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ skill.dashboardDescription || skill.description }}</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- L3: Persuasion (checkbox — multi-select with sub-selections) -->
+      <div v-if="skillsByLayer['L3_persuasion']?.length">
+        <h4 class="text-sm font-semibold text-foreground mb-1">{{ layerLabels['L3_persuasion'] }}</h4>
+        <p class="text-xs text-muted-foreground mb-3">Select one or more persuasion/narrative skills. Sub-select specific principles where available.</p>
+        <div class="space-y-2">
+          <div
+            v-for="skill in skillsByLayer['L3_persuasion']"
+            :key="skill._id"
+            class="border border-border rounded-md transition-colors"
+            :class="isPersuasionSelected(skill._id) ? 'border-primary bg-primary/5' : ''"
+          >
+            <label class="flex items-start gap-3 p-3 cursor-pointer hover:bg-muted/50">
+              <input
+                type="checkbox"
+                :checked="isPersuasionSelected(skill._id)"
+                class="mt-0.5"
+                @change="togglePersuasionSkill(skill._id)"
+              />
+              <div class="flex-1">
+                <span class="font-medium text-sm">{{ skill.displayName }}</span>
+                <span v-if="skill.tagline" class="text-xs text-muted-foreground ml-2 italic">{{ skill.tagline }}</span>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ skill.dashboardDescription || skill.description }}</p>
+              </div>
+            </label>
+            <!-- Sub-selections (e.g., Cialdini principles, Sugarman triggers) -->
+            <div
+              v-if="isPersuasionSelected(skill._id) && skill.subSelections?.length"
+              class="px-3 pb-3 ml-8"
+            >
+              <p class="text-xs text-muted-foreground mb-1.5">Select specific principles to apply:</p>
+              <div class="flex flex-wrap gap-1.5">
+                <label
+                  v-for="sub in skill.subSelections"
+                  :key="sub.key"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs cursor-pointer transition-colors"
+                  :class="getPersuasionSelection(skill._id)?.subSelections?.includes(sub.key)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="getPersuasionSelection(skill._id)?.subSelections?.includes(sub.key)"
+                    class="sr-only"
+                    @change="toggleSubSelection(skill._id, sub.key)"
+                  />
+                  {{ sub.label }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- L4: Copy Style (radio — pick one primary) -->
+      <div v-if="skillsByLayer['L4_craft']?.length">
+        <h4 class="text-sm font-semibold text-foreground mb-1">{{ layerLabels['L4_craft'] }}</h4>
+        <p class="text-xs text-muted-foreground mb-3">Choose a primary copy style (optional). Sets the overall writing voice.</p>
+        <div class="space-y-2">
+          <label
+            class="flex items-start gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="!form.skillConfig.primaryCopyStyle ? 'border-primary bg-primary/5' : ''"
+          >
+            <input
+              type="radio"
+              name="copyStyle"
+              :checked="!form.skillConfig.primaryCopyStyle"
+              class="mt-0.5"
+              @change="setPrimaryCopyStyle(null)"
+            />
+            <div>
+              <span class="font-medium text-sm">None</span>
+              <p class="text-xs text-muted-foreground">Use default writing style</p>
+            </div>
+          </label>
+          <label
+            v-for="skill in skillsByLayer['L4_craft']"
+            :key="skill._id"
+            class="flex items-start gap-3 p-3 border border-border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+            :class="form.skillConfig.primaryCopyStyle?.skillId === skill._id ? 'border-primary bg-primary/5' : ''"
+          >
+            <input
+              type="radio"
+              name="copyStyle"
+              :checked="form.skillConfig.primaryCopyStyle?.skillId === skill._id"
+              class="mt-0.5"
+              @change="setPrimaryCopyStyle(skill._id)"
+            />
+            <div>
+              <span class="font-medium text-sm">{{ skill.displayName }}</span>
+              <span v-if="skill.tagline" class="text-xs text-muted-foreground ml-2 italic">{{ skill.tagline }}</span>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ skill.dashboardDescription || skill.description }}</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Selection Summary -->
+      <div v-if="selectedSkillSummary.length" class="rounded-lg border bg-card p-4">
+        <h4 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Selected Writing Strategy</h4>
+        <div class="flex flex-wrap gap-1.5">
+          <span
+            v-for="label in selectedSkillSummary"
+            :key="label"
+            class="inline-block bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full font-medium"
+          >
+            {{ label }}
+          </span>
+        </div>
+        <p class="text-xs text-muted-foreground mt-2">
+          + L1: Schwartz Awareness (auto) + L5: humanizer + writing-clearly (auto)
+        </p>
+      </div>
+
+      <div v-else class="text-sm text-muted-foreground text-center py-4">
+        No writing skills selected. The pipeline will use default writing without specialized frameworks.
+      </div>
+    </div>
+
+    <!-- Step 5: Config -->
+    <div v-if="step === 5" class="space-y-4">
       <VFormField label="Number of Articles" hint="How many content pieces to generate for this campaign.">
         <input
           v-model.number="form.targetArticleCount"
@@ -413,7 +794,7 @@ async function submit() {
         class="px-4 py-2 text-sm text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         @click="submit"
       >
-        {{ saving ? 'Creating...' : 'Create Campaign' }}
+        {{ saving ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save Changes' : 'Create Campaign') }}
       </button>
     </div>
   </div>

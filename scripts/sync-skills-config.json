@@ -1,0 +1,8 @@
+{
+  "excludePatterns": [
+    "antfu", "convex", "convex-*", "vue", "vue-*", "nuxt", "pinia", "pnpm",
+    "vite", "vitepress", "vitest", "unocss", "turborepo", "tsdown", "slidev",
+    "ffmpeg", "web-design-guidelines", "avoid-feature-creep", "vueuse-functions",
+    "vue-router-best-practices", "vue-testing-best-practices", "vue-best-practices"
+  ]
+}

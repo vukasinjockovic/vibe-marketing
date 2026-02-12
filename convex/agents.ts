@@ -121,6 +121,39 @@ export const assignTask = mutation({
   },
 });
 
+// Update agent skill assignments
+export const updateSkills = mutation({
+  args: {
+    id: v.id("agents"),
+    staticSkillIds: v.optional(v.array(v.id("skills"))),
+    dynamicSkillIds: v.optional(v.array(v.id("skills"))),
+  },
+  handler: async (ctx, args) => {
+    const agent = await ctx.db.get(args.id);
+    if (!agent) throw new Error("Agent not found");
+    const patch: Record<string, any> = {};
+    if (args.staticSkillIds !== undefined) patch.staticSkillIds = args.staticSkillIds;
+    if (args.dynamicSkillIds !== undefined) patch.dynamicSkillIds = args.dynamicSkillIds;
+    await ctx.db.patch(args.id, patch);
+  },
+});
+
+// List agents with skill IDs
+export const listWithSkills = query({
+  args: {},
+  handler: async (ctx) => {
+    const agents = await ctx.db.query("agents").collect();
+    return agents.map((a) => ({
+      _id: a._id,
+      name: a.name,
+      displayName: a.displayName,
+      role: a.role,
+      staticSkillIds: a.staticSkillIds,
+      dynamicSkillIds: a.dynamicSkillIds,
+    }));
+  },
+});
+
 // Complete the current task
 export const completeTask = mutation({
   args: { id: v.id("agents") },

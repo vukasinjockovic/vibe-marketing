@@ -113,6 +113,8 @@ import type * as projects from "../projects.js";
 import type * as revisions from "../revisions.js";
 import type * as seed from "../seed.js";
 import type * as services from "../services.js";
+import type * as skillCategories from "../skillCategories.js";
+import type * as skills from "../skills.js";
 import type * as tasks from "../tasks.js";
 
 import type {
@@ -227,6 +229,8 @@ declare const fullApi: ApiFromModules<{
   revisions: typeof revisions;
   seed: typeof seed;
   services: typeof services;
+  skillCategories: typeof skillCategories;
+  skills: typeof skills;
   tasks: typeof tasks;
 }>;
 
