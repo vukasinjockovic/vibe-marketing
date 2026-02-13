@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # Usage: ./scripts/invoke-agent.sh <agent-name> <task-id>
+#        ./scripts/invoke-agent.sh <agent-name> <task-id> --branch <label>
 #        ./scripts/invoke-agent.sh <agent-name> --heartbeat
 #
 # Examples:
 #   ./scripts/invoke-agent.sh vibe-content-writer abc123
-#   ./scripts/invoke-agent.sh vibe-audience-parser abc123
+#   ./scripts/invoke-agent.sh vibe-image-director abc123 --branch "Hero Image"
 #   ./scripts/invoke-agent.sh vibe-audience-enricher --heartbeat
 #
 # Invokes a Claude Code agent for a specific task, handling:
 # - Skill path resolution via Convex agent registry (fallback: .claude/skills/<name>)
-# - Lock acquisition and release
+# - Lock acquisition and release (pipeline mode)
+# - Branch label tracking and completeBranch call (branch mode)
 # - Agent run tracking via analytics
 # - Activity logging on failure
 # - Log capture to logs/ directory
@@ -19,6 +21,7 @@ set -euo pipefail
 
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <agent-name> <task-id>"
+  echo "       $0 <agent-name> <task-id> --branch <label>"
   echo "       $0 <agent-name> --heartbeat"
   exit 1
 fi
@@ -26,11 +29,18 @@ fi
 AGENT_NAME="$1"
 MODE="pipeline"
 TASK_ID=""
+BRANCH_LABEL=""
 
 if [ "$2" = "--heartbeat" ]; then
   MODE="heartbeat"
 else
   TASK_ID="$2"
+fi
+
+# Check for --branch flag
+if [ $# -ge 4 ] && [ "$3" = "--branch" ]; then
+  MODE="branch"
+  BRANCH_LABEL="$4"
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -96,6 +106,7 @@ if [ "$MODE" = "pipeline" ]; then
   PROMPT="You are ${AGENT_NAME}. Task ID: ${TASK_ID}. Convex URL: ${CONVEX_URL}. Read your SKILL.md, check your WORKING memory, query the task from Convex, and execute your work. When done, call pipeline:completeStep."
   claude -p "$PROMPT" \
     --dangerously-skip-permissions \
+    --verbose \
     --output-format stream-json \
     2>"$LOG_FILE" | tee "$STREAM_FILE" >> "$LOG_FILE"
 
@@ -114,6 +125,32 @@ if [ "$MODE" = "pipeline" ]; then
     npx convex run activities:log "{\"type\":\"complete\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Agent completed successfully\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
   fi
 
+elif [ "$MODE" = "branch" ]; then
+  # Branch mode — no lock, agent runs for a specific branch deliverable
+  npx convex run activities:log "{\"type\":\"info\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Branch agent invoked for: ${BRANCH_LABEL}\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+
+  LOG_FILE="$PROJECT_DIR/logs/${AGENT_NAME}-branch-$(date +%Y%m%d-%H%M%S).log"
+  STREAM_FILE="/tmp/vibe-streams/${TASK_ID}-branch-${AGENT_NAME}.jsonl"
+  cd "$PROJECT_DIR"
+
+  trap 'rm -f "$STREAM_FILE"' EXIT
+
+  PROMPT="You are ${AGENT_NAME}. Task ID: ${TASK_ID}. Branch: ${BRANCH_LABEL}. Convex URL: ${CONVEX_URL}. Read your SKILL.md, check your WORKING memory, query the task from Convex, and produce the '${BRANCH_LABEL}' deliverable. When done, call: npx convex run pipeline:completeBranch '{\"taskId\":\"${TASK_ID}\",\"branchLabel\":\"${BRANCH_LABEL}\",\"agentName\":\"${AGENT_NAME}\"}' --url ${CONVEX_URL} --admin-key '${ADMIN_KEY}'"
+  claude -p "$PROMPT" \
+    --dangerously-skip-permissions \
+    --verbose \
+    --output-format stream-json \
+    2>"$LOG_FILE" | tee "$STREAM_FILE" >> "$LOG_FILE"
+
+  EXIT_CODE=${PIPESTATUS[0]}
+
+  if [ $EXIT_CODE -ne 0 ]; then
+    npx convex run activities:log "{\"type\":\"error\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Branch '${BRANCH_LABEL}' crashed with exit code ${EXIT_CODE}\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+    npx convex run notifications:create "{\"mentionedAgent\":\"@human\",\"fromAgent\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"content\":\"Branch '${BRANCH_LABEL}' crashed (exit ${EXIT_CODE})\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+  else
+    npx convex run activities:log "{\"type\":\"complete\",\"agentName\":\"${AGENT_NAME}\",\"taskId\":\"${TASK_ID}\",\"message\":\"Branch '${BRANCH_LABEL}' completed successfully\"}" --url "$CONVEX_URL" --admin-key "$ADMIN_KEY" 2>/dev/null || true
+  fi
+
 else
   # Heartbeat mode — no lock needed, agent checks for work itself
   LOG_FILE="$PROJECT_DIR/logs/${AGENT_NAME}-heartbeat-$(date +%Y%m%d-%H%M%S).log"
@@ -121,6 +158,7 @@ else
   PROMPT="You are ${AGENT_NAME}. Convex URL: ${CONVEX_URL}. Execute heartbeat mode — check for focus groups or tasks needing attention. Read your SKILL.md first."
   claude -p "$PROMPT" \
     --dangerously-skip-permissions \
+    --verbose \
     --output-format stream-json \
     2>"$LOG_FILE" | tee -a "$LOG_FILE"
 

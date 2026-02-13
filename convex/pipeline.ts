@@ -283,16 +283,14 @@ export const completeStep = mutation({
           }
         }
 
-        // If no branches triggered, dispatch the next main step agent
-        if (!branchesDispatched) {
-          const nextAgent = pipeline[nextStepIndex].agent;
-          if (nextAgent) {
-            await ctx.scheduler.runAfter(
-              0,
-              internal.orchestrator.requestDispatch,
-              { taskId: args.taskId, agentName: nextAgent }
-            );
-          }
+        // Always dispatch the next main step agent (branches run in parallel)
+        const nextAgent = pipeline[nextStepIndex].agent;
+        if (nextAgent) {
+          await ctx.scheduler.runAfter(
+            0,
+            internal.orchestrator.requestDispatch,
+            { taskId: args.taskId, agentName: nextAgent }
+          );
         }
       }
     } else {

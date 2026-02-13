@@ -45,6 +45,18 @@ export const listByProject = query({
   },
 });
 
+// List activities by campaign (newest first)
+export const listByCampaign = query({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("activities")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .order("desc")
+      .collect();
+  },
+});
+
 // List activities by agent name
 export const listByAgent = query({
   args: { agentName: v.string() },

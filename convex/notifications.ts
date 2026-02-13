@@ -1,4 +1,5 @@
 import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v } from "convex/values";
 
 // List recent dashboard-visible notifications (for @human or @all)
@@ -102,13 +103,22 @@ export const create = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("notifications", {
+    const id = await ctx.db.insert("notifications", {
       mentionedAgent: args.mentionedAgent,
       fromAgent: args.fromAgent,
       taskId: args.taskId,
       content: args.content,
       delivered: false,
     });
+
+    // Send Telegram for @human and @all notifications
+    if (args.mentionedAgent === "@human" || args.mentionedAgent === "@all") {
+      await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+        message: `📬 [${args.fromAgent}] ${args.content}`,
+      });
+    }
+
+    return id;
   },
 });
 

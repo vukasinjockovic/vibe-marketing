@@ -15,6 +15,11 @@ const { data: tasks } = useConvexQuery(
   computed(() => campaignId.value ? { campaignId: campaignId.value as any } : 'skip'),
 )
 
+const { data: activities } = useConvexQuery(
+  api.activities.listByCampaign,
+  computed(() => campaignId.value ? { campaignId: campaignId.value as any } : 'skip'),
+)
+
 const { data: focusGroups } = useConvexQuery(
   api.focusGroups.getByCampaign,
   computed(() => campaignId.value ? { campaignId: campaignId.value as any } : 'skip'),
@@ -35,21 +40,49 @@ const writingStrategySummary = computed(() => {
   const sc = campaign.value?.skillConfig
   if (!sc) return null
   const items: { layer: string; name: string; subs?: string[] }[] = []
-  if (sc.offerFramework?.skillId) {
-    const s = skillMap.value[sc.offerFramework.skillId]
-    if (s) items.push({ layer: 'L2', name: s.displayName })
-  }
-  if (sc.persuasionSkills?.length) {
-    for (const ps of sc.persuasionSkills) {
-      const s = skillMap.value[ps.skillId]
-      if (s) items.push({ layer: 'L3', name: s.displayName, subs: ps.subSelections })
+
+  // New generic format
+  if (sc.selections?.length) {
+    for (const sel of sc.selections) {
+      const s = skillMap.value[sel.skillId]
+      if (s) {
+        const prefix = sel.categoryKey.split('_')[0].toUpperCase()
+        items.push({ layer: prefix, name: s.displayName, subs: sel.subSelections })
+      }
     }
   }
-  if (sc.primaryCopyStyle?.skillId) {
-    const s = skillMap.value[sc.primaryCopyStyle.skillId]
-    if (s) items.push({ layer: 'L4', name: s.displayName })
+  // Legacy format fallback
+  else {
+    if (sc.offerFramework?.skillId) {
+      const s = skillMap.value[sc.offerFramework.skillId]
+      if (s) items.push({ layer: 'L2', name: s.displayName })
+    }
+    if (sc.persuasionSkills?.length) {
+      for (const ps of sc.persuasionSkills) {
+        const s = skillMap.value[ps.skillId]
+        if (s) items.push({ layer: 'L3', name: s.displayName, subs: ps.subSelections })
+      }
+    }
+    if (sc.primaryCopyStyle?.skillId) {
+      const s = skillMap.value[sc.primaryCopyStyle.skillId]
+      if (s) items.push({ layer: 'L4', name: s.displayName })
+    }
   }
   return items.length > 0 ? items : null
+})
+
+const agentOverridesSummary = computed(() => {
+  const sc = campaign.value?.skillConfig
+  if (!sc?.agentOverrides?.length) return null
+  return sc.agentOverrides
+    .filter((ao: any) => ao.selections?.length)
+    .map((ao: any) => ({
+      agentName: ao.agentName,
+      skills: ao.selections.map((sel: any) => {
+        const s = skillMap.value[sel.skillId]
+        return s ? s.displayName : sel.skillId
+      }),
+    }))
 })
 
 const { mutate: activateCampaign } = useConvexMutation(api.campaigns.activate)
@@ -139,6 +172,50 @@ const progressPercent = computed(() => {
   if (!taskStats.value.total) return 0
   return Math.round((taskStats.value.completed / taskStats.value.total) * 100)
 })
+
+// Activity pagination
+const activityPage = ref(1)
+const activityPerPage = 10
+
+const sortedActivities = computed(() => {
+  if (!activities.value) return []
+  return [...activities.value].sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
+})
+
+const activityTotalPages = computed(() =>
+  Math.max(1, Math.ceil(sortedActivities.value.length / activityPerPage))
+)
+
+const paginatedActivities = computed(() => {
+  const start = (activityPage.value - 1) * activityPerPage
+  return sortedActivities.value.slice(start, start + activityPerPage)
+})
+
+// Visible page numbers (max 5 around current)
+const activityPageNumbers = computed(() => {
+  const total = activityTotalPages.value
+  const current = activityPage.value
+  const pages: number[] = []
+  let start = Math.max(1, current - 2)
+  let end = Math.min(total, start + 4)
+  if (end - start < 4) start = Math.max(1, end - 4)
+  for (let i = start; i <= end; i++) pages.push(i)
+  return pages
+})
+
+function formatTime(ts: number) {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays}d ago`
+}
 </script>
 
 <template>
@@ -260,10 +337,10 @@ const progressPercent = computed(() => {
         </div>
       </div>
 
-      <!-- Writing Strategy -->
+      <!-- Skill Selection -->
       <div v-if="writingStrategySummary" class="mb-6">
         <div class="rounded-lg border bg-card shadow-sm p-4">
-          <h3 class="text-sm font-medium text-foreground mb-3">Writing Strategy</h3>
+          <h3 class="text-sm font-medium text-foreground mb-3">Skill Selection</h3>
           <div class="flex flex-wrap gap-2 mb-2">
             <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-medium">
               L1: Schwartz Awareness
@@ -283,6 +360,14 @@ const progressPercent = computed(() => {
               L5: Quality
               <span class="text-blue-400 font-normal">(auto)</span>
             </span>
+          </div>
+          <!-- Agent overrides -->
+          <div v-if="agentOverridesSummary?.length" class="mt-3 pt-3 border-t border-border">
+            <h4 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Agent Overrides</h4>
+            <div v-for="ao in agentOverridesSummary" :key="ao.agentName" class="flex items-center gap-2 text-xs mb-1">
+              <span class="font-medium text-foreground">{{ ao.agentName }}:</span>
+              <span class="text-muted-foreground">{{ ao.skills.join(', ') }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -369,6 +454,80 @@ const progressPercent = computed(() => {
             <span v-else class="text-xs text-muted-foreground/70">--</span>
           </template>
         </VDataTable>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-foreground mb-3">Recent Activity</h2>
+        <div class="rounded-lg border bg-card shadow-sm">
+          <div v-if="!activities" class="p-6 text-center text-sm text-muted-foreground">Loading...</div>
+          <div v-else-if="sortedActivities.length === 0" class="p-6 text-center text-sm text-muted-foreground">
+            No activity recorded for this campaign yet.
+          </div>
+          <template v-else>
+            <div class="divide-y divide-border">
+              <div
+                v-for="activity in paginatedActivities"
+                :key="activity._id"
+                class="px-4 py-3"
+              >
+                <div class="flex items-start gap-2">
+                  <span class="inline-flex w-6 h-6 rounded-full bg-muted text-xs items-center justify-center text-muted-foreground font-medium shrink-0 mt-0.5">
+                    {{ (activity.agentName || '?')[0].toUpperCase() }}
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm text-foreground">
+                      <span class="font-medium">{{ activity.agentName }}</span>
+                      {{ activity.message }}
+                    </p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span v-if="activity.type" class="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+                        {{ activity.type }}
+                      </span>
+                      <span v-if="activity._creationTime" class="text-xs text-muted-foreground/70">
+                        {{ formatTime(activity._creationTime) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="activityTotalPages > 1" class="px-4 py-3 border-t flex items-center justify-between">
+              <span class="text-xs text-muted-foreground">
+                {{ sortedActivities.length }} activities
+              </span>
+              <div class="flex items-center gap-1">
+                <button
+                  :disabled="activityPage <= 1"
+                  class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  @click="activityPage--"
+                >
+                  Prev
+                </button>
+                <button
+                  v-for="p in activityPageNumbers"
+                  :key="p"
+                  class="w-7 h-7 text-xs rounded border transition-colors"
+                  :class="p === activityPage
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border text-muted-foreground hover:bg-muted'"
+                  @click="activityPage = p"
+                >
+                  {{ p }}
+                </button>
+                <button
+                  :disabled="activityPage >= activityTotalPages"
+                  class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  @click="activityPage++"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
       <!-- Edit Modal -->

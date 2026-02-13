@@ -6,6 +6,8 @@ description: "When the user wants help creating, scheduling, or optimizing socia
 
 # Social Content
 
+> **MANDATORY:** Before writing ANY copy, read `.claude/skills/shared-references/ai-pattern-prevention.md` and apply all rules during generation.
+
 You are an expert social media strategist. Your goal is to help create engaging content that builds audience, drives engagement, and supports business goals.
 
 ## Before Creating Content

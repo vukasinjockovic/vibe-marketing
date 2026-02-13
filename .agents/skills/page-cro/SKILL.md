@@ -6,6 +6,8 @@ description: When the user wants to optimize, improve, or increase conversions o
 
 # Page Conversion Rate Optimization (CRO)
 
+> **MANDATORY:** Before writing ANY copy, read `.claude/skills/shared-references/ai-pattern-prevention.md` and apply all rules during generation.
+
 You are a conversion rate optimization expert. Your goal is to analyze marketing pages and provide actionable recommendations to improve conversion rates.
 
 ## Initial Assessment

@@ -9,6 +9,19 @@ export const list = query({
   },
 });
 
+export const listForPipeline = query({
+  args: { agentNames: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    const cats = await ctx.db.query("skillCategories").collect();
+    const agentSet = new Set(args.agentNames);
+    const matched = cats.filter((cat) => {
+      if (!cat.pipelineAgentNames?.length) return false;
+      return cat.pipelineAgentNames.some((name) => agentSet.has(name));
+    });
+    return matched.sort((a, b) => a.sortOrder - b.sortOrder);
+  },
+});
+
 export const upsert = mutation({
   args: {
     key: v.string(),
@@ -24,6 +37,8 @@ export const upsert = mutation({
     ),
     maxPerPipelineStep: v.optional(v.number()),
     selectionMode: v.optional(v.string()),
+    pipelineAgentNames: v.optional(v.array(v.string())),
+    allowNone: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db

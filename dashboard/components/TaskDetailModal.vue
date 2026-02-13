@@ -151,12 +151,28 @@ watch(() => task.value?.status, (status) => {
 
 onUnmounted(() => disconnectStream())
 
+function extractAssistantText(entry: StreamEntry): string {
+  // Claude stream-json: message is an object with content array
+  const msg = entry.message
+  if (typeof msg === 'string') return msg
+  if (msg && typeof msg === 'object') {
+    const content = (msg as any).content
+    if (Array.isArray(content)) {
+      return content
+        .filter((c: any) => c.type === 'text' && c.text)
+        .map((c: any) => c.text)
+        .join('')
+    }
+  }
+  return ''
+}
+
 function streamEntryLabel(entry: StreamEntry): string {
   switch (entry.type) {
-    case 'assistant': return entry.message?.slice(0, 200) || 'Thinking...'
-    case 'tool_use': return `Tool: ${entry.tool || 'unknown'}`
-    case 'tool_result': return `Result: ${(entry.content || entry.result || '').slice(0, 150)}`
-    case 'system': return entry.message || 'System'
+    case 'assistant': return extractAssistantText(entry).slice(0, 200) || 'Thinking...'
+    case 'tool_use': return `Tool: ${entry.tool || entry.name || 'unknown'}`
+    case 'tool_result': return `Result: ${(typeof entry.content === 'string' ? entry.content : entry.result || '').slice(0, 150)}`
+    case 'system': return (typeof entry.message === 'string' ? entry.message : entry.subtype || 'System')
     case 'stream_end': return `Stream ended (${entry.source || 'main'})`
     default: return JSON.stringify(entry).slice(0, 150)
   }

@@ -8,6 +8,74 @@ run() {
   npx convex run skills:upsertBySlug "$1" --url "$CONVEX_URL" 2>&1
 }
 
+run_cat() {
+  npx convex run skillCategories:upsert "$1" --url "$CONVEX_URL" 2>&1
+}
+
+echo "Seeding skill categories into Convex ($CONVEX_URL)..."
+
+# ═══ Skill Categories ═══
+run_cat '{
+  "key": "L1_audience",
+  "displayName": "L1: Audience Awareness",
+  "description": "Auto-applied audience awareness routing based on Schwartz levels.",
+  "sortOrder": 10,
+  "scope": "copy",
+  "selectionMode": "single",
+  "allowNone": false,
+  "pipelineAgentNames": ["vibe-content-writer", "vibe-email-writer", "vibe-social-writer", "vibe-ad-writer"]
+}'
+echo "  ✓ Category: L1_audience"
+
+run_cat '{
+  "key": "L2_offer",
+  "displayName": "L2: Offer Framework",
+  "description": "Choose an offer structuring framework for landing pages, sales pages, and ad copy.",
+  "sortOrder": 20,
+  "scope": "copy",
+  "selectionMode": "single",
+  "allowNone": true,
+  "pipelineAgentNames": ["vibe-content-writer", "vibe-landing-page-writer", "vibe-ad-writer", "vibe-email-writer"]
+}'
+echo "  ✓ Category: L2_offer"
+
+run_cat '{
+  "key": "L3_persuasion",
+  "displayName": "L3: Persuasion & Narrative",
+  "description": "Select one or more persuasion/narrative frameworks with optional sub-selections.",
+  "sortOrder": 30,
+  "scope": "copy",
+  "selectionMode": "multiple",
+  "allowNone": false,
+  "pipelineAgentNames": ["vibe-content-writer", "vibe-landing-page-writer", "vibe-ad-writer", "vibe-email-writer", "vibe-social-writer"]
+}'
+echo "  ✓ Category: L3_persuasion"
+
+run_cat '{
+  "key": "L4_craft",
+  "displayName": "L4: Copy Style",
+  "description": "Choose a primary copy style that sets the overall writing voice.",
+  "sortOrder": 40,
+  "scope": "copy",
+  "selectionMode": "single",
+  "allowNone": true,
+  "pipelineAgentNames": ["vibe-content-writer", "vibe-landing-page-writer", "vibe-email-writer"]
+}'
+echo "  ✓ Category: L4_craft"
+
+run_cat '{
+  "key": "L5_quality",
+  "displayName": "L5: Quality",
+  "description": "Auto-applied quality processing (humanizer + writing-clearly).",
+  "sortOrder": 50,
+  "scope": "quality",
+  "selectionMode": "single",
+  "allowNone": false,
+  "pipelineAgentNames": ["vibe-content-writer", "vibe-email-writer", "vibe-social-writer"]
+}'
+echo "  ✓ Category: L5_quality"
+
+echo ""
 echo "Seeding skills into Convex ($CONVEX_URL)..."
 
 # ═══ L1: Audience Understanding (auto-active) ═══
@@ -195,5 +263,36 @@ run '{
 }'
 echo "  ✓ L4: Ogilvy Advertising"
 
+# ═══ L5: Quality (auto-active) ═══
+run '{
+  "slug": "humanizer",
+  "name": "humanizer",
+  "displayName": "Humanizer",
+  "description": "Removes signs of AI-generated writing. Applied as a post-processing pass.",
+  "category": "L5_quality",
+  "type": "procedure",
+  "isAutoActive": true,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/humanizer/SKILL.md",
+  "tagline": "Remove AI writing patterns",
+  "dashboardDescription": "Auto-applied post-processing. Removes AI-generated writing patterns from final content."
+}'
+echo "  ✓ L5: Humanizer"
+
+run '{
+  "slug": "writing-clearly-and-concisely",
+  "name": "writing-clearly-and-concisely",
+  "displayName": "Writing Clearly & Concisely",
+  "description": "Applies Strunk-style rules for clear, concise prose. Runs during content generation.",
+  "category": "L5_quality",
+  "type": "procedure",
+  "isAutoActive": true,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/writing-clearly-and-concisely/SKILL.md",
+  "tagline": "Omit needless words",
+  "dashboardDescription": "Auto-applied during writing. Enforces Strunk-style clarity and conciseness rules."
+}'
+echo "  ✓ L5: Writing Clearly & Concisely"
+
 echo ""
-echo "Done! Seeded 11 skills (1 auto-active + 10 selectable)"
+echo "Done! Seeded 5 categories + 13 skills (3 auto-active + 10 selectable)"

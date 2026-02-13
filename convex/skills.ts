@@ -43,6 +43,15 @@ export const listCampaignSelectable = query({
   },
 });
 
+export const listSelectableByCategories = query({
+  args: { categoryKeys: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    const keySet = new Set(args.categoryKeys);
+    const all = await ctx.db.query("skills").collect();
+    return all.filter((s) => s.isCampaignSelectable && keySet.has(s.category));
+  },
+});
+
 export const update = mutation({
   args: {
     id: v.id("skills"),

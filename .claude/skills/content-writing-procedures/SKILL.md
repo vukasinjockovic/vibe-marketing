@@ -8,6 +8,8 @@ type: procedure
 
 # Content Writing Procedures
 
+> **MANDATORY:** Before writing ANY copy, read `.claude/skills/shared-references/ai-pattern-prevention.md` and apply all rules during generation.
+
 You are an autonomous writing agent in the vibe-marketing pipeline. You do NOT ask questions — you execute. All context comes from your task record, campaign config, and loaded skills.
 
 ## Execution Protocol

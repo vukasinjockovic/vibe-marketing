@@ -10,7 +10,7 @@
  *
  * Endpoints:
  *   POST /dispatch        — { taskId, agentName } → invoke-agent.sh
- *   POST /dispatch-branch — { taskId, branches: [{label, agent}], model } → multi-agent claude -p
+ *   POST /dispatch-branch — { taskId, branches: [{label, agent}], model } → invoke-agent.sh --branch per branch
  *   GET  /health          — { ok: true, queued: N }
  *
  * Run via PM2: pm2 start scripts/dispatcher.ts --name vibe-dispatcher --interpreter "npx tsx"
@@ -18,7 +18,7 @@
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
 import { spawn } from "child_process";
-import { appendFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
+import { appendFileSync, mkdirSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -86,57 +86,45 @@ function spawnBranchGroup(
   branches: { label: string; agent: string }[],
   model: string
 ): void {
-  activeProcesses++;
   const branchLabels = branches.map((b) => b.label).join(",");
   log(`DISPATCH-BRANCH task=${taskId} branches=[${branchLabels}] model=${model} (active=${activeProcesses})`);
 
-  // Build a prompt that instructs Claude to run each agent sequentially
-  const agentInstructions = branches
-    .map(
-      (b) =>
-        `- Run agent "${b.agent}" for branch "${b.label}": ` +
-        `Read its SKILL.md from .claude/skills/${b.agent}/, execute its task for task ID ${taskId}, ` +
-        `then call: npx convex run pipeline:completeBranch '{"taskId":"${taskId}","branchLabel":"${b.label}","agentName":"${b.agent}"}' --url http://localhost:3210`
-    )
-    .join("\n");
+  // Spawn each branch as a separate invoke-agent.sh call
+  for (const branch of branches) {
+    activeProcesses++;
+    log(`  BRANCH-SPAWN agent=${branch.agent} label="${branch.label}" task=${taskId} (active=${activeProcesses})`);
 
-  const prompt = `You are a multi-agent dispatcher. Execute these agents sequentially for task ${taskId}:\n\n${agentInstructions}\n\nFor each agent, read its skill file, perform the work, and call completeBranch when done.`;
+    const agentLog = resolve(LOG_DIR, `${branch.agent}-branch-${taskId.slice(-8)}.log`);
+    const child = spawn(
+      "bash",
+      [INVOKE_SCRIPT, branch.agent, taskId, "--branch", branch.label],
+      {
+        cwd: PROJECT_DIR,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, HOME: process.env.HOME || "/root" },
+        detached: true,
+      }
+    );
 
-  const agentLog = resolve(LOG_DIR, `branch-${taskId.slice(-8)}-${model}.log`);
-  const streamFile = resolve(STREAM_DIR, `${taskId}-${model}.jsonl`);
-  const child = spawn(
-    "claude",
-    ["-p", prompt, "--model", model, "--dangerously-skip-permissions", "--output-format", "stream-json"],
-    {
-      cwd: PROJECT_DIR,
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env, HOME: process.env.HOME || "/root" },
-      detached: true,
-    }
-  );
+    child.stdout?.on("data", (data: Buffer) => {
+      try { appendFileSync(agentLog, data); } catch {}
+    });
+    child.stderr?.on("data", (data: Buffer) => {
+      try { appendFileSync(agentLog, data); } catch {}
+    });
 
-  child.stdout?.on("data", (data: Buffer) => {
-    try { appendFileSync(streamFile, data); } catch {}
-    try { appendFileSync(agentLog, data); } catch {}
-  });
-  child.stderr?.on("data", (data: Buffer) => {
-    try { appendFileSync(agentLog, data); } catch {}
-  });
+    child.on("exit", (code) => {
+      activeProcesses--;
+      log(`BRANCH-DONE agent=${branch.agent} label="${branch.label}" task=${taskId} exit=${code} (active=${activeProcesses})`);
+    });
 
-  child.on("exit", (code) => {
-    activeProcesses--;
-    log(`BRANCH-DONE task=${taskId} branches=[${branchLabels}] exit=${code} (active=${activeProcesses})`);
-    // Clean up stream file
-    try { unlinkSync(streamFile); } catch {}
-  });
+    child.on("error", (err) => {
+      activeProcesses--;
+      log(`BRANCH-ERROR agent=${branch.agent} label="${branch.label}" task=${taskId} err=${err.message}`);
+    });
 
-  child.on("error", (err) => {
-    activeProcesses--;
-    log(`BRANCH-ERROR task=${taskId} err=${err.message}`);
-    try { unlinkSync(streamFile); } catch {}
-  });
-
-  child.unref();
+    child.unref();
+  }
 }
 
 function readBody(req: IncomingMessage): Promise<string> {

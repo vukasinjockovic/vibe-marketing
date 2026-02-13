@@ -49,15 +49,18 @@ export const run = internalMutation({
     const existingSkillCats = await ctx.db.query("skillCategories").collect();
     if (existingSkillCats.length === 0) {
       const skillCategories = [
-        { key: "L1_audience", displayName: "L1: Audience Understanding", description: "Auto-active. Matches copy to reader awareness stage.", sortOrder: 1, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "auto" },
-        { key: "L2_offer", displayName: "L2: Offer Structure", description: "Frameworks for structuring irresistible offers.", sortOrder: 2, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "radio" },
-        { key: "L3_persuasion", displayName: "L3: Persuasion & Narrative", description: "Psychological influence and storytelling frameworks.", sortOrder: 3, scope: "copy" as const, maxPerPipelineStep: 2, selectionMode: "checkbox" },
-        { key: "L4_craft", displayName: "L4: Copywriting Craft", description: "Headline formulas, body copy style, writing techniques.", sortOrder: 4, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "radio" },
-        { key: "L5_quality", displayName: "L5: Quality Assurance", description: "Auto-active. AI pattern removal and clarity rules.", sortOrder: 5, scope: "quality" as const, maxPerPipelineStep: 2, selectionMode: "auto" },
-        { key: "research_method", displayName: "Research Methods", description: "How agents gather and analyze information.", sortOrder: 6, scope: "research" as const },
-        { key: "content_format", displayName: "Content Formats", description: "Format-specific guides (email, social, ads, ebook, video).", sortOrder: 7, scope: "general" as const },
-        { key: "visual_style", displayName: "Visual Style", description: "Image prompt engineering and generation procedures.", sortOrder: 8, scope: "visual" as const },
-        { key: "agent_procedure", displayName: "Agent Procedures", description: "Step-by-step SOPs that define how agents execute tasks.", sortOrder: 9, scope: "general" as const },
+        { key: "L1_audience", displayName: "L1: Audience Awareness", description: "Auto-active. Routes copy via Awareness × Sophistication matrix.", sortOrder: 10, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "single", pipelineAgentNames: ["vibe-content-writer", "vibe-email-writer", "vibe-social-writer", "vibe-ad-writer"] },
+        { key: "L2_offer", displayName: "L2: Offer Framework", description: "Frameworks for structuring irresistible offers.", sortOrder: 20, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "single", pipelineAgentNames: ["vibe-content-writer", "vibe-landing-page-writer", "vibe-ad-writer", "vibe-email-writer"] },
+        { key: "L3_persuasion", displayName: "L3: Persuasion & Narrative", description: "Psychological influence and storytelling frameworks.", sortOrder: 30, scope: "copy" as const, maxPerPipelineStep: 2, selectionMode: "multiple", pipelineAgentNames: ["vibe-content-writer", "vibe-landing-page-writer", "vibe-ad-writer", "vibe-email-writer", "vibe-social-writer"] },
+        { key: "L4_craft", displayName: "L4: Copy Style", description: "Headline formulas, body copy style, writing techniques.", sortOrder: 40, scope: "copy" as const, maxPerPipelineStep: 1, selectionMode: "single", pipelineAgentNames: ["vibe-content-writer", "vibe-landing-page-writer", "vibe-email-writer"] },
+        { key: "L5_quality", displayName: "L5: Quality", description: "Auto-active. AI pattern removal and clarity rules.", sortOrder: 50, scope: "quality" as const, maxPerPipelineStep: 2, selectionMode: "single", pipelineAgentNames: ["vibe-content-writer", "vibe-email-writer", "vibe-social-writer"] },
+        { key: "research", displayName: "Research & Analysis", description: "How agents gather and analyze audience information.", sortOrder: 6, scope: "research" as const },
+        { key: "content", displayName: "Content Production", description: "Format-specific guides (email, social, ads, ebook, video).", sortOrder: 7, scope: "general" as const },
+        { key: "media", displayName: "Visual & Media", description: "Image prompt engineering and generation procedures.", sortOrder: 8, scope: "visual" as const },
+        { key: "marketing", displayName: "Marketing & CRO", description: "Marketing strategy, CRO, SEO, and growth skills.", sortOrder: 9, scope: "general" as const },
+        { key: "audience", displayName: "Audience Operations", description: "Audience enrichment and profiling procedures.", sortOrder: 11, scope: "research" as const },
+        { key: "quality", displayName: "Quality Assurance", description: "Content review rubrics and quality scoring.", sortOrder: 12, scope: "quality" as const },
+        { key: "utility", displayName: "Utility", description: "Cross-cutting agent SOPs and writing procedures.", sortOrder: 13, scope: "general" as const },
       ];
       for (const cat of skillCategories) {
         await ctx.db.insert("skillCategories", cat);
@@ -65,6 +68,89 @@ export const run = internalMutation({
       results.push(`Seeded ${skillCategories.length} skill categories`);
     } else {
       results.push(`Skill categories already exist (${existingSkillCats.length}), skipping`);
+    }
+
+    // ── Skills ──
+    const existingSkills = await ctx.db.query("skills").collect();
+    const skillIdMap: Record<string, any> = {};
+    if (existingSkills.length === 0) {
+      const skills = [
+        // L1: Audience Awareness
+        { slug: "mbook-schwarz-awareness", name: "mbook-schwarz-awareness", displayName: "Schwartz Awareness Levels", description: "Routes copy via 5 Stages of Awareness × Market Sophistication matrix. Determines opening strategy based on where the reader is.", category: "L1_audience", type: "mbook" as const, isAutoActive: true, isCampaignSelectable: false, filePath: ".claude/skills/mbook-schwarz-awareness/SKILL.md", tagline: "Know your reader before you write", dashboardDescription: "Auto-applied. Routes content strategy through Awareness × Sophistication matrix." },
+        // L2: Offer Framework
+        { slug: "mbook-brunson-dotcom", name: "mbook-brunson-dotcom", displayName: "Brunson DotCom Funnels", description: "Build sales funnels and email sequences using the Value Ladder, funnel types, and traffic strategies.", category: "L2_offer", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-brunson-dotcom/SKILL.md", tagline: "Every business is one funnel away", dashboardDescription: "Sales funnel architecture. Best for funnel copy, email sequences, upsell flows." },
+        { slug: "mbook-brunson-expert", name: "mbook-brunson-expert", displayName: "Brunson Expert Secrets", description: "Authority positioning, origin stories, the Epiphany Bridge, and mass movement frameworks.", category: "L2_offer", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-brunson-expert/SKILL.md", tagline: "Create a mass movement of people who pay", dashboardDescription: "Expert positioning frameworks. Best for webinars, authority content, origin stories." },
+        { slug: "mbook-hormozi-leads", name: "mbook-hormozi-leads", displayName: "Hormozi Lead Generation", description: "Lead magnet frameworks, lead generation copy, outreach scripts, and audience-building funnels.", category: "L2_offer", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-hormozi-leads/SKILL.md", tagline: "Turn strangers into leads at scale", dashboardDescription: "Lead generation frameworks. Best for lead magnets, outreach, audience building." },
+        { slug: "mbook-hormozi-offers", name: "mbook-hormozi-offers", displayName: "Hormozi Value Equation", description: "Structure irresistible offers using the Value Equation: Dream Outcome × Perceived Likelihood / Time Delay × Effort & Sacrifice.", category: "L2_offer", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-hormozi-offers/SKILL.md", tagline: "Make offers so good people feel stupid saying no", dashboardDescription: "Value Equation framework for structuring offers. Best for landing pages, sales pages, ad copy." },
+        // L3: Persuasion & Narrative
+        { slug: "mbook-cialdini-influence", name: "mbook-cialdini-influence", displayName: "Cialdini Influence Principles", description: "Apply the 7 principles of persuasion: Reciprocity, Liking, Social Proof, Authority, Scarcity, Commitment/Consistency, Unity.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-cialdini-influence/SKILL.md", tagline: "The science of ethical persuasion", dashboardDescription: "7 persuasion principles with sub-selections. Best for any persuasive content.", subSelections: [{ key: "reciprocity", label: "Reciprocity", description: "Give value first to create obligation" }, { key: "liking", label: "Liking", description: "Build rapport and similarity" }, { key: "social_proof", label: "Social Proof", description: "Show others doing the same thing" }, { key: "authority", label: "Authority", description: "Establish expertise and credibility" }, { key: "scarcity", label: "Scarcity", description: "Limited availability creates urgency" }, { key: "commitment", label: "Commitment/Consistency", description: "Small yeses lead to big yeses" }, { key: "unity", label: "Unity", description: "Shared identity and belonging" }] },
+        { slug: "mbook-miller-storybrand", name: "mbook-miller-storybrand", displayName: "Miller StoryBrand", description: "Structure marketing messages using the 7-part StoryBrand framework: Character, Problem, Guide, Plan, CTA, Failure, Success.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-miller-storybrand/SKILL.md", tagline: "Make the customer the hero", dashboardDescription: "Narrative framework. Best for brand messaging, ebooks, video scripts, website copy." },
+        { slug: "mbook-sugarman-copywriting", name: "mbook-sugarman-copywriting", displayName: "Sugarman Psychological Triggers", description: "Apply the Slippery Slide framework and 31 Psychological Triggers for compelling copy.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-sugarman-copywriting/SKILL.md", tagline: "Every sentence sells the next sentence", dashboardDescription: "Psychological triggers with sub-selections. Best for email, social, short-form copy.", subSelections: [{ key: "curiosity", label: "Curiosity", description: "Open loops that compel reading" }, { key: "storytelling", label: "Storytelling", description: "Narrative hooks and payoffs" }, { key: "specificity", label: "Specificity", description: "Concrete details build credibility" }, { key: "urgency", label: "Urgency", description: "Time pressure and deadlines" }, { key: "exclusivity", label: "Exclusivity", description: "Limited access creates desire" }] },
+        { slug: "mbook-voss-negotiation", name: "mbook-voss-negotiation", displayName: "Voss Tactical Empathy", description: "Apply tactical empathy, mirroring, labeling, and calibrated questions to marketing copy.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-voss-negotiation/SKILL.md", tagline: "Never split the difference with your reader", dashboardDescription: "Tactical empathy for copy. Best for objection handling, email sequences, video scripts." },
+        // L4: Copy Style
+        { slug: "mbook-halbert-boron", name: "mbook-halbert-boron", displayName: "Halbert Direct Response", description: "Direct response copywriting fundamentals: A-pile mail, headline formulas, urgency, personal tone.", category: "L4_craft", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-halbert-boron/SKILL.md", tagline: "Write like you are talking to one person", dashboardDescription: "Direct response style. Best for sales letters, email, ad copy, landing pages." },
+        { slug: "mbook-ogilvy-advertising", name: "mbook-ogilvy-advertising", displayName: "Ogilvy Advertising Craft", description: "David Ogilvy advertising craft: headline rules, body copy techniques, research-driven advertising.", category: "L4_craft", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-ogilvy-advertising/SKILL.md", tagline: "The consumer is not a moron, she is your wife", dashboardDescription: "Advertising craft style. Best for brand content, blog posts, authority articles." },
+        // L5: Quality
+        { slug: "humanizer", name: "humanizer", displayName: "Humanizer", description: "Removes signs of AI-generated writing. Applied as a post-processing pass.", category: "L5_quality", type: "procedure" as const, isAutoActive: true, isCampaignSelectable: false, filePath: ".claude/skills/humanizer/SKILL.md", tagline: "Remove AI writing patterns", dashboardDescription: "Auto-applied post-processing. Removes AI-generated writing patterns from final content." },
+        { slug: "writing-clearly-and-concisely", name: "writing-clearly-and-concisely", displayName: "Writing Clearly & Concisely", description: "Applies Strunk-style rules for clear, concise prose. Runs during content generation.", category: "L5_quality", type: "procedure" as const, isAutoActive: true, isCampaignSelectable: false, filePath: ".claude/skills/writing-clearly-and-concisely/SKILL.md", tagline: "Omit needless words", dashboardDescription: "Auto-applied during writing. Enforces Strunk-style clarity and conciseness rules." },
+        // Audience
+        { slug: "audience-enrichment-procedures", name: "audience-enrichment-procedures", displayName: "Audience Enrichment Procedures", description: "SOP for vibe-audience-enricher agent. Fills missing enrichment fields on focus groups using inference from existing data and external research. Works in pipeline mode (staging records) and heartbeat mode (production records weekly).", category: "audience", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/audience-enrichment-procedures/SKILL.md" },
+        // Research
+        { slug: "audience-analysis-procedures", name: "audience-analysis-procedures", displayName: "Audience Analysis Procedures", description: "SOP for the vibe-audience-parser agent. Parses uploaded audience research documents into structured focus group profiles, runs fuzzy matching against existing groups, and stages results for human review.", category: "research", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/audience-analysis-procedures/SKILL.md" },
+        { slug: "audience-research-procedures", name: "audience-research-procedures", displayName: "Audience Research Procedures", description: "SOP for vibe-audience-researcher agent. Conducts comprehensive market research, identifies audience segments, builds detailed focus group profiles with real language patterns, and stages structured data for human review. Produces 15-30 distinct audience profiles per product with demographics, psychographics, pain points, awareness stages, and marketing hooks.", category: "research", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/audience-research-procedures/SKILL.md" },
+        // Content
+        { slug: "content-strategy", name: "content-strategy", displayName: "Content Strategy", description: "Plan content strategy, decide what content to create, figure out topics to cover. Covers topic clusters, content calendars, and content planning.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/content-strategy/SKILL.md" },
+        { slug: "copy-editing", name: "copy-editing", displayName: "Copy Editing", description: "Systematic approach to editing marketing copy through multiple focused passes. Covers proofreading, polish, and copy sweeps.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/copy-editing/SKILL.md" },
+        { slug: "copywriting", name: "copywriting", displayName: "Copywriting", description: "Write or improve marketing copy for any page — homepage, landing pages, pricing, feature pages, about pages, or product pages.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/copywriting/SKILL.md" },
+        { slug: "ebook-analysis", name: "ebook-analysis", displayName: "Ebook Analysis", description: "Parse ebooks, extract concepts and entities with citation traceability, classify by type/layer, and synthesize across book collections.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/ebook-analysis/SKILL.md" },
+        { slug: "ebook-procedures", name: "ebook-procedures", displayName: "Ebook Creation Procedures", description: "Dual-mode ebook creation skill for vibe-ebook-writer agent. Mode 1 (Full Book) produces authority content (8-15 chapters). Mode 2 (Lead Magnet) produces short opt-in ebooks (3-7 chapters). Both output markdown + cover spec JSON for image generation handoff.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/ebook-procedures/SKILL.md" },
+        { slug: "email-sequence", name: "email-sequence", displayName: "Email Sequence", description: "Create or optimize email sequences, drip campaigns, automated email flows, or lifecycle email programs. Covers welcome sequences, nurture sequences, and re-engagement.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/email-sequence/SKILL.md" },
+        { slug: "social-content", name: "social-content", displayName: "Social Content", description: "Create, schedule, or optimize social media content for LinkedIn, Twitter/X, Instagram, TikTok, Facebook. Covers content creation, repurposing, and platform-specific strategies.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/social-content/SKILL.md" },
+        { slug: "video-script-guide", name: "video-script-guide", displayName: "Video Script Guide", description: "Multi-format video script creation skill for vibe-script-writer agent. Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/video-script-guide/SKILL.md" },
+        // Media
+        { slug: "image-generation-procedures", name: "image-generation-procedures", displayName: "Image Generation Procedures", description: "SOP for vibe-image-generator agent. Receives prompt specs from vibe-image-director, resolves which image service to call (FLUX.2 Pro/Turbo, GPT Image, Ideogram, Imagen, etc.) via service registry priority, handles aspect ratios, retries on failure, saves generated images to campaign assets.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-generation-procedures/SKILL.md" },
+        { slug: "image-prompt-engineering", name: "image-prompt-engineering", displayName: "Image Prompt Engineering", description: "SOP for vibe-image-director agent. Reads content (articles, landing pages, ebooks, social posts), extracts visual concepts, and produces detailed image generation prompts with style/mood/composition directives and negative prompts. Does NOT call image APIs — outputs structured prompt JSON for vibe-image-generator.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-prompt-engineering/SKILL.md" },
+        // Quality
+        { slug: "content-review-procedures", name: "content-review-procedures", displayName: "Content Review Procedures", description: "SOP for vibe-content-reviewer agent. Quality rubric for evaluating all content types — awareness match, CTA clarity, proof density, SEO, readability, voice consistency, AI pattern detection. Scores 1-10, auto-approves at 7+, requests revision with actionable notes at <7.", category: "quality", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/content-review-procedures/SKILL.md" },
+        // Utility
+        { slug: "content-writing-procedures", name: "content-writing-procedures", displayName: "Content Writing Procedures", description: "Autonomous agent SOP for all writing agents. Defines the step-by-step process for reading briefs, loading campaign skills, researching, drafting, self-reviewing, and outputting content.", category: "utility", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/content-writing-procedures/SKILL.md" },
+        // Marketing & CRO (20 skills)
+        { slug: "ab-test-setup", name: "ab-test-setup", displayName: "A/B Test Setup", description: "Plan, design, or implement A/B tests and experiments. Covers split tests, multivariate tests, and hypothesis formation.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/ab-test-setup/SKILL.md" },
+        { slug: "analytics-tracking", name: "analytics-tracking", displayName: "Analytics Tracking", description: "Set up, improve, or audit analytics tracking and measurement. Covers GA4, GTM, conversion tracking, event tracking, UTM parameters.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/analytics-tracking/SKILL.md" },
+        { slug: "competitor-alternatives", name: "competitor-alternatives", displayName: "Competitor Alternatives", description: "Create competitor comparison or alternative pages for SEO and sales enablement. Four formats: singular alternative, plural alternatives, you vs competitor, and competitor vs competitor.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/competitor-alternatives/SKILL.md" },
+        { slug: "form-cro", name: "form-cro", displayName: "Form CRO", description: "Optimize lead capture forms, contact forms, demo request forms, application forms, survey forms, or checkout forms.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/form-cro/SKILL.md" },
+        { slug: "free-tool-strategy", name: "free-tool-strategy", displayName: "Free Tool Strategy", description: "Plan, evaluate, or build free tools for marketing purposes — lead generation, SEO value, or brand awareness.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/free-tool-strategy/SKILL.md" },
+        { slug: "launch-strategy", name: "launch-strategy", displayName: "Launch Strategy", description: "Plan product launches, feature announcements, or release strategies. Covers phased launches, channel strategy, and launch momentum.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/launch-strategy/SKILL.md" },
+        { slug: "marketing-ideas", name: "marketing-ideas", displayName: "Marketing Ideas", description: "139 proven marketing approaches organized by category for SaaS and software products.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/marketing-ideas/SKILL.md" },
+        { slug: "marketing-psychology", name: "marketing-psychology", displayName: "Marketing Psychology", description: "70+ mental models organized for marketing application. Covers cognitive biases, persuasion principles, and behavioral science.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/marketing-psychology/SKILL.md" },
+        { slug: "onboarding-cro", name: "onboarding-cro", displayName: "Onboarding CRO", description: "Optimize post-signup onboarding, user activation, first-run experience, and time-to-value.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/onboarding-cro/SKILL.md" },
+        { slug: "page-cro", name: "page-cro", displayName: "Page CRO", description: "Optimize conversions on any marketing page — homepage, landing pages, pricing pages, feature pages, or blog posts.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/page-cro/SKILL.md" },
+        { slug: "paid-ads", name: "paid-ads", displayName: "Paid Ads", description: "Paid advertising campaigns on Google Ads, Meta, LinkedIn, Twitter/X. Covers campaign strategy, ad creation, audience targeting, and optimization.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/paid-ads/SKILL.md" },
+        { slug: "paywall-upgrade-cro", name: "paywall-upgrade-cro", displayName: "Paywall Upgrade CRO", description: "Create or optimize in-app paywalls, upgrade screens, upsell modals, or feature gates for freemium conversion.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/paywall-upgrade-cro/SKILL.md" },
+        { slug: "popup-cro", name: "popup-cro", displayName: "Popup CRO", description: "Create or optimize popups, modals, overlays, slide-ins, or banners for conversion purposes.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/popup-cro/SKILL.md" },
+        { slug: "pricing-strategy", name: "pricing-strategy", displayName: "Pricing Strategy", description: "Pricing decisions, packaging, and monetization strategy. Covers pricing research, tier structure, and packaging.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/pricing-strategy/SKILL.md" },
+        { slug: "product-marketing-context", name: "product-marketing-context", displayName: "Product Marketing Context", description: "Create or update product marketing context document. Covers positioning and foundational information referenced by other marketing skills.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/product-marketing-context/SKILL.md" },
+        { slug: "programmatic-seo", name: "programmatic-seo", displayName: "Programmatic SEO", description: "Create SEO-driven pages at scale using templates and data. Covers directory pages, location pages, comparison pages, and integration pages.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/programmatic-seo/SKILL.md" },
+        { slug: "referral-program", name: "referral-program", displayName: "Referral Program", description: "Create, optimize, or analyze referral programs, affiliate programs, or word-of-mouth strategies.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/referral-program/SKILL.md" },
+        { slug: "schema-markup", name: "schema-markup", displayName: "Schema Markup", description: "Add, fix, or optimize schema markup and structured data. Covers JSON-LD, rich snippets, FAQ schema, product schema.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/schema-markup/SKILL.md" },
+        { slug: "seo-audit", name: "seo-audit", displayName: "SEO Audit", description: "Audit, review, or diagnose SEO issues. Covers technical SEO, on-page SEO, meta tags, and SEO health checks.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/seo-audit/SKILL.md" },
+        { slug: "signup-flow-cro", name: "signup-flow-cro", displayName: "Signup Flow CRO", description: "Optimize signup, registration, account creation, or trial activation flows.", category: "marketing", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/signup-flow-cro/SKILL.md" },
+      ];
+      for (const skill of skills) {
+        const id = await ctx.db.insert("skills", {
+          ...skill,
+          lastSyncedAt: Date.now(),
+          syncStatus: "synced" as const,
+        });
+        skillIdMap[skill.slug] = id;
+      }
+      results.push(`Seeded ${skills.length} skills`);
+    } else {
+      // Build skillIdMap from existing skills
+      for (const skill of existingSkills) {
+        skillIdMap[skill.slug] = skill._id;
+      }
+      results.push(`Skills already exist (${existingSkills.length}), skipping`);
     }
 
     // ── Preset Pipelines ──
@@ -117,9 +203,10 @@ export const run = internalMutation({
             { order: 5, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add human voice", outputDir: "final" },
           ],
           parallelBranches: [
-            { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate image prompts for article" },
+            { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate hero image prompt for article" },
             { triggerAfterStep: 3, agent: "vibe-social-writer", model: "opus", label: "Social Posts", description: "Create social media posts from article" },
             { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "opus", label: "Email Excerpt", description: "Create email newsletter excerpt" },
+            { triggerAfterStep: 5, agent: "vibe-image-director", model: "sonnet", label: "Ad & Social Images", description: "Generate image prompts for all ad creatives and social posts" },
           ],
           convergenceStep: 5,
           onComplete: { telegram: true, summary: true, generateManifest: true },
@@ -138,12 +225,13 @@ export const run = internalMutation({
             { order: 5, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add human voice", outputDir: "final" },
           ],
           parallelBranches: [
-            { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate image prompts for article" },
+            { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Hero Image", description: "Generate hero image prompt for article" },
             { triggerAfterStep: 3, agent: "vibe-social-writer", model: "opus", label: "Social Posts", description: "Create social media posts from article" },
             { triggerAfterStep: 3, agent: "vibe-content-repurposer", model: "opus", label: "Email Excerpt", description: "Create email newsletter excerpt" },
             { triggerAfterStep: 2, agent: "vibe-landing-page-writer", model: "opus", label: "Landing Page", description: "Write high-converting landing page" },
             { triggerAfterStep: 2, agent: "vibe-email-writer", model: "opus", label: "Email Sequence", description: "Write nurture email sequence" },
             { triggerAfterStep: 2, agent: "vibe-ad-writer", model: "opus", label: "Ad Copy Set", description: "Write ad copy for Google/Meta/LinkedIn" },
+            { triggerAfterStep: 5, agent: "vibe-image-director", model: "sonnet", label: "Ad & Social Images", description: "Generate image prompts for all ad creatives and social posts" },
           ],
           convergenceStep: 5,
           onComplete: { telegram: true, summary: true, generateManifest: true },
@@ -472,6 +560,44 @@ export const run = internalMutation({
       results.push(`Agents already exist (${existingAgents.length}), skipping`);
     }
 
+    // ── Agent-Skill Relations ──
+    // Wire staticSkillIds on agents using the skillIdMap built above
+    const agentSkillMap: Record<string, string[]> = {
+      "vibe-content-writer": ["content-writing-procedures", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
+      "vibe-email-writer": ["email-sequence", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
+      "vibe-social-writer": ["social-content", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
+      "vibe-ad-writer": ["paid-ads", "mbook-schwarz-awareness"],
+      "vibe-landing-page-writer": ["page-cro"],
+      "vibe-content-reviewer": ["content-review-procedures", "writing-clearly-and-concisely"],
+      "vibe-humanizer": ["humanizer", "writing-clearly-and-concisely"],
+      "vibe-content-repurposer": ["content-writing-procedures"],
+      "vibe-audience-parser": ["audience-analysis-procedures"],
+      "vibe-audience-researcher": ["audience-research-procedures"],
+      "vibe-audience-enricher": ["audience-enrichment-procedures"],
+      "vibe-keyword-researcher": ["content-writing-procedures"],
+      "vibe-serp-analyzer": ["content-writing-procedures"],
+      "vibe-image-director": ["image-prompt-engineering"],
+      "vibe-image-generator": ["image-generation-procedures"],
+      "vibe-script-writer": ["video-script-guide"],
+      "vibe-ebook-writer": ["ebook-procedures"],
+    };
+    const allAgents = await ctx.db.query("agents").collect();
+    let wiredCount = 0;
+    for (const agent of allAgents) {
+      const slugs = agentSkillMap[agent.name];
+      if (!slugs) continue;
+      const ids = slugs.map((s) => skillIdMap[s]).filter(Boolean);
+      if (ids.length > 0 && agent.staticSkillIds.length === 0) {
+        await ctx.db.patch(agent._id, { staticSkillIds: ids });
+        wiredCount++;
+      }
+    }
+    if (wiredCount > 0) {
+      results.push(`Wired skills to ${wiredCount} agents`);
+    } else {
+      results.push(`Agent-skill relations already wired or no skills to wire`);
+    }
+
     // ── Agent Service Dependencies ──
     const existingDeps = await ctx.db.query("agentServiceDeps").collect();
     if (existingDeps.length === 0) {
@@ -524,7 +650,7 @@ export const run = internalMutation({
 export const clearAndReseed = mutation({
   args: {},
   handler: async (ctx) => {
-    const tables = ["agents", "agentServiceDeps", "pipelines", "serviceCategories", "skillCategories"] as const;
+    const tables = ["agents", "agentServiceDeps", "pipelines", "serviceCategories", "skillCategories", "skills"] as const;
     const counts: Record<string, number> = {};
     for (const table of tables) {
       const rows = await ctx.db.query(table).collect();

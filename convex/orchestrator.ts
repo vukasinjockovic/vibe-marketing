@@ -71,10 +71,7 @@ export const generateTasksForCampaign = internalMutation({
         outputDir: s.outputDir,
       }));
 
-      // First task's first step starts as in_progress, rest stay pending
-      if (i === 0 && pipeline.length > 0) {
-        pipeline[0].status = "in_progress";
-      }
+      // All steps start as pending — dispatchNextTask handles advancing past agentless steps
 
       const taskId = await ctx.db.insert("tasks", {
         projectId: campaign.projectId,
@@ -219,22 +216,32 @@ export const dispatchNextTask = internalMutation({
     const nextTask = tasks.find((t) => t.status === "backlog");
     if (!nextTask) return; // All tasks started
 
-    // Set first step to in_progress
+    // Find first step with an agent (skip agentless placeholder steps like "Created")
     const pipeline = [...nextTask.pipeline];
-    if (pipeline.length > 0) {
-      pipeline[0] = { ...pipeline[0], status: "in_progress" };
+    let dispatchIdx = -1;
+    for (let i = 0; i < pipeline.length; i++) {
+      if (pipeline[i].agent) {
+        dispatchIdx = i;
+        break;
+      }
+      // Mark agentless steps as completed automatically
+      pipeline[i] = { ...pipeline[i], status: "completed" };
     }
 
-    await ctx.db.patch(nextTask._id, { pipeline });
+    if (dispatchIdx === -1) return; // No steps with agents
 
-    // Get the agent for the first step
-    const firstAgent = pipeline[0]?.agent;
-    if (firstAgent) {
-      await ctx.scheduler.runAfter(0, internal.orchestrator.requestDispatch, {
-        taskId: nextTask._id,
-        agentName: firstAgent,
-      });
-    }
+    pipeline[dispatchIdx] = { ...pipeline[dispatchIdx], status: "in_progress" };
+
+    await ctx.db.patch(nextTask._id, {
+      pipeline,
+      pipelineStep: dispatchIdx,
+      status: "researched" as const, // Move out of backlog
+    });
+
+    await ctx.scheduler.runAfter(0, internal.orchestrator.requestDispatch, {
+      taskId: nextTask._id,
+      agentName: pipeline[dispatchIdx].agent!,
+    });
   },
 });
 
@@ -327,5 +334,62 @@ export const blockTask = internalMutation({
       campaignId: task?.campaignId,
       message: blockMsg,
     });
+  },
+});
+
+// ═══════════════════════════════════════════
+// retriggerBranches — Re-dispatch failed parallel branches for a task
+// ═══════════════════════════════════════════
+
+export const retriggerBranches = internalMutation({
+  args: {
+    taskId: v.id("tasks"),
+    allBranches: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new Error("Task not found");
+    if (!task.campaignId) throw new Error("Task has no campaign");
+
+    const campaign = await ctx.db.get(task.campaignId);
+    const snapshot = campaign?.pipelineSnapshot as any;
+    const parallelBranches = snapshot?.parallelBranches as any[] | undefined;
+    if (!parallelBranches?.length) throw new Error("No parallel branches in pipeline snapshot");
+
+    let toDispatch: any[];
+
+    if (args.allBranches) {
+      // Re-dispatch ALL branches from the snapshot, resetting pendingBranches
+      toDispatch = parallelBranches;
+      const allLabels = toDispatch.map((b: any) => b.label);
+      await ctx.db.patch(args.taskId, { pendingBranches: allLabels });
+    } else {
+      // Only re-dispatch currently pending branches
+      const pending = task.pendingBranches || [];
+      if (pending.length === 0) return { retriggered: 0 };
+      toDispatch = parallelBranches.filter((b: any) =>
+        pending.includes(b.label)
+      );
+    }
+
+    if (toDispatch.length === 0) return { retriggered: 0 };
+
+    // Group by model
+    const byModel: Record<string, { label: string; agent: string }[]> = {};
+    for (const b of toDispatch) {
+      const model = b.model || "sonnet";
+      if (!byModel[model]) byModel[model] = [];
+      byModel[model].push({ label: b.label, agent: b.agent });
+    }
+
+    for (const [model, branches] of Object.entries(byModel)) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.orchestrator.requestBranchDispatch,
+        { taskId: args.taskId, branches, model }
+      );
+    }
+
+    return { retriggered: toDispatch.length, labels: toDispatch.map((b: any) => b.label) };
   },
 });

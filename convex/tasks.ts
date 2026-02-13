@@ -279,3 +279,11 @@ export const unsubscribe = mutation({
     });
   },
 });
+
+// Remove a task
+export const remove = mutation({
+  args: { id: v.id("tasks") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});

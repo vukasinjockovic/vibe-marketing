@@ -413,6 +413,7 @@ export default defineSchema({
     competitorUrls: v.array(v.string()),
     notes: v.optional(v.string()),
     skillConfig: v.optional(v.object({
+      // Legacy fields (backward compat)
       offerFramework: v.optional(v.object({
         skillId: v.id("skills"),
       })),
@@ -426,13 +427,24 @@ export default defineSchema({
       secondaryCopyStyle: v.optional(v.object({
         skillId: v.id("skills"),
       })),
+      // New generic format
+      selections: v.optional(v.array(v.object({
+        categoryKey: v.string(),
+        skillId: v.id("skills"),
+        subSelections: v.optional(v.array(v.string())),
+      }))),
       agentOverrides: v.optional(v.array(v.object({
         agentName: v.string(),
-        pipelineStep: v.number(),
-        skillOverrides: v.array(v.object({
+        pipelineStep: v.optional(v.number()),
+        selections: v.optional(v.array(v.object({
+          categoryKey: v.string(),
           skillId: v.id("skills"),
           subSelections: v.optional(v.array(v.string())),
-        })),
+        }))),
+        skillOverrides: v.optional(v.array(v.object({
+          skillId: v.id("skills"),
+          subSelections: v.optional(v.array(v.string())),
+        }))),
       }))),
       summary: v.optional(v.string()),
     })),
@@ -502,9 +514,18 @@ export default defineSchema({
       socialLinkedIn: v.optional(v.boolean()),
       socialInstagram: v.optional(v.boolean()),
       socialFacebook: v.optional(v.boolean()),
+      socialTikTok: v.optional(v.boolean()),
+      socialPinterest: v.optional(v.boolean()),
+      socialVK: v.optional(v.boolean()),
       emailExcerpt: v.optional(v.boolean()),
       redditVersion: v.optional(v.boolean()),
       videoScript: v.optional(v.boolean()),
+      landingPage: v.optional(v.boolean()),
+      emailSequence: v.optional(v.boolean()),
+      leadMagnet: v.optional(v.boolean()),
+      adCopySet: v.optional(v.boolean()),
+      pressRelease: v.optional(v.boolean()),
+      ebookFull: v.optional(v.boolean()),
     })),
     deliverableStatus: v.optional(v.any()),
     qualityScore: v.optional(v.number()),
@@ -605,6 +626,8 @@ export default defineSchema({
     ),
     maxPerPipelineStep: v.optional(v.number()),
     selectionMode: v.optional(v.string()),
+    pipelineAgentNames: v.optional(v.array(v.string())),
+    allowNone: v.optional(v.boolean()),
   }).index("by_key", ["key"])
     .index("by_scope", ["scope"]),
 
@@ -630,7 +653,8 @@ export default defineSchema({
     metadata: v.optional(v.any()),
   }).index("by_type", ["type"])
     .index("by_agent", ["agentName"])
-    .index("by_project", ["projectId"]),
+    .index("by_project", ["projectId"])
+    .index("by_campaign", ["campaignId"]),
 
   notifications: defineTable({
     mentionedAgent: v.string(),

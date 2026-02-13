@@ -3,6 +3,44 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { logActivity } from "./activities";
 
+// Shared skillConfig validator (new generic format + legacy compat)
+const skillConfigValidator = v.optional(v.object({
+  // Legacy fields
+  offerFramework: v.optional(v.object({
+    skillId: v.id("skills"),
+  })),
+  persuasionSkills: v.optional(v.array(v.object({
+    skillId: v.id("skills"),
+    subSelections: v.optional(v.array(v.string())),
+  }))),
+  primaryCopyStyle: v.optional(v.object({
+    skillId: v.id("skills"),
+  })),
+  secondaryCopyStyle: v.optional(v.object({
+    skillId: v.id("skills"),
+  })),
+  // New generic format
+  selections: v.optional(v.array(v.object({
+    categoryKey: v.string(),
+    skillId: v.id("skills"),
+    subSelections: v.optional(v.array(v.string())),
+  }))),
+  agentOverrides: v.optional(v.array(v.object({
+    agentName: v.string(),
+    pipelineStep: v.optional(v.number()),
+    selections: v.optional(v.array(v.object({
+      categoryKey: v.string(),
+      skillId: v.id("skills"),
+      subSelections: v.optional(v.array(v.string())),
+    }))),
+    skillOverrides: v.optional(v.array(v.object({
+      skillId: v.id("skills"),
+      subSelections: v.optional(v.array(v.string())),
+    }))),
+  }))),
+  summary: v.optional(v.string()),
+}));
+
 // List campaigns by project
 export const list = query({
   args: { projectId: v.id("projects") },
@@ -80,30 +118,7 @@ export const create = mutation({
     seedKeywords: v.array(v.string()),
     competitorUrls: v.array(v.string()),
     notes: v.optional(v.string()),
-    skillConfig: v.optional(v.object({
-      offerFramework: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      persuasionSkills: v.optional(v.array(v.object({
-        skillId: v.id("skills"),
-        subSelections: v.optional(v.array(v.string())),
-      }))),
-      primaryCopyStyle: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      secondaryCopyStyle: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      agentOverrides: v.optional(v.array(v.object({
-        agentName: v.string(),
-        pipelineStep: v.number(),
-        skillOverrides: v.array(v.object({
-          skillId: v.id("skills"),
-          subSelections: v.optional(v.array(v.string())),
-        })),
-      }))),
-      summary: v.optional(v.string()),
-    })),
+    skillConfig: skillConfigValidator,
     publishConfig: v.optional(v.object({
       cmsService: v.optional(v.string()),
       siteUrl: v.optional(v.string()),
@@ -173,30 +188,7 @@ export const update = mutation({
       pressRelease: v.optional(v.boolean()),
       ebookFull: v.optional(v.boolean()),
     })),
-    skillConfig: v.optional(v.object({
-      offerFramework: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      persuasionSkills: v.optional(v.array(v.object({
-        skillId: v.id("skills"),
-        subSelections: v.optional(v.array(v.string())),
-      }))),
-      primaryCopyStyle: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      secondaryCopyStyle: v.optional(v.object({
-        skillId: v.id("skills"),
-      })),
-      agentOverrides: v.optional(v.array(v.object({
-        agentName: v.string(),
-        pipelineStep: v.number(),
-        skillOverrides: v.array(v.object({
-          skillId: v.id("skills"),
-          subSelections: v.optional(v.array(v.string())),
-        })),
-      }))),
-      summary: v.optional(v.string()),
-    })),
+    skillConfig: skillConfigValidator,
     publishConfig: v.optional(v.object({
       cmsService: v.optional(v.string()),
       siteUrl: v.optional(v.string()),
@@ -246,10 +238,16 @@ export const activate = mutation({
       campaignId: args.id,
     });
 
-    // Generate tasks from pipeline template
-    await ctx.scheduler.runAfter(0, internal.orchestrator.generateTasksForCampaign, {
-      campaignId: args.id,
-    });
+    // Generate tasks from pipeline template (only if none exist yet)
+    const existingTasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.id))
+      .first();
+    if (!existingTasks) {
+      await ctx.scheduler.runAfter(0, internal.orchestrator.generateTasksForCampaign, {
+        campaignId: args.id,
+      });
+    }
 
     // Dispatch first task's first agent (slight delay to let tasks generate)
     await ctx.scheduler.runAfter(500, internal.orchestrator.dispatchNextTask, {

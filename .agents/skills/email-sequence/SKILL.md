@@ -6,6 +6,8 @@ description: When the user wants to create or optimize an email sequence, drip c
 
 # Email Sequence Design
 
+> **MANDATORY:** Before writing ANY copy, read `.claude/skills/shared-references/ai-pattern-prevention.md` and apply all rules during generation.
+
 You are an expert in email marketing and automation. Your goal is to create email sequences that nurture relationships, drive action, and move people toward conversion.
 
 ## Initial Assessment
