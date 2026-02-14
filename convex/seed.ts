@@ -743,64 +743,70 @@ export const seedMissing = internalMutation({
     }
 
     // ── Engagement Pipeline: Quick (3-step) ──
+    // Single-task model: one task produces ALL posts in a single pipeline run
+    const quickEngagementData = {
+      name: "Quick Engagement Batch",
+      slug: "quick-engagement-batch",
+      type: "preset" as const,
+      category: "engagement" as const,
+      description: "Generate → review → humanize. All posts produced in a single pipeline run without trend research.",
+      mainSteps: [
+        { order: 0, label: "Created", description: "Task created", outputDir: "" },
+        { order: 1, agent: "vibe-facebook-engine", model: "opus", label: "Generate Posts", description: "Generate all engagement posts for the batch in one pass", outputDir: "drafts" },
+        { order: 2, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Posts", description: "Review all posts for quality and engagement potential", outputDir: "reviewed" },
+        { order: 3, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice to all posts", outputDir: "final" },
+      ],
+      parallelBranches: [
+        { triggerAfterStep: 1, agent: "vibe-image-director", model: "sonnet", label: "Image Prompts", description: "Generate image prompts for each post resource" },
+        { triggerAfterStep: 1, agent: "vibe-script-writer", model: "sonnet", label: "Reels Scripts", description: "Generate short-form video scripts for each post resource" },
+      ],
+      convergenceStep: 2,
+      onComplete: { telegram: true, summary: true, generateManifest: true },
+    };
     const existingQuickEngagement = await ctx.db
       .query("pipelines")
       .withIndex("by_slug", (q) => q.eq("slug", "quick-engagement-batch"))
       .unique();
     if (!existingQuickEngagement) {
-      await ctx.db.insert("pipelines", {
-        name: "Quick Engagement Batch",
-        slug: "quick-engagement-batch",
-        type: "preset" as const,
-        category: "engagement" as const,
-        description: "Generate → review → humanize. Fast engagement posts without trend research.",
-        mainSteps: [
-          { order: 0, label: "Created", description: "Task created", outputDir: "" },
-          { order: 1, agent: "vibe-facebook-engine", model: "opus", label: "Generate Post", description: "Generate maximum-engagement social post", outputDir: "drafts" },
-          { order: 2, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Post", description: "Review post for quality and engagement potential", outputDir: "reviewed" },
-          { order: 3, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
-        ],
-        parallelBranches: [
-          { triggerAfterStep: 1, agent: "vibe-image-director", model: "sonnet", label: "Image Prompt", description: "Generate image prompt from post's image brief" },
-          { triggerAfterStep: 1, agent: "vibe-script-writer", model: "sonnet", label: "Reels Script", description: "Generate short-form video script for Reels format" },
-        ],
-        convergenceStep: 2,
-        onComplete: { telegram: true, summary: true, generateManifest: true },
-      });
+      await ctx.db.insert("pipelines", quickEngagementData);
       results.push("Seeded Quick Engagement Batch pipeline");
     } else {
-      results.push("Quick Engagement Batch pipeline already exists");
+      await ctx.db.patch(existingQuickEngagement._id, quickEngagementData);
+      results.push("Updated Quick Engagement Batch pipeline");
     }
 
     // ── Engagement Pipeline: Full (4-step + branch) ──
+    // Single-task model: one task produces ALL posts in a single pipeline run
+    const fullEngagementData = {
+      name: "Full Engagement Batch",
+      slug: "full-engagement-batch",
+      type: "preset" as const,
+      category: "engagement" as const,
+      description: "Trend research → generate → review → humanize. All posts produced in a single pipeline run with trend-driven content.",
+      mainSteps: [
+        { order: 0, label: "Created", description: "Task created", outputDir: "" },
+        { order: 1, agent: "vibe-trend-researcher", model: "sonnet", label: "Trend Research", description: "Scrape trends from Reddit/web, cross-reference with focus groups", outputDir: "research" },
+        { order: 2, agent: "vibe-facebook-engine", model: "opus", label: "Generate Posts", description: "Generate all trend-driven engagement posts for the batch", outputDir: "drafts" },
+        { order: 3, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Posts", description: "Review all posts for quality and engagement potential", outputDir: "reviewed" },
+        { order: 4, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice to all posts", outputDir: "final" },
+      ],
+      parallelBranches: [
+        { triggerAfterStep: 2, agent: "vibe-image-director", model: "sonnet", label: "Image Prompts", description: "Generate image prompts for each post resource" },
+        { triggerAfterStep: 2, agent: "vibe-script-writer", model: "sonnet", label: "Reels Scripts", description: "Generate short-form video scripts for each post resource" },
+      ],
+      convergenceStep: 3,
+      onComplete: { telegram: true, summary: true, generateManifest: true },
+    };
     const existingFullEngagement = await ctx.db
       .query("pipelines")
       .withIndex("by_slug", (q) => q.eq("slug", "full-engagement-batch"))
       .unique();
     if (!existingFullEngagement) {
-      await ctx.db.insert("pipelines", {
-        name: "Full Engagement Batch",
-        slug: "full-engagement-batch",
-        type: "preset" as const,
-        category: "engagement" as const,
-        description: "Trend research → generate → review → humanize. Full engagement pipeline with trend-driven content.",
-        mainSteps: [
-          { order: 0, label: "Created", description: "Task created", outputDir: "" },
-          { order: 1, agent: "vibe-trend-researcher", model: "sonnet", label: "Trend Research", description: "Scrape trends from Reddit/web, cross-reference with focus groups", outputDir: "research" },
-          { order: 2, agent: "vibe-facebook-engine", model: "opus", label: "Generate Post", description: "Generate trend-driven engagement post", outputDir: "drafts" },
-          { order: 3, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Post", description: "Review post for quality and engagement potential", outputDir: "reviewed" },
-          { order: 4, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
-        ],
-        parallelBranches: [
-          { triggerAfterStep: 2, agent: "vibe-image-director", model: "sonnet", label: "Image Prompt", description: "Generate image prompt from post's image brief" },
-          { triggerAfterStep: 2, agent: "vibe-script-writer", model: "sonnet", label: "Reels Script", description: "Generate short-form video script for Reels format" },
-        ],
-        convergenceStep: 3,
-        onComplete: { telegram: true, summary: true, generateManifest: true },
-      });
+      await ctx.db.insert("pipelines", fullEngagementData);
       results.push("Seeded Full Engagement Batch pipeline");
     } else {
-      results.push("Full Engagement Batch pipeline already exists");
+      await ctx.db.patch(existingFullEngagement._id, fullEngagementData);
+      results.push("Updated Full Engagement Batch pipeline");
     }
 
     // ── Trend Researcher Agent ──

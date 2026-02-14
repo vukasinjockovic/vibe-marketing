@@ -281,6 +281,31 @@ export const complete = mutation({
   },
 });
 
+// Reset batch to planning — clears snapshot so it picks up updated pipeline on re-activate
+export const resetToPlanning = mutation({
+  args: { id: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    const batch = await ctx.db.get(args.id);
+    if (!batch) throw new Error("Content batch not found");
+
+    await ctx.db.patch(args.id, {
+      status: "planning" as const,
+      pipelineSnapshot: undefined,
+      activatedAt: undefined,
+      pausedAt: undefined,
+      completedAt: undefined,
+    });
+
+    await logActivity(ctx, {
+      projectId: batch.projectId,
+      type: "info",
+      agentName: "wookashin",
+      message: `Reset content batch "${batch.name}" to planning`,
+      contentBatchId: args.id,
+    });
+  },
+});
+
 // Remove batch
 export const remove = mutation({
   args: { id: v.id("contentBatches") },

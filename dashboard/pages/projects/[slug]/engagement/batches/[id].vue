@@ -87,25 +87,29 @@ async function complete() {
 const taskColumns = [
   { key: 'title', label: 'Title' },
   { key: 'status', label: 'Status' },
-  { key: 'priority', label: 'Priority' },
   { key: 'lockedBy', label: 'Agent' },
   { key: 'qualityScore', label: 'Quality' },
 ]
 
-const taskStats = computed(() => {
-  if (!tasks.value) return { total: 0, completed: 0, inProgress: 0, backlog: 0, blocked: 0 }
-  return {
-    total: tasks.value.length,
-    completed: tasks.value.filter((t: any) => t.status === 'completed').length,
-    inProgress: tasks.value.filter((t: any) => !['completed', 'cancelled', 'blocked', 'backlog'].includes(t.status)).length,
-    backlog: tasks.value.filter((t: any) => t.status === 'backlog').length,
-    blocked: tasks.value.filter((t: any) => t.status === 'blocked').length,
-  }
+// Single-task model: one task produces all posts
+const batchTask = computed(() => tasks.value?.[0] || null)
+
+const pipelineSteps = computed(() => {
+  if (!batchTask.value?.pipeline) return []
+  return batchTask.value.pipeline as { step: number; status: string; description: string; agent?: string }[]
 })
 
-const progressPercent = computed(() => {
-  if (!taskStats.value.total) return 0
-  return Math.round((taskStats.value.completed / taskStats.value.total) * 100)
+const currentStepIndex = computed(() => batchTask.value?.pipelineStep ?? 0)
+
+const pipelineProgress = computed(() => {
+  const steps = pipelineSteps.value
+  if (!steps.length) return { completed: 0, total: 0, percent: 0 }
+  const completed = steps.filter(s => s.status === 'completed').length
+  return {
+    completed,
+    total: steps.length,
+    percent: Math.round((completed / steps.length) * 100),
+  }
 })
 
 // Activity pagination
@@ -204,9 +208,11 @@ function formatTime(ts: number) {
         <div class="rounded-lg border bg-card shadow-sm p-4">
           <h3 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Posts</h3>
           <div class="text-2xl font-bold text-foreground">{{ batch.batchSize }}</div>
-          <div class="flex gap-3 text-xs text-muted-foreground mt-1">
-            <span class="text-green-600">{{ taskStats.completed }} done</span>
-            <span class="text-blue-600">{{ taskStats.inProgress }} active</span>
+          <div class="text-xs text-muted-foreground mt-1">
+            <template v-if="batchTask">
+              <VStatusBadge :status="batchTask.status" size="sm" />
+            </template>
+            <span v-else>Waiting for activation</span>
           </div>
         </div>
 
@@ -275,82 +281,97 @@ function formatTime(ts: number) {
       </div>
 
       <!-- Pipeline Progress -->
-      <div v-if="taskStats.total > 0" class="mb-6">
+      <div v-if="batchTask" class="mb-6">
         <div class="rounded-lg border bg-card shadow-sm p-4">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-medium text-foreground">Pipeline Progress</h3>
-            <span class="text-sm font-medium text-foreground">{{ progressPercent }}%</span>
+            <span class="text-sm font-medium text-foreground">{{ pipelineProgress.percent }}%</span>
           </div>
-          <div class="w-full bg-muted rounded-full h-2.5 mb-3">
+          <div class="w-full bg-muted rounded-full h-2.5 mb-4">
             <div
               class="h-2.5 rounded-full transition-all duration-500"
-              :class="progressPercent === 100 ? 'bg-green-500' : 'bg-primary'"
-              :style="{ width: `${progressPercent}%` }"
+              :class="pipelineProgress.percent === 100 ? 'bg-green-500' : 'bg-primary'"
+              :style="{ width: `${pipelineProgress.percent}%` }"
             />
           </div>
-          <div class="flex gap-3 text-xs">
-            <span v-if="taskStats.completed" class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-green-500" />
-              {{ taskStats.completed }} completed
-            </span>
-            <span v-if="taskStats.inProgress" class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              {{ taskStats.inProgress }} in progress
-            </span>
-            <span v-if="taskStats.backlog" class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-muted-foreground/40" />
-              {{ taskStats.backlog }} queued
-            </span>
-            <span v-if="taskStats.blocked" class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-red-500" />
-              {{ taskStats.blocked }} blocked
-            </span>
+          <!-- Step-by-step view -->
+          <div class="space-y-2">
+            <div
+              v-for="(step, idx) in pipelineSteps"
+              :key="idx"
+              class="flex items-center gap-3 text-sm"
+            >
+              <span
+                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+                :class="{
+                  'bg-green-100 text-green-700': step.status === 'completed',
+                  'bg-blue-100 text-blue-700 animate-pulse': step.status === 'in_progress',
+                  'bg-muted text-muted-foreground': step.status === 'pending',
+                }"
+              >
+                <template v-if="step.status === 'completed'">&#10003;</template>
+                <template v-else>{{ idx }}</template>
+              </span>
+              <span
+                class="truncate"
+                :class="{
+                  'text-foreground font-medium': step.status === 'in_progress',
+                  'text-foreground': step.status === 'completed',
+                  'text-muted-foreground': step.status === 'pending',
+                }"
+              >
+                {{ step.description }}
+              </span>
+              <span v-if="step.agent && step.status === 'in_progress'" class="text-xs text-blue-600 shrink-0">
+                {{ step.agent }}
+              </span>
+            </div>
+          </div>
+          <!-- Pending branches -->
+          <div v-if="batchTask.pendingBranches?.length" class="mt-3 pt-3 border-t">
+            <p class="text-xs text-muted-foreground mb-1">Parallel branches:</p>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="branch in batchTask.pendingBranches"
+                :key="branch"
+                class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 animate-pulse"
+              >
+                {{ branch }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Tasks table -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold text-foreground mb-3">Tasks</h2>
-        <VDataTable
-          :columns="taskColumns"
-          :rows="tasks || []"
-          :loading="!tasks"
-          empty-message="No tasks created for this batch yet. Activate the batch to generate tasks."
-        >
-          <template #cell-title="{ row }">
-            <button
-              class="text-left font-medium text-primary hover:text-primary/80"
-              @click="selectedTaskId = row._id"
-            >
-              {{ row.title }}
-            </button>
-          </template>
-          <template #cell-status="{ row }">
-            <VStatusBadge :status="row.status" size="sm" />
-          </template>
-          <template #cell-priority="{ row }">
-            <span
-              class="text-xs font-medium px-2 py-0.5 rounded-full"
-              :class="{
-                'bg-red-100 text-red-700': row.priority === 'urgent',
-                'bg-orange-100 text-orange-700': row.priority === 'high',
-                'bg-blue-100 text-blue-700': row.priority === 'medium',
-                'bg-muted text-muted-foreground': row.priority === 'low',
-              }"
-            >
-              {{ row.priority }}
-            </span>
-          </template>
-          <template #cell-lockedBy="{ row }">
-            <span v-if="row.lockedBy" class="text-sm text-foreground">{{ row.lockedBy }}</span>
-            <span v-else class="text-xs text-muted-foreground/70">Unassigned</span>
-          </template>
-          <template #cell-qualityScore="{ row }">
-            <span v-if="row.qualityScore" class="font-medium">{{ row.qualityScore }}/10</span>
-            <span v-else class="text-xs text-muted-foreground/70">--</span>
-          </template>
-        </VDataTable>
+      <!-- Batch Task -->
+      <div v-if="batchTask" class="mb-6">
+        <h2 class="text-lg font-semibold text-foreground mb-3">Batch Task</h2>
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <div class="flex items-start sm:items-center justify-between gap-3 flex-col sm:flex-row">
+            <div class="min-w-0">
+              <button
+                class="text-left font-medium text-primary hover:text-primary/80 text-sm"
+                @click="selectedTaskId = batchTask._id"
+              >
+                {{ batchTask.title }}
+              </button>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <VStatusBadge :status="batchTask.status" size="sm" />
+                <span v-if="batchTask.lockedBy" class="text-xs text-muted-foreground">
+                  Agent: <span class="font-medium text-foreground">{{ batchTask.lockedBy }}</span>
+                </span>
+                <span v-if="batchTask.qualityScore" class="text-xs text-muted-foreground">
+                  Quality: <span class="font-medium text-foreground">{{ batchTask.qualityScore }}/10</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="batch.status === 'planning'" class="mb-6">
+        <div class="rounded-lg border bg-card shadow-sm p-4 text-sm text-muted-foreground">
+          Activate the batch to start the pipeline. All {{ batch.batchSize }} posts will be produced in a single pipeline run.
+        </div>
       </div>
 
       <!-- Resources -->
@@ -437,7 +458,7 @@ function formatTime(ts: number) {
       <VConfirmDialog
         v-model="showConfirmActivate"
         title="Activate Batch"
-        :message="`This will generate ${batch.batchSize} tasks and start the engagement pipeline. Continue?`"
+        :message="`This will start the engagement pipeline to produce all ${batch.batchSize} posts in a single run. Continue?`"
         confirm-label="Activate"
         confirm-class="bg-green-600 hover:bg-green-700"
         @confirm="activate"
@@ -445,7 +466,7 @@ function formatTime(ts: number) {
       <VConfirmDialog
         v-model="showConfirmPause"
         title="Pause Batch"
-        message="Active tasks will finish but no new tasks will be started."
+        message="The current pipeline step will finish but no further steps will be dispatched."
         confirm-label="Pause"
         confirm-class="bg-yellow-600 hover:bg-yellow-700"
         @confirm="pause"

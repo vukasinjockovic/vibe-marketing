@@ -1,0 +1,74 @@
+---
+session: general
+date: 2026-02-14
+status: complete
+outcome: null
+---
+
+goal: Rewrote engagement batch from N-tasks-per-post to single-task model + mobile fixes across dashboard
+now: Consider applying same single-task pattern to campaign pipelines if appropriate
+
+test: "cd /var/www/vibe-marketing && npx convex dev --once --url http://localhost:3210"
+
+done_this_session:
+  - task: "Rewrote generateTasksForBatch to create ONE task per batch instead of batchSize tasks"
+    files: [convex/orchestrator.ts]
+  - task: "Updated engagement pipeline seed data (labels to plural, update-on-reseed logic)"
+    files: [convex/seed.ts]
+  - task: "Redesigned batch detail page: step-by-step pipeline progress instead of task-count progress"
+    files: ["dashboard/pages/projects/[slug]/engagement/batches/[id].vue"]
+  - task: "Added resetToPlanning mutation for batch re-activation after cleanup"
+    files: [convex/contentBatches.ts]
+  - task: "Deleted 5 old-model tasks from 'Batch 1' and reset it to planning"
+    files: []
+  - task: "Re-seeded engagement pipelines to update existing DB records"
+    files: []
+  - task: "Earlier in session: dashboard home page rewrite, audience card mobile fix, VModal mobile centering, services page mobile fix"
+    files: [dashboard/pages/index.vue, convex/dashboard.ts, "dashboard/pages/projects/[slug]/audiences/index.vue", dashboard/components/VModal.vue, dashboard/components/ServiceCategoryCard.vue, dashboard/components/ServiceRow.vue, dashboard/components/ServiceConfigDialog.vue]
+
+blockers: []
+
+questions:
+  - "Should campaign pipelines also use single-task model? Currently campaigns create N tasks (one per article), each running full pipeline. Same pattern could apply: 1 task produces all articles."
+
+decisions:
+  - single_task_model: "Engagement batches create 1 task instead of N. Each agent processes ALL posts in a single pipeline run. Posts are registered as individual resources. Image/video branches process all resources at once."
+  - batch_context_in_description: "Task description includes batchSize, mixConfig, themes, trend sources — agents read this to know how many posts to produce and what mix."
+  - pipeline_labels_plural: "Changed 'Generate Post' → 'Generate Posts', 'Review Post' → 'Review Posts' etc. to reflect all-at-once processing."
+  - seed_upsert_pattern: "Changed seed.ts from insert-if-missing to insert-or-update for engagement pipelines, so re-seeding updates existing records."
+
+findings:
+  - old_batch_had_5_not_12: "The existing batch was paused after generating only 5 of 12 tasks — task generation happens asynchronously and was interrupted by pause."
+  - pipeline_snapshot_at_activation: "Pipeline is snapshotted into batch.pipelineSnapshot at activation time. Old batches keep their old snapshot; new batches get the updated pipeline."
+  - convex_run_piping_quirk: "npx convex run output doesn't pipe cleanly to python3 stdin — use 2>&1 | grep approach or save to file first."
+
+worked:
+  - "Embedding batch context (batchSize, mixConfig, themes) directly in task description so agents have full context"
+  - "Using seed upsert pattern (check exists → patch if so, insert if not) to update pipeline records without manual DB edits"
+  - "resetToPlanning mutation to clear pipelineSnapshot + status for clean re-activation"
+
+failed:
+  - "Piping convex CLI output to python3 -c for JSON processing — convex output format doesn't play well with stdin piping"
+
+next:
+  - "CAMPAIGN SINGLE-TASK MODEL: Consider same pattern for campaign pipelines (convex/orchestrator.ts:generateTasksForCampaign). Currently creates targetArticleCount tasks, each with full pipeline. Could create 1 task that produces all articles."
+  - "Key difference: campaign articles are typically longer (full blog posts) vs engagement posts (short social), so single-task may need to handle larger output"
+  - "If applying: same pattern — rewrite generateTasksForCampaign, update campaign pipeline seeds, update campaign detail dashboard page"
+  - "RE-ACTIVATE BATCH 1: The 'Our Forever Stories' Batch 1 is reset to planning. Re-activate to test single-task model end-to-end."
+  - "AGENT SKILL UPDATES: The facebook-engagement-engine SKILL.md and other agent skills may need updates to handle batch context (read batchSize from task description, produce N posts in one run, register each as separate resource)"
+
+files:
+  created:
+    - convex/dashboard.ts
+    - "thoughts/shared/handoffs/general/2026-02-14_19-34_single-task-engagement-batch.yaml"
+  modified:
+    - convex/orchestrator.ts
+    - convex/seed.ts
+    - convex/contentBatches.ts
+    - "dashboard/pages/projects/[slug]/engagement/batches/[id].vue"
+    - dashboard/pages/index.vue
+    - "dashboard/pages/projects/[slug]/audiences/index.vue"
+    - dashboard/components/VModal.vue
+    - dashboard/components/ServiceCategoryCard.vue
+    - dashboard/components/ServiceRow.vue
+    - dashboard/components/ServiceConfigDialog.vue

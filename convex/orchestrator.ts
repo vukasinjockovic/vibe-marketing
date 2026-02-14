@@ -135,36 +135,54 @@ export const generateTasksForBatch = internalMutation({
 
     const channel = await ctx.db.get(batch.channelId);
     const channelName = channel?.name || "Unknown Channel";
-    const taskIds: string[] = [];
 
-    for (let i = 0; i < batch.batchSize; i++) {
-      const pipeline = snapshot.mainSteps.map((s: any, idx: number) => ({
-        step: s.order ?? idx,
-        status: "pending",
-        agent: s.agent,
-        model: s.model,
-        description: s.label || s.description || `Step ${idx + 1}`,
-        outputDir: s.outputDir,
-      }));
+    // Build pipeline steps from snapshot
+    const pipeline = snapshot.mainSteps.map((s: any, idx: number) => ({
+      step: s.order ?? idx,
+      status: "pending",
+      agent: s.agent,
+      model: s.model,
+      description: s.label || s.description || `Step ${idx + 1}`,
+      outputDir: s.outputDir,
+    }));
 
-      const taskId = await ctx.db.insert("tasks", {
-        projectId: batch.projectId,
-        title: `${batch.name} — Post ${i + 1}`,
-        description: `Auto-generated engagement post for batch "${batch.name}" on ${channelName}, post ${i + 1} of ${batch.batchSize}.`,
-        contentBatchId: args.contentBatchId,
-        pipeline,
-        pipelineStep: 0,
-        status: "backlog",
-        priority: "medium",
-        createdBy: "orchestrator",
-        assigneeNames: [],
-        subscriberNames: [],
-        focusGroupIds: batch.targetFocusGroupIds,
-        contentType: "engagement_post",
-      });
-
-      taskIds.push(taskId);
+    // Build description with batch context for agents
+    const mixParts: string[] = [];
+    const mix = batch.mixConfig as any;
+    if (mix) {
+      if (mix.questions) mixParts.push(`Questions: ${mix.questions}%`);
+      if (mix.emotional) mixParts.push(`Emotional: ${mix.emotional}%`);
+      if (mix.interactive) mixParts.push(`Interactive: ${mix.interactive}%`);
+      if (mix.debate) mixParts.push(`Debate: ${mix.debate}%`);
+      if (mix.textOnly) mixParts.push(`Text Only: ${mix.textOnly}%`);
     }
+
+    const description = [
+      `Engagement batch "${batch.name}" on ${channelName}.`,
+      `Produce ${batch.batchSize} posts in a single pipeline run.`,
+      batch.contentThemes?.length ? `Themes: ${batch.contentThemes.join(", ")}` : null,
+      batch.trendSources?.length ? `Trend sources: ${batch.trendSources.join(", ")}` : null,
+      mixParts.length ? `Content mix: ${mixParts.join(", ")}` : null,
+      `Each agent processes ALL ${batch.batchSize} posts in one pass.`,
+      `Register each post as an individual resource.`,
+    ].filter(Boolean).join("\n");
+
+    // ONE task for the entire batch — agents produce all posts in a single run
+    const taskId = await ctx.db.insert("tasks", {
+      projectId: batch.projectId,
+      title: `${batch.name} — ${batch.batchSize} Posts`,
+      description,
+      contentBatchId: args.contentBatchId,
+      pipeline,
+      pipelineStep: 0,
+      status: "backlog",
+      priority: "medium",
+      createdBy: "orchestrator",
+      assigneeNames: [],
+      subscriberNames: [],
+      focusGroupIds: batch.targetFocusGroupIds,
+      contentType: "engagement_post",
+    });
 
     // Log activity + notify
     await ctx.db.insert("activities", {
@@ -172,10 +190,10 @@ export const generateTasksForBatch = internalMutation({
       type: "info",
       agentName: "vibe-orchestrator",
       contentBatchId: args.contentBatchId,
-      message: `Generated ${taskIds.length} tasks for content batch "${batch.name}"`,
+      message: `Created batch task for "${batch.name}" — ${batch.batchSize} posts in single pipeline`,
     });
 
-    const activateMsg = `Content batch "${batch.name}" activated — ${taskIds.length} posts queued`;
+    const activateMsg = `Content batch "${batch.name}" activated — ${batch.batchSize} posts, single pipeline run`;
     await ctx.db.insert("notifications", {
       mentionedAgent: "@human",
       fromAgent: "vibe-orchestrator",
@@ -186,7 +204,7 @@ export const generateTasksForBatch = internalMutation({
       message: `🚀 ${activateMsg}`,
     });
 
-    return taskIds;
+    return [taskId];
   },
 });
 
