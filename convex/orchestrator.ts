@@ -119,6 +119,179 @@ export const generateTasksForCampaign = internalMutation({
 });
 
 // ═══════════════════════════════════════════
+// generateTasksForBatch — Create pipeline tasks from content batch config
+// ═══════════════════════════════════════════
+
+export const generateTasksForBatch = internalMutation({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    const batch = await ctx.db.get(args.contentBatchId);
+    if (!batch) throw new Error("Content batch not found");
+
+    const snapshot = batch.pipelineSnapshot as any;
+    if (!snapshot?.mainSteps?.length) {
+      throw new Error("Content batch has no pipeline snapshot with steps");
+    }
+
+    const channel = await ctx.db.get(batch.channelId);
+    const channelName = channel?.name || "Unknown Channel";
+    const taskIds: string[] = [];
+
+    for (let i = 0; i < batch.batchSize; i++) {
+      const pipeline = snapshot.mainSteps.map((s: any, idx: number) => ({
+        step: s.order ?? idx,
+        status: "pending",
+        agent: s.agent,
+        model: s.model,
+        description: s.label || s.description || `Step ${idx + 1}`,
+        outputDir: s.outputDir,
+      }));
+
+      const taskId = await ctx.db.insert("tasks", {
+        projectId: batch.projectId,
+        title: `${batch.name} — Post ${i + 1}`,
+        description: `Auto-generated engagement post for batch "${batch.name}" on ${channelName}, post ${i + 1} of ${batch.batchSize}.`,
+        contentBatchId: args.contentBatchId,
+        pipeline,
+        pipelineStep: 0,
+        status: "backlog",
+        priority: "medium",
+        createdBy: "orchestrator",
+        assigneeNames: [],
+        subscriberNames: [],
+        focusGroupIds: batch.targetFocusGroupIds,
+        contentType: "engagement_post",
+      });
+
+      taskIds.push(taskId);
+    }
+
+    // Log activity + notify
+    await ctx.db.insert("activities", {
+      projectId: batch.projectId,
+      type: "info",
+      agentName: "vibe-orchestrator",
+      contentBatchId: args.contentBatchId,
+      message: `Generated ${taskIds.length} tasks for content batch "${batch.name}"`,
+    });
+
+    const activateMsg = `Content batch "${batch.name}" activated — ${taskIds.length} posts queued`;
+    await ctx.db.insert("notifications", {
+      mentionedAgent: "@human",
+      fromAgent: "vibe-orchestrator",
+      content: activateMsg,
+      delivered: false,
+    });
+    await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+      message: `🚀 ${activateMsg}`,
+    });
+
+    return taskIds;
+  },
+});
+
+// ═══════════════════════════════════════════
+// dispatchNextBatchTask — Find next pending task for content batch and dispatch
+// ═══════════════════════════════════════════
+
+export const dispatchNextBatchTask = internalMutation({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    const batch = await ctx.db.get(args.contentBatchId);
+    if (!batch || batch.status !== "active") return;
+
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_content_batch", (q) => q.eq("contentBatchId", args.contentBatchId))
+      .collect();
+
+    // Check if any task is currently in-progress
+    const hasRunning = tasks.some((t) =>
+      t.status !== "backlog" && t.status !== "completed" && t.status !== "cancelled" && t.status !== "blocked"
+    );
+
+    if (hasRunning) return;
+
+    // Find first backlog task
+    const nextTask = tasks.find((t) => t.status === "backlog");
+    if (!nextTask) return;
+
+    // Find first step with an agent (skip agentless placeholder steps)
+    const pipeline = [...nextTask.pipeline];
+    let dispatchIdx = -1;
+    for (let i = 0; i < pipeline.length; i++) {
+      if (pipeline[i].agent) {
+        dispatchIdx = i;
+        break;
+      }
+      pipeline[i] = { ...pipeline[i], status: "completed" };
+    }
+
+    if (dispatchIdx === -1) return;
+
+    pipeline[dispatchIdx] = { ...pipeline[dispatchIdx], status: "in_progress" };
+
+    await ctx.db.patch(nextTask._id, {
+      pipeline,
+      pipelineStep: dispatchIdx,
+      status: "researched" as const,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.orchestrator.requestDispatch, {
+      taskId: nextTask._id,
+      agentName: pipeline[dispatchIdx].agent!,
+    });
+  },
+});
+
+// ═══════════════════════════════════════════
+// checkBatchCompletion — Complete batch if all tasks done
+// ═══════════════════════════════════════════
+
+export const checkBatchCompletion = internalMutation({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    const batch = await ctx.db.get(args.contentBatchId);
+    if (!batch) return;
+    if (batch.status === "completed") return;
+
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_content_batch", (q) => q.eq("contentBatchId", args.contentBatchId))
+      .collect();
+
+    if (tasks.length === 0) return;
+
+    const allDone = tasks.every((t) => t.status === "completed" || t.status === "cancelled");
+    if (!allDone) return;
+
+    await ctx.db.patch(args.contentBatchId, {
+      status: "completed",
+      completedAt: Date.now(),
+    });
+
+    const completeMsg = `Content batch "${batch.name}" completed — all ${tasks.length} posts done`;
+    await ctx.db.insert("notifications", {
+      mentionedAgent: "@human",
+      fromAgent: "vibe-orchestrator",
+      content: completeMsg,
+      delivered: false,
+    });
+    await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+      message: `✅ ${completeMsg}`,
+    });
+
+    await ctx.db.insert("activities", {
+      projectId: batch.projectId,
+      type: "complete",
+      agentName: "vibe-orchestrator",
+      contentBatchId: args.contentBatchId,
+      message: `Content batch "${batch.name}" completed (${tasks.length} posts)`,
+    });
+  },
+});
+
+// ═══════════════════════════════════════════
 // requestDispatch — HTTP POST to host dispatcher to invoke an agent
 // ═══════════════════════════════════════════
 

@@ -456,6 +456,15 @@ function formatTime(ts: number) {
         </VDataTable>
       </div>
 
+      <!-- Resources -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-foreground mb-3">Resources</h2>
+        <ResourceStatsCards :campaign-id="campaignId" />
+        <div class="mt-3">
+          <ResourceTable :campaign-id="campaignId" @select="(r) => $router.push(`/projects/${$route.params.slug}/resources/${r._id}`)" />
+        </div>
+      </div>
+
       <!-- Recent Activity -->
       <div class="mb-6">
         <h2 class="text-lg font-semibold text-foreground mb-3">Recent Activity</h2>

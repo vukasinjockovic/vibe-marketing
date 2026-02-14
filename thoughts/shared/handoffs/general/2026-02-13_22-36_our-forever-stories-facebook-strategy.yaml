@@ -1,0 +1,110 @@
+---
+session: general
+date: 2026-02-13
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Designed full Facebook page strategy for "Our Forever Stories" wedding/family photo product business — two pages, lifecycle funnel, market targeting, rollout phases
+now: Create content calendar for both pages, then begin Phase 1 (20+ posts before inviting anyone or running ads)
+
+test: "cat /var/www/vibe-marketing/projects/our-forever-stories/facebook-pages.md | head -5"
+
+done_this_session:
+  - task: "Fixed markdown structure on 3 image-gen knowledge files (broken lists, malformed tables, redundant bold headings)"
+    files:
+      - knowledge/image-gen/organic-product-image-generator.md
+      - knowledge/image-gen/4k-image-generation-prompt.md
+      - knowledge/image-gen/scene-builder.md
+  - task: "Analyzed all 5 image-gen knowledge files and mapped their relationships (knowledge base + 4 specialized GEM instruction sets)"
+    files: []
+  - task: "Generated Wedding Ultimate Box product flat-lay prompt using organic-product-image-generator principles — stretched canvases (not rolled), full-bleed frames (no passepartout)"
+    files: []
+  - task: "Parsed and analyzed Facebook Monetization Course EPUB (Dotsokt, ~90 pages) — full book extraction and analysis"
+    files:
+      - ebook-analysis/facebook-monetization/parsed.json
+      - ebook-analysis/facebook-monetization/full-text.txt
+  - task: "Created 11 entity files extracting all actionable knowledge from Facebook Monetization Course"
+    files:
+      - knowledge/nonfiction/facebook-monetization/00-overview.md
+      - knowledge/nonfiction/facebook-monetization/01-niche-selection.md
+      - knowledge/nonfiction/facebook-monetization/02-page-setup.md
+      - knowledge/nonfiction/facebook-monetization/03-content-strategy.md
+      - knowledge/nonfiction/facebook-monetization/04-posting-schedule.md
+      - knowledge/nonfiction/facebook-monetization/05-rpm-optimization.md
+      - knowledge/nonfiction/facebook-monetization/06-growth-playbook.md
+      - knowledge/nonfiction/facebook-monetization/07-monetization.md
+      - knowledge/nonfiction/facebook-monetization/08-scaling.md
+      - knowledge/nonfiction/facebook-monetization/09-tools-resources.md
+      - knowledge/nonfiction/facebook-monetization/10-compliance.md
+  - task: "Designed complete Facebook page strategy: 2 pages (Our Forever Stories + Grandparents Are Gold), lifecycle product funnel, 4-phase rollout, ad campaigns, market targeting"
+    files:
+      - projects/our-forever-stories/facebook-pages.md
+  - task: "Generated cover image prompt for Our Forever Stories page (Nano Banana compatible) — gold frame wedding photo, baby frame, stretched canvas family portrait"
+    files: []
+
+blockers: []
+
+questions:
+  - "Check @ourforeverstories and @grandparentsaregold username availability on Facebook before creating pages"
+  - "Content calendar for both pages needs to be created — what content types, sourcing, and daily schedule for the first 20+ posts"
+  - "Grandparents Are Gold cover image prompt not yet generated — needs similar treatment to Page 1 cover"
+  - "Wedding Ultimate Box product prompt was generated but not tested on Nano Banana or Higgsfield yet — verify quality"
+  - "Shipping logistics for EU/UK/CA/AU/NZ from Serbia not yet documented — what carriers, costs, delivery times?"
+
+decisions:
+  two_pages_not_one: "Split into 2 pages because demographics are fundamentally different: ages 25-40 (wedding/baby) vs 50-75 (grandparents). Different content, buying psychology, and product lines."
+  page_names: "Page 1: 'Our Forever Stories' (plural — implies community, not personal brand). Page 2: 'Grandparents Are Gold' (statement that IS engagement bait)."
+  market_focus: "EU + UK + CA + AU + NZ only. US excluded due to shipping constraints from Serbia. UK and English-speaking Europe primary focus. English-only content."
+  memory_preservation_positioning: "Position as post-wedding memory preservation, NOT wedding planning. 'Turn your wedding day into something you can hang on the wall forever' — less competition since everyone targets brides-to-be."
+  lifecycle_funnel: "Same customer buys at different life stages: Wedding Bundle → Honeymoon Bundle → Baby/Baptism Bundle → Grandparent Bundle. Page 1 grows WITH its audience."
+  engagement_first: "Phase 1-2 (months 1-2): pure engagement, zero selling. Phase 3: soft product posts as content. Phase 4: DM strategy + link in first comment."
+  category_swap: "Start as 'Community' category (non-commercial feel), swap primary to 'Gift Shop' when selling begins."
+  no_links_early: "No links in posts or comments during Phase 1-2. Facebook throttles reach with external links. Only DMs later in Phase 4."
+
+findings:
+  image_gen_files_relationship: "advanced-image-prompt-engineering.md is the knowledge base/textbook. The other 4 are GEM instruction sets (system prompts for AI): portrait generator, scene builder, organic product, 4K product."
+  facebook_monetization_book: "Key insight: RPM optimization via country restrictions is the biggest lever most creators miss. Half-past-the-hour posting consistently outperforms on-the-hour. Repost top 10% performers after 2-4 weeks."
+  product_bundles: "5 bundle types across family lifecycle: Wedding (post-wedding), Honeymoon (travel memories), Baby/Baptism (first year), Grandparent (gifts or self-purchase), Travel (not for these pages yet)."
+  higgsfield_platform: "Multi-model platform (Sora 2, Kling 2.6, Veo 3.1, FLUX.2, Nano Banana). Good for image→video animation of product flat-lays. Plans from $0 (limited) to $149/mo."
+
+worked:
+  - "Sectioned markdown format (### heading + bullet points) works better than tables for SKILL.md when cell values are long"
+  - "Nano Banana prompts: specifying 'no mat/passepartout', 'gallery-wrap stretched canvas with wooden frame hidden', 'full-bleed edge to edge' produces correct product representations"
+  - "Lifecycle funnel thinking: mapping product bundles to life stages naturally creates cross-sell and repeat customer opportunities"
+  - "Two-page split by demographic: cleaner algorithm signals, pre-qualified audiences, easier future ad targeting"
+
+failed:
+  - "Personal Blog category doesn't exist on Facebook — had to research actual available categories (Community, Gift Shop, Photographer etc.)"
+
+next:
+  - "Create content calendar for Our Forever Stories — first 20+ posts across wedding/honeymoon/baby content types"
+  - "Create content calendar for Grandparents Are Gold — first 20+ posts for grandparent/family content"
+  - "Generate cover image prompt for Grandparents Are Gold page (Nano Banana)"
+  - "Test Wedding Ultimate Box prompt and Our Forever Stories cover prompt on Nano Banana — verify quality"
+  - "Research Higgsfield for product flat-lay → animated video reveal for social ads"
+  - "Document shipping logistics from Serbia to target markets (carriers, costs, delivery times)"
+  - "Design logos for both pages in Canva"
+  - "Create both Facebook pages once usernames confirmed available"
+
+files:
+  created:
+    - knowledge/nonfiction/facebook-monetization/00-overview.md
+    - knowledge/nonfiction/facebook-monetization/01-niche-selection.md
+    - knowledge/nonfiction/facebook-monetization/02-page-setup.md
+    - knowledge/nonfiction/facebook-monetization/03-content-strategy.md
+    - knowledge/nonfiction/facebook-monetization/04-posting-schedule.md
+    - knowledge/nonfiction/facebook-monetization/05-rpm-optimization.md
+    - knowledge/nonfiction/facebook-monetization/06-growth-playbook.md
+    - knowledge/nonfiction/facebook-monetization/07-monetization.md
+    - knowledge/nonfiction/facebook-monetization/08-scaling.md
+    - knowledge/nonfiction/facebook-monetization/09-tools-resources.md
+    - knowledge/nonfiction/facebook-monetization/10-compliance.md
+    - ebook-analysis/facebook-monetization/parsed.json
+    - ebook-analysis/facebook-monetization/full-text.txt
+    - projects/our-forever-stories/facebook-pages.md
+    - thoughts/shared/handoffs/general/2026-02-13_22-36_our-forever-stories-facebook-strategy.yaml
+  modified:
+    - knowledge/image-gen/organic-product-image-generator.md
+    - knowledge/image-gen/4k-image-generation-prompt.md
+    - knowledge/image-gen/scene-builder.md

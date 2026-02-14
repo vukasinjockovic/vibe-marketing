@@ -332,6 +332,96 @@ export default defineSchema({
     .index("by_review_status", ["reviewStatus"]),
 
   // ═══════════════════════════════════════════
+  // CHANNELS (social media accounts for engagement)
+  // ═══════════════════════════════════════════
+
+  channels: defineTable({
+    projectId: v.id("projects"),
+    name: v.string(),
+    slug: v.string(),
+    platform: v.union(
+      v.literal("facebook"),
+      v.literal("x"),
+      v.literal("linkedin"),
+      v.literal("tiktok"),
+      v.literal("instagram")
+    ),
+    description: v.optional(v.string()),
+    platformConfig: v.optional(v.object({
+      pageUrl: v.optional(v.string()),
+      username: v.optional(v.string()),
+      pageId: v.optional(v.string()),
+      countryRestrictions: v.optional(v.array(v.string())),
+    })),
+    postingConfig: v.optional(v.object({
+      postsPerDay: v.optional(v.number()),
+      minSpacingMinutes: v.optional(v.number()),
+      primeTimeSlots: v.optional(v.array(v.string())),
+      timezone: v.optional(v.string()),
+    })),
+    status: v.union(v.literal("active"), v.literal("paused"), v.literal("archived")),
+    createdAt: v.number(),
+  }).index("by_project", ["projectId"])
+    .index("by_slug", ["slug"])
+    .index("by_platform", ["platform"]),
+
+  // ═══════════════════════════════════════════
+  // CONTENT BATCHES (engagement post batches)
+  // ═══════════════════════════════════════════
+
+  contentBatches: defineTable({
+    projectId: v.id("projects"),
+    channelId: v.id("channels"),
+    name: v.string(),
+    slug: v.string(),
+    description: v.string(),
+    batchSize: v.number(),
+    pipelineId: v.id("pipelines"),
+    pipelineSnapshot: v.optional(v.any()),
+    targetFocusGroupIds: v.array(v.id("focusGroups")),
+    contentThemes: v.optional(v.array(v.string())),
+    trendSources: v.optional(v.array(v.string())),
+    mixConfig: v.optional(v.object({
+      questions: v.optional(v.number()),
+      emotional: v.optional(v.number()),
+      interactive: v.optional(v.number()),
+      debate: v.optional(v.number()),
+      textOnly: v.optional(v.number()),
+    })),
+    skillConfig: v.optional(v.object({
+      selections: v.optional(v.array(v.object({
+        categoryKey: v.string(),
+        skillId: v.id("skills"),
+        subSelections: v.optional(v.array(v.string())),
+      }))),
+      agentOverrides: v.optional(v.array(v.object({
+        agentName: v.string(),
+        pipelineStep: v.optional(v.number()),
+        selections: v.optional(v.array(v.object({
+          categoryKey: v.string(),
+          skillId: v.id("skills"),
+          subSelections: v.optional(v.array(v.string())),
+        }))),
+      }))),
+      summary: v.optional(v.string()),
+    })),
+    notes: v.optional(v.string()),
+    status: v.union(
+      v.literal("planning"),
+      v.literal("active"),
+      v.literal("paused"),
+      v.literal("in_revision"),
+      v.literal("completed")
+    ),
+    activatedAt: v.optional(v.number()),
+    pausedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  }).index("by_slug", ["slug"])
+    .index("by_project", ["projectId"])
+    .index("by_channel", ["channelId"])
+    .index("by_status", ["status"]),
+
+  // ═══════════════════════════════════════════
   // PIPELINES
   // ═══════════════════════════════════════════
 
@@ -478,6 +568,7 @@ export default defineSchema({
     title: v.string(),
     description: v.string(),
     campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
     pipeline: v.array(v.object({
       step: v.number(),
       status: v.string(),
@@ -540,6 +631,7 @@ export default defineSchema({
     metadata: v.optional(v.any()),
   }).index("by_status", ["status"])
     .index("by_campaign", ["campaignId"])
+    .index("by_content_batch", ["contentBatchId"])
     .index("by_project", ["projectId"])
     .index("by_project_status", ["projectId", "status"])
     .index("by_priority", ["priority"]),
@@ -649,12 +741,14 @@ export default defineSchema({
     agentName: v.string(),
     taskId: v.optional(v.id("tasks")),
     campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
     message: v.string(),
     metadata: v.optional(v.any()),
   }).index("by_type", ["type"])
     .index("by_agent", ["agentName"])
     .index("by_project", ["projectId"])
-    .index("by_campaign", ["campaignId"]),
+    .index("by_campaign", ["campaignId"])
+    .index("by_content_batch", ["contentBatchId"]),
 
   notifications: defineTable({
     mentionedAgent: v.string(),
@@ -678,6 +772,7 @@ export default defineSchema({
     ),
     taskId: v.optional(v.id("tasks")),
     campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
     productId: v.optional(v.id("products")),
     createdBy: v.string(),
     filePath: v.optional(v.string()),
@@ -803,6 +898,106 @@ export default defineSchema({
     lastUpdated: v.number(),
   }).index("by_task", ["taskId"])
     .index("by_campaign", ["campaignId"]),
+
+  // ═══════════════════════════════════════════
+  // RESOURCES (unified content registry)
+  // ═══════════════════════════════════════════
+
+  resources: defineTable({
+    // ── Identity ──
+    projectId: v.id("projects"),
+    resourceType: v.union(
+      v.literal("research_material"), v.literal("brief"),
+      v.literal("article"), v.literal("landing_page"),
+      v.literal("ad_copy"), v.literal("social_post"),
+      v.literal("email_sequence"), v.literal("email_excerpt"),
+      v.literal("image_prompt"), v.literal("image"),
+      v.literal("video_script"), v.literal("lead_magnet"),
+      v.literal("report"), v.literal("brand_asset")
+    ),
+    title: v.string(),
+    slug: v.optional(v.string()),
+
+    // ── Ownership (both optional — orphan resources allowed) ──
+    campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
+
+    // ── Task lineage ──
+    taskId: v.optional(v.id("tasks")),
+
+    // ── Inter-resource relationships ──
+    parentResourceId: v.optional(v.id("resources")),
+    relatedResourceIds: v.optional(v.array(v.id("resources"))),
+
+    // ── File system ──
+    filePath: v.optional(v.string()),
+    contentHash: v.optional(v.string()),
+    fileOrphaned: v.optional(v.boolean()),
+
+    // ── Content storage (textual resources) ──
+    content: v.optional(v.string()),
+
+    // ── Binary / media fields ──
+    fileUrl: v.optional(v.string()),
+    mimeType: v.optional(v.string()),
+    fileSizeBytes: v.optional(v.number()),
+
+    // ── Pipeline status ──
+    status: v.union(
+      v.literal("draft"), v.literal("in_review"),
+      v.literal("reviewed"), v.literal("humanized"),
+      v.literal("approved"), v.literal("published"),
+      v.literal("archived")
+    ),
+    pipelineStage: v.optional(v.string()),
+    qualityScore: v.optional(v.number()),
+
+    // ── Attribution ──
+    createdBy: v.string(),
+    updatedBy: v.optional(v.string()),
+
+    // ── Type-specific metadata (catch-all) ──
+    metadata: v.optional(v.any()),
+
+    // ── Timestamps ──
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
+
+    // ── Scheduling placeholders ──
+    publishScheduledAt: v.optional(v.number()),
+    publishTarget: v.optional(v.string()),
+  }).index("by_project", ["projectId"])
+    .index("by_campaign", ["campaignId"])
+    .index("by_content_batch", ["contentBatchId"])
+    .index("by_task", ["taskId"])
+    .index("by_type", ["resourceType"])
+    .index("by_project_type", ["projectId", "resourceType"])
+    .index("by_status", ["status"])
+    .index("by_parent", ["parentResourceId"])
+    .index("by_slug", ["slug"]),
+
+  // ═══════════════════════════════════════════
+  // RESOURCE HISTORY (audit trail)
+  // ═══════════════════════════════════════════
+
+  resourceHistory: defineTable({
+    resourceId: v.id("resources"),
+    changeType: v.union(
+      v.literal("created"),
+      v.literal("updated"),
+      v.literal("status_changed"),
+      v.literal("content_changed"),
+      v.literal("metadata_changed"),
+      v.literal("deleted")
+    ),
+    changedBy: v.string(),
+    changedFields: v.optional(v.array(v.string())),
+    previousValues: v.optional(v.any()),
+    note: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_resource", ["resourceId"])
+    .index("by_resource_date", ["resourceId", "createdAt"]),
 
   mediaAssets: defineTable({
     projectId: v.optional(v.id("projects")),

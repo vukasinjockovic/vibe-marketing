@@ -87,6 +87,7 @@ export const run = internalMutation({
         { slug: "mbook-miller-storybrand", name: "mbook-miller-storybrand", displayName: "Miller StoryBrand", description: "Structure marketing messages using the 7-part StoryBrand framework: Character, Problem, Guide, Plan, CTA, Failure, Success.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-miller-storybrand/SKILL.md", tagline: "Make the customer the hero", dashboardDescription: "Narrative framework. Best for brand messaging, ebooks, video scripts, website copy." },
         { slug: "mbook-sugarman-copywriting", name: "mbook-sugarman-copywriting", displayName: "Sugarman Psychological Triggers", description: "Apply the Slippery Slide framework and 31 Psychological Triggers for compelling copy.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-sugarman-copywriting/SKILL.md", tagline: "Every sentence sells the next sentence", dashboardDescription: "Psychological triggers with sub-selections. Best for email, social, short-form copy.", subSelections: [{ key: "curiosity", label: "Curiosity", description: "Open loops that compel reading" }, { key: "storytelling", label: "Storytelling", description: "Narrative hooks and payoffs" }, { key: "specificity", label: "Specificity", description: "Concrete details build credibility" }, { key: "urgency", label: "Urgency", description: "Time pressure and deadlines" }, { key: "exclusivity", label: "Exclusivity", description: "Limited access creates desire" }] },
         { slug: "mbook-voss-negotiation", name: "mbook-voss-negotiation", displayName: "Voss Tactical Empathy", description: "Apply tactical empathy, mirroring, labeling, and calibrated questions to marketing copy.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-voss-negotiation/SKILL.md", tagline: "Never split the difference with your reader", dashboardDescription: "Tactical empathy for copy. Best for objection handling, email sequences, video scripts." },
+        { slug: "mbook-berger-contagious", name: "mbook-berger-contagious", displayName: "Berger Contagious STEPPS", description: "Apply the 6 STEPPS principles of virality: Social Currency, Triggers, Emotion, Public, Practical Value, Stories. Score content for shareability and engineer word-of-mouth.", category: "L3_persuasion", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-berger-contagious/SKILL.md", tagline: "Will anyone share this?", dashboardDescription: "Virality and shareability framework. Best for social content, launch campaigns, referral programs, any content that needs to spread.", subSelections: [{ key: "social_currency", label: "Social Currency", description: "Make sharing make the sharer look good" }, { key: "triggers", label: "Triggers", description: "Tie content to everyday environmental cues" }, { key: "emotion", label: "Emotion", description: "Evoke high-arousal emotions (awe, humor, anger)" }, { key: "public", label: "Public", description: "Make behavior observable and imitable" }, { key: "practical_value", label: "Practical Value", description: "Package useful content for forwarding" }, { key: "stories", label: "Stories", description: "Embed message in narratives people retell" }] },
         // L4: Copy Style
         { slug: "mbook-halbert-boron", name: "mbook-halbert-boron", displayName: "Halbert Direct Response", description: "Direct response copywriting fundamentals: A-pile mail, headline formulas, urgency, personal tone.", category: "L4_craft", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-halbert-boron/SKILL.md", tagline: "Write like you are talking to one person", dashboardDescription: "Direct response style. Best for sales letters, email, ad copy, landing pages." },
         { slug: "mbook-ogilvy-advertising", name: "mbook-ogilvy-advertising", displayName: "Ogilvy Advertising Craft", description: "David Ogilvy advertising craft: headline rules, body copy techniques, research-driven advertising.", category: "L4_craft", type: "mbook" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/mbook-ogilvy-advertising/SKILL.md", tagline: "The consumer is not a moron, she is your wife", dashboardDescription: "Advertising craft style. Best for brand content, blog posts, authority articles." },
@@ -106,6 +107,7 @@ export const run = internalMutation({
         { slug: "ebook-procedures", name: "ebook-procedures", displayName: "Ebook Creation Procedures", description: "Dual-mode ebook creation skill for vibe-ebook-writer agent. Mode 1 (Full Book) produces authority content (8-15 chapters). Mode 2 (Lead Magnet) produces short opt-in ebooks (3-7 chapters). Both output markdown + cover spec JSON for image generation handoff.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/ebook-procedures/SKILL.md" },
         { slug: "email-sequence", name: "email-sequence", displayName: "Email Sequence", description: "Create or optimize email sequences, drip campaigns, automated email flows, or lifecycle email programs. Covers welcome sequences, nurture sequences, and re-engagement.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/email-sequence/SKILL.md" },
         { slug: "social-content", name: "social-content", displayName: "Social Content", description: "Create, schedule, or optimize social media content for LinkedIn, Twitter/X, Instagram, TikTok, Facebook. Covers content creation, repurposing, and platform-specific strategies.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/social-content/SKILL.md" },
+        { slug: "facebook-engagement-engine", name: "facebook-engagement-engine", displayName: "Facebook Engagement Engine", description: "Generate maximum-engagement Facebook posts using embedded STEPPS virality, Voss tactical empathy, FB Monetization mechanics, and hook craft. Pure engagement — no selling. Outputs text copy + image briefs + STEPPS scores.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/facebook-engagement-engine/SKILL.md", tagline: "Engineer every post for maximum engagement", dashboardDescription: "Facebook-specific engagement engine. Generates batches of 24/36/48 posts with STEPPS scoring, Voss techniques, and hook craft. Pure engagement, zero sales." },
         { slug: "video-script-guide", name: "video-script-guide", displayName: "Video Script Guide", description: "Multi-format video script creation skill for vibe-script-writer agent. Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/video-script-guide/SKILL.md" },
         // Media
         { slug: "image-generation-procedures", name: "image-generation-procedures", displayName: "Image Generation Procedures", description: "SOP for vibe-image-generator agent. Receives prompt specs from vibe-image-director, resolves which image service to call (FLUX.2 Pro/Turbo, GPT Image, Ideogram, Imagen, etc.) via service registry priority, handles aspect ratios, retries on failure, saves generated images to campaign assets.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-generation-procedures/SKILL.md" },
@@ -430,6 +432,21 @@ export const run = internalMutation({
           agentFilePath: ".claude/skills/social-content/SKILL.md",
         },
         {
+          name: "vibe-facebook-engine",
+          displayName: "Facebook Engagement Engine",
+          role: "Generates maximum-engagement Facebook posts using embedded STEPPS virality, Voss tactical empathy, FB Monetization mechanics, and hook craft. Outputs text copy + image briefs + STEPPS scores. Pure engagement — no selling.",
+          status: "idle" as const,
+          lastHeartbeat: Date.now(),
+          heartbeatCron: "0 */6 * * *",
+          defaultModel: "opus",
+          skillPath: ".claude/skills/facebook-engagement-engine",
+          level: "specialist" as const,
+          stats: { tasksCompleted: 0, lastActive: Date.now() },
+          staticSkillIds: [] as any[],
+          dynamicSkillIds: [] as any[],
+          agentFilePath: ".claude/skills/facebook-engagement-engine/SKILL.md",
+        },
+        {
           name: "vibe-email-writer",
           displayName: "Email Writer",
           role: "Writes nurture email sequences, welcome series, and promotional emails. Applies direct response techniques and segmentation.",
@@ -566,6 +583,7 @@ export const run = internalMutation({
       "vibe-content-writer": ["content-writing-procedures", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
       "vibe-email-writer": ["email-sequence", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
       "vibe-social-writer": ["social-content", "mbook-schwarz-awareness", "humanizer", "writing-clearly-and-concisely"],
+      "vibe-facebook-engine": ["facebook-engagement-engine", "humanizer", "writing-clearly-and-concisely"],
       "vibe-ad-writer": ["paid-ads", "mbook-schwarz-awareness"],
       "vibe-landing-page-writer": ["page-cro"],
       "vibe-content-reviewer": ["content-review-procedures", "writing-clearly-and-concisely"],
@@ -714,6 +732,111 @@ export const seedMissing = internalMutation({
       results.push("Seeded [Audience Discovery] From Existing Document pipeline");
     } else {
       results.push("[Audience Discovery] From Existing Document pipeline already exists");
+    }
+
+    // ── Engagement Pipeline: Quick (3-step) ──
+    const existingQuickEngagement = await ctx.db
+      .query("pipelines")
+      .withIndex("by_slug", (q) => q.eq("slug", "quick-engagement-batch"))
+      .unique();
+    if (!existingQuickEngagement) {
+      await ctx.db.insert("pipelines", {
+        name: "Quick Engagement Batch",
+        slug: "quick-engagement-batch",
+        type: "preset" as const,
+        description: "Generate → review → humanize. Fast engagement posts without trend research.",
+        mainSteps: [
+          { order: 0, label: "Created", description: "Task created", outputDir: "" },
+          { order: 1, agent: "vibe-facebook-engine", model: "opus", label: "Generate Post", description: "Generate maximum-engagement social post", outputDir: "drafts" },
+          { order: 2, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Post", description: "Review post for quality and engagement potential", outputDir: "reviewed" },
+          { order: 3, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
+        ],
+        parallelBranches: [
+          { triggerAfterStep: 2, agent: "vibe-image-director", model: "sonnet", label: "Image Brief", description: "Generate image prompt for post visual" },
+        ],
+        onComplete: { telegram: true, summary: true, generateManifest: true },
+      });
+      results.push("Seeded Quick Engagement Batch pipeline");
+    } else {
+      results.push("Quick Engagement Batch pipeline already exists");
+    }
+
+    // ── Engagement Pipeline: Full (4-step + branch) ──
+    const existingFullEngagement = await ctx.db
+      .query("pipelines")
+      .withIndex("by_slug", (q) => q.eq("slug", "full-engagement-batch"))
+      .unique();
+    if (!existingFullEngagement) {
+      await ctx.db.insert("pipelines", {
+        name: "Full Engagement Batch",
+        slug: "full-engagement-batch",
+        type: "preset" as const,
+        description: "Trend research → generate → review → humanize. Full engagement pipeline with trend-driven content.",
+        mainSteps: [
+          { order: 0, label: "Created", description: "Task created", outputDir: "" },
+          { order: 1, agent: "vibe-trend-researcher", model: "sonnet", label: "Trend Research", description: "Scrape trends from Reddit/web, cross-reference with focus groups", outputDir: "research" },
+          { order: 2, agent: "vibe-facebook-engine", model: "opus", label: "Generate Post", description: "Generate trend-driven engagement post", outputDir: "drafts" },
+          { order: 3, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Post", description: "Review post for quality and engagement potential", outputDir: "reviewed" },
+          { order: 4, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
+        ],
+        parallelBranches: [
+          { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Image Brief", description: "Generate image prompt for post visual" },
+        ],
+        onComplete: { telegram: true, summary: true, generateManifest: true },
+      });
+      results.push("Seeded Full Engagement Batch pipeline");
+    } else {
+      results.push("Full Engagement Batch pipeline already exists");
+    }
+
+    // ── Trend Researcher Agent ──
+    const existingTrendResearcher = await ctx.db
+      .query("agents")
+      .withIndex("by_name", (q) => q.eq("name", "vibe-trend-researcher"))
+      .unique();
+    if (!existingTrendResearcher) {
+      await ctx.db.insert("agents", {
+        name: "vibe-trend-researcher",
+        displayName: "Trend Researcher",
+        role: "Scrapes configured subreddits and web sources, cross-references with focus group data, scores trends using STEPPS framework, and outputs trend briefs per post.",
+        status: "idle" as const,
+        lastHeartbeat: Date.now(),
+        heartbeatCron: "0 */6 * * *",
+        defaultModel: "sonnet",
+        skillPath: ".claude/skills/trend-research-procedures",
+        level: "specialist" as const,
+        stats: { tasksCompleted: 0, lastActive: Date.now() },
+        staticSkillIds: [] as any[],
+        dynamicSkillIds: [] as any[],
+        agentFilePath: ".claude/skills/trend-research-procedures/SKILL.md",
+      });
+      results.push("Seeded vibe-trend-researcher agent");
+    } else {
+      results.push("vibe-trend-researcher agent already exists");
+    }
+
+    // ── Trend Research Skill ──
+    const existingTrendSkill = await ctx.db
+      .query("skills")
+      .withIndex("by_slug", (q) => q.eq("slug", "trend-research-procedures"))
+      .unique();
+    if (!existingTrendSkill) {
+      await ctx.db.insert("skills", {
+        name: "trend-research-procedures",
+        slug: "trend-research-procedures",
+        displayName: "Trend Research Procedures",
+        description: "SOP for vibe-trend-researcher agent. Scrapes Reddit and web for trending topics, scores them with STEPPS virality framework, matches to focus group psychographics, and outputs trend briefs for engagement post generation.",
+        category: "research",
+        type: "procedure" as const,
+        isAutoActive: false,
+        isCampaignSelectable: false,
+        filePath: ".claude/skills/trend-research-procedures/SKILL.md",
+        lastSyncedAt: Date.now(),
+        syncStatus: "pending_setup" as const,
+      });
+      results.push("Seeded trend-research-procedures skill");
+    } else {
+      results.push("trend-research-procedures skill already exists");
     }
 
     return results;

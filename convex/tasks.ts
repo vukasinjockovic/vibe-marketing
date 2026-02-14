@@ -24,6 +24,17 @@ export const listByCampaign = query({
   },
 });
 
+// List tasks by content batch
+export const listByContentBatch = query({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("tasks")
+      .withIndex("by_content_batch", (q) => q.eq("contentBatchId", args.contentBatchId))
+      .collect();
+  },
+});
+
 // List tasks by project + status
 export const listByStatus = query({
   args: {
@@ -66,6 +77,7 @@ export const create = mutation({
     title: v.string(),
     description: v.string(),
     campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
     pipeline: v.array(v.object({
       step: v.number(),
       status: v.string(),

@@ -46,6 +46,21 @@ export const getByCampaign = query({
   },
 });
 
+// Get focus groups for a content batch (loads batch, then each focus group)
+export const getByContentBatch = query({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    const batch = await ctx.db.get(args.contentBatchId);
+    if (!batch) throw new Error("Content batch not found");
+
+    const focusGroups = await Promise.all(
+      batch.targetFocusGroupIds.map((id) => ctx.db.get(id))
+    );
+
+    return focusGroups.filter((fg) => fg !== null);
+  },
+});
+
 // Create a focus group
 export const create = mutation({
   args: {

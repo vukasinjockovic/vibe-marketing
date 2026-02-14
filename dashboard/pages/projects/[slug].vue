@@ -9,6 +9,8 @@ const tabs = computed(() => [
   { name: 'Products', path: `/projects/${slug.value}/products` },
   { name: 'Audiences', path: `/projects/${slug.value}/audiences` },
   { name: 'Campaigns', path: `/projects/${slug.value}/campaigns` },
+  { name: 'Engagement', path: `/projects/${slug.value}/engagement` },
+  { name: 'Resources', path: `/projects/${slug.value}/resources` },
   { name: 'Pipeline', path: `/projects/${slug.value}/pipeline` },
   { name: 'Settings', path: `/projects/${slug.value}/settings` },
 ])

@@ -1,35 +1,46 @@
 # vibe-audience-parser Working Memory
 
 ## Last Run
-- **Date**: 2026-02-12
-- **Task**: mx77x3ebxj4g41k99ahknkwx45811ha7
-- **Project**: Gymzilla Tribe (kx757vws4r38ca1548cqwc99dd80z97w)
+- **Date**: 2026-02-13
+- **Task**: mx7etfnvp0qyny6g1zxjggdwvx813pwj
+- **Project**: Our Forever Stories (kx708e7t0z7591mr1szh5z4xdh812vvd)
 - **Status**: COMPLETED
 
 ## What Was Done
-- Parsed `Fitness_Focus_Groups_Marketing_Intelligence.md` (4,762 lines, 28 focus groups)
-- Extracted all structured fields: demographics, psychographics, core desires, pain points, fears, beliefs, objections, emotional triggers, language patterns, ebook angles, marketing hooks, transformation promise
-- Computed completeness scores (100% for source doc fields)
+- Parsed `Our_Forever_Stories_Focus_Groups_Marketing_Intelligence.md` (3,199 lines, 28 focus groups)
+- Extracted all structured fields: demographics, psychographics, core desires, pain points, fears, beliefs, objections, emotional triggers, language patterns, content angles (ebookAngles), marketing hooks, transformation promise
+- Computed completeness scores (75-100% for source doc fields)
+- Some groups missing sections: fears, beliefs, objections, psychographics (not in source doc)
 - All 28 groups written to `focusGroupStaging` table as `create_new` / `pending_review`
 - All marked `needsEnrichment: true` (missing: awarenessStage, contentPreferences, influenceSources, purchaseBehavior, competitorContext, sophisticationLevel, communicationStyle, seasonalContext, negativeTriggers)
 - Pipeline step 0 completed, task moved to `researched` status, next step: 1 (vibe-audience-enricher)
+- Quality score: 0.88
 
 ## Staging Record IDs (28 total)
-Batch 0 (groups 1-7): n575sqrrwqe0yaeh36e77gdmg181149x, n57dma6sskcma90xq9aqqfmnan8113wg, n5781vh4mgy4c5zx1zx1a3c3e5810gg7, n574326m4dazs6rjgkwy4zpmv981181p, n57bpsnfcj7kqm761wrfr3n9558109mr, n57ah3h7qdpj1n2vhyx8g0yma18108sq, n577ewf9s0tyabk3snshdehybd810h0b
-Batch 1 (groups 8-14): n5731r179tg88dvpw4v3g1xg9n81000c, n57dh1a9k5284gjhc0gypnxxa5811g04, n5745ztjmvkhkg2fqtxr88e9c5811szt, n57918b02ggh186qmt1q52wr4s81123r, n573k9n05brjm5vkfef52mgcpd81087a, n57dmzas1xy9zx0wcbqm3tnw5x811a5b, n5790xz4w3pgwfh9dtkp9ye081811xgt
-Batch 2 (groups 15-21): n57ff3rz5renm429d9xh0bhs1s810s05, n5748x6p39rcfm0fffcb2658w1811ef4, n57c4jtse7jh4t8fcaz57nmpx1810s3n, n57cbtb73e6f5h3ynyjxhkqx9s81135k, n57822r40xa4ds7q5w7z3q9b8n811qz4, n57dpbd6zw7959gs6zkechwpj9811n9w, n57f9pdacvghza5a3snmn0450s810s6v
-Batch 3 (groups 22-28): n576smaegzkctea52geqryancd810y29, n5707s8t2maj2h0axkqkks86ns8117rv, n574410mn66zsqd39baayfq89s81194c, n570383s3mp7908wbdas91s6zx811esm, n57bcpen1t3bb8czvqacxvg1jx811jct, n573ev79tcjbsf3rvenc3m4qsn810h14, n57ec2p7f9e7yfxb6p47gz3h4581146b
+Batch 0 (groups 1-7): n57717cgg558axfpha2fav1p7x813513, n578ybwcppecrwzkk8f5mktw9n812br8, n579yhd3571ysymh1ah2njvt858137hw, n575pf8nvdfv8jya6s3k9ksch1812f5d, n5757xfkrjsyfenrem5ta4fbxx812wsr, n579124a814yh93dnb13jqqtss812ht2, n5779tecxsfxgqg3392wtqg2x9812zc6
+Batch 1 (groups 8-14): n577q51c9pcdwty1czw0vasvfn812m8q, n57f5c2p0x07d4q17xq7ddvvb5812bhq, n575b2d70b0egepms5eyz4e201813zae, n579fhvzrkg050872qe6zrx7m9813vyp, n57atyw1cyjanf6khba52nmz518124bm, n57dx1dxqa95pgdywvzr6qg0k5812z89, n57c0s2p0fd72zj3j602wdk571813wsr
+Batch 2 (groups 15-21): n57bjdvrf4gnxqsv4s5p6rxc2h813j88, n573n9rept9m7s4js8zjrqt60h8129rb, n57frkmbjshyfp24m62jysbv518131pj, n57dtgms2jzm8c35aweh80e1cd812tab, n57f87m0br9pk7brp3d14jswps813cnn, n573pwz2x46vtjk6s6wvvwqyh9812159, n571tdry0paxsbbr5pr0nd953d812gfv
+Batch 3 (groups 22-28): n576xj8gxff6htsbkp5zk0ha0s813ecq, n57fz8rnm2vmzmn0k65wt4zma1812vyk, n57060dv58g2r9rv0h99xmpkj9813yk7, n57973ptwj1w3qejt20htdjhcx8131kj, n5751f1q4qtttktvqydkan4zyh8130jb, n5784h2t00gncc835sg6fb83cd812arw, n574x67z72peeesk9wtf54vh5581260q
 
 ## Categories Parsed
 | Category | Count | Groups |
 |----------|-------|--------|
-| Physical Transformation Desires | 5 | 1-5 |
-| Lifestyle & Convenience Desires | 4 | 6-9 |
-| Psychological & Emotional Desires | 4 | 10-13 |
-| Knowledge & Guidance Desires | 4 | 14-17 |
-| Life Stage & Goal-Specific Desires | 3 | 18-20 |
-| Social & External Validation Desires | 3 | 21-23 |
-| Functional / Athletic Performance Desires | 5 | 24-28 |
+| Wedding Life Stage | 5 | 1-5 |
+| Honeymoon & Travel Memories | 2 | 6-7 |
+| Baby & Growing Family | 4 | 8-11 |
+| Emotional & Psychological | 5 | 12-16 |
+| Gifting & Occasions | 4 | 17-20 |
+| Home & Lifestyle | 3 | 21-23 |
+| Demographic & Regional | 5 | 24-28 |
 
 ## Output Artifacts
-- Parsed JSON: `.claude/cache/parsed-focus-groups.json` (28 groups, 109K chars)
+- Parsed JSON: `.claude/cache/parsed-focus-groups-ofs.json` (28 groups)
+- Staging IDs: `.claude/cache/staging-ids-ofs.json`
+
+## Technical Notes
+- `npx convex run` does NOT read stdin for args — must pass JSON as CLI argument
+- Test/debug records were created during troubleshooting and marked `rejected`
+- Document also contains appendix sections (Engagement Content Ideas, Posting Schedule, Market Data) that are not focus group profiles — correctly skipped by parser
+
+## Previous Runs
+- **2026-02-12**: Gymzilla Tribe (kx757vws4r38ca1548cqwc99dd80z97w) - 28 fitness focus groups from Fitness_Focus_Groups_Marketing_Intelligence.md

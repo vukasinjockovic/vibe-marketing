@@ -1,0 +1,101 @@
+---
+session: general
+date: 2026-02-13
+status: complete
+outcome: PARTIAL_PLUS
+---
+
+goal: Fix campaign pipeline branches (images, social, email, ads not being created) + Telegram + humanizer integration
+now: Verify "Ad & Social Images" branch output quality, check task 3 progresses through full pipeline with all branches working
+
+test: "tail -30 /var/www/vibe-marketing/logs/dispatcher.log | grep -c 'exit=0'"
+
+done_this_session:
+  - task: "Fixed Telegram notifications - Convex self-hosted uses its own env var system (npx convex env set), NOT Docker container env vars via process.env"
+    files:
+      - docker-compose.yml
+  - task: "Fixed ALL branch agents failing with exit=1 - spawnBranchGroup in dispatcher.ts called claude -p without --verbose flag"
+    files:
+      - scripts/dispatcher.ts
+  - task: "Rewrote branch dispatch to use invoke-agent.sh instead of raw claude -p - each branch now gets proper lock mgmt, activity logging, crash notifications, Telegram alerts, stream files"
+    files:
+      - scripts/dispatcher.ts
+      - scripts/invoke-agent.sh
+  - task: "Added --branch <label> mode to invoke-agent.sh for branch-specific agent invocation with completeBranch call in prompt"
+    files:
+      - scripts/invoke-agent.sh
+  - task: "Added retriggerBranches mutation with allBranches option to re-dispatch failed/missing branches from pipeline snapshot"
+    files:
+      - convex/orchestrator.ts
+  - task: "Added 'Ad & Social Images' branch (triggerAfterStep: 5) to generate image prompts for all ad creatives and social posts after main pipeline completes"
+    files:
+      - convex/seed.ts
+  - task: "Updated live campaign pipeline snapshot and pipelines template with new 'Ad & Social Images' branch"
+    files: []
+  - task: "Created shared AI pattern prevention rules and added MANDATORY directive to 5 writing agent skills (zero extra token cost)"
+    files:
+      - .claude/skills/shared-references/ai-pattern-prevention.md
+      - .agents/skills/social-content/SKILL.md
+      - .agents/skills/paid-ads/SKILL.md
+      - .agents/skills/email-sequence/SKILL.md
+      - .agents/skills/page-cro/SKILL.md
+      - .claude/skills/content-writing-procedures/SKILL.md
+  - task: "Successfully retriggered and completed all 12 branch agents (6 per task) for tasks 1 and 2 - all deliverables created"
+    files: []
+
+blockers: []
+
+questions:
+  - "Task 3 (mx7aj15y...) is at step 1 (Keyword Research in_progress) - needs monitoring"
+  - "The retriggerBranches with allBranches=true re-dispatched ALL branches including already-completed ones (14 agents running instead of 2). Add a 'specificBranches' arg to retrigger only named branches?"
+  - "Branch agents that re-ran will overwrite existing deliverable files - verify no quality regression"
+  - "'Ad & Social Images' branch quality unknown - check if image director properly scans assets/ads/ and assets/social/ dirs and produces per-ad and per-post prompts"
+  - "Convex env vars (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID) persist across container restarts? Or need re-setting?"
+
+decisions:
+  humanizer_kept: "Keep humanizer as pipeline step 5 for articles (catches cross-section patterns, adds citations, restructures). Use prevention rules for short-form deliverables (ads, social, email) instead of separate humanizer pass - zero extra tokens."
+  branch_via_invoke_agent: "Branch dispatch now uses invoke-agent.sh --branch <label> instead of raw claude -p mega-prompt. Gets proper logging, crash notifications, stream files, activity tracking."
+  image_branch_sequencing: "Added 'Ad & Social Images' as triggerAfterStep:5 so it runs AFTER all other branches complete and can read their output files (ads, social posts, etc.)"
+  ai_prevention_shared_ref: "Created .claude/skills/shared-references/ai-pattern-prevention.md with condensed humanizer rules. Each writing agent skill has MANDATORY directive to read it. Prevention during generation > fixing after."
+
+findings:
+  convex_env_vars: "Self-hosted Convex runs actions in V8 isolates. Docker container env vars do NOT reach process.env in actions. Must use 'npx convex env set' to configure action env vars."
+  branch_all_failed: "All 8 branch dispatches across tasks 1&2 failed silently (exit=1) because spawnBranchGroup bypassed invoke-agent.sh and called claude -p without --verbose flag. Main pipeline continued because of earlier fix to always dispatch next main step regardless of branches."
+  pending_branches_gap: "pendingBranches only tracks branches from one trigger point. Step-2 branches (Landing Page, Email Sequence, Ad Copy) that failed were never added to pendingBranches because they dispatched and failed before step-3 trigger set the field."
+  sibling_tool_errors: "Running 12 claude instances simultaneously causes 'Sibling tool call errored' in parallel tool calls. Agents recover by retrying. Not fatal but wastes tokens."
+
+worked:
+  - "invoke-agent.sh --branch mode: clean separation of concerns, each branch gets its own stream file and log"
+  - "retriggerBranches with allBranches flag: reads pipeline snapshot to find all branch definitions and re-dispatches them"
+  - "Shared reference file approach for AI prevention rules: one file, 5 skills reference it, zero token overhead"
+  - "Setting Convex env vars via npx convex env set - immediate effect, no container restart needed"
+
+failed:
+  - "Docker container env vars for Convex actions: process.env is empty in V8 isolates regardless of container env"
+  - "Raw claude -p mega-prompt for multi-branch dispatch: fragile, no error handling, no activity logging, missing --verbose"
+  - "retriggerBranches allBranches=true re-dispatched already-completed branches unnecessarily (14 instead of 2)"
+
+next:
+  - "Monitor task 3 pipeline progression and verify branches fire correctly with new invoke-agent.sh --branch mode"
+  - "Check 'Ad & Social Images' branch output - verify it produces per-ad and per-social-post image prompts (not just another hero)"
+  - "Verify Convex env vars persist across docker-compose restarts"
+  - "Add specificBranches arg to retriggerBranches to avoid re-dispatching completed branches"
+  - "Consider rate limiting concurrent branch agents (12 simultaneous claude instances is heavy)"
+  - "Clean up old branch log files from failed runs (70-byte error logs)"
+
+files:
+  created:
+    - .claude/skills/shared-references/ai-pattern-prevention.md
+    - thoughts/shared/handoffs/general/2026-02-13_02-46_pipeline-branch-fixes.yaml
+  modified:
+    - scripts/dispatcher.ts
+    - scripts/invoke-agent.sh
+    - convex/orchestrator.ts
+    - convex/seed.ts
+    - convex/notifications.ts
+    - docker-compose.yml
+    - .agents/skills/social-content/SKILL.md
+    - .agents/skills/paid-ads/SKILL.md
+    - .agents/skills/email-sequence/SKILL.md
+    - .agents/skills/page-cro/SKILL.md
+    - .claude/skills/content-writing-procedures/SKILL.md

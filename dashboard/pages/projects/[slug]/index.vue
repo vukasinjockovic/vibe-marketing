@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Package, Megaphone, ListTodo, CheckCircle } from 'lucide-vue-next'
+import { ref } from 'vue'
 import { api } from '../../../../convex/_generated/api'
 
 const { project } = useCurrentProject()
@@ -37,7 +38,21 @@ const statCards = computed(() => [
 ])
 
 const recentCampaigns = computed(() => (campaigns.value || []).slice(0, 5))
-const recentActivities = computed(() => (activities.value || []).slice(0, 10))
+
+const sortedActivities = computed(() =>
+  [...(activities.value || [])]
+    .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0)),
+)
+const activitiesPerPage = 10
+const activityPage = ref(1)
+const totalActivityPages = computed(() =>
+  Math.max(1, Math.ceil(sortedActivities.value.length / activitiesPerPage)),
+)
+const paginatedActivities = computed(() => {
+  const start = (activityPage.value - 1) * activitiesPerPage
+  return sortedActivities.value.slice(start, start + activitiesPerPage)
+})
+
 const recentTasks = computed(() =>
   [...(tasks.value || [])]
     .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
@@ -117,10 +132,10 @@ function formatTime(ts: number) {
           <h3 class="font-semibold text-foreground">Recent Activity</h3>
         </div>
         <!-- Agent activities -->
-        <template v-if="recentActivities.length">
+        <template v-if="sortedActivities.length">
           <div class="divide-y divide-border">
             <div
-              v-for="activity in recentActivities"
+              v-for="activity in paginatedActivities"
               :key="activity._id"
               class="px-4 py-3"
             >
@@ -139,6 +154,20 @@ function formatTime(ts: number) {
                 </div>
               </div>
             </div>
+          </div>
+          <!-- Pagination -->
+          <div v-if="totalActivityPages > 1" class="px-4 py-3 border-t flex items-center justify-center gap-1">
+            <button
+              v-for="page in totalActivityPages"
+              :key="page"
+              class="w-8 h-8 rounded text-sm font-medium transition-colors"
+              :class="page === activityPage
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted'"
+              @click="activityPage = page"
+            >
+              {{ page }}
+            </button>
           </div>
         </template>
         <!-- Fallback: show tasks as activity when no agent logs yet -->

@@ -108,6 +108,7 @@ export const completeStep = mutation({
     agentName: v.string(),
     qualityScore: v.optional(v.number()),
     outputPath: v.optional(v.string()),
+    resourceIds: v.array(v.id("resources")),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
@@ -118,6 +119,15 @@ export const completeStep = mutation({
       throw new ConvexError(
         `Lock mismatch: task locked by "${task.lockedBy}", caller is "${args.agentName}"`
       );
+    }
+
+    // Verify all resourceIds exist
+    if (args.resourceIds.length === 0) {
+      throw new ConvexError("resourceIds is required — every step must register at least one resource");
+    }
+    for (const rid of args.resourceIds) {
+      const r = await ctx.db.get(rid);
+      if (!r) throw new ConvexError(`Resource ${rid} not found`);
     }
 
     const currentStepIndex = task.pipelineStep;
@@ -233,16 +243,22 @@ export const completeStep = mutation({
     // ── Auto-dispatch next agent or handle branches ──
 
     if (hasNextStep) {
-      // Check if campaign is paused — skip dispatch if so
-      let campaignPaused = false;
+      // Check if campaign or content batch is paused — skip dispatch if so
+      let parentPaused = false;
       if (task.campaignId) {
         const campaign = await ctx.db.get(task.campaignId);
         if (campaign && campaign.status === "paused") {
-          campaignPaused = true;
+          parentPaused = true;
+        }
+      }
+      if (!parentPaused && task.contentBatchId) {
+        const batch = await ctx.db.get(task.contentBatchId);
+        if (batch && batch.status === "paused") {
+          parentPaused = true;
         }
       }
 
-      if (!campaignPaused) {
+      if (!parentPaused) {
         // Check for parallel branches triggered after the completed step
         let branchesDispatched = false;
 
@@ -294,7 +310,7 @@ export const completeStep = mutation({
         }
       }
     } else {
-      // Task completed — dispatch next task in campaign + check campaign completion
+      // Task completed — dispatch next task + check completion for campaign or batch
       if (task.campaignId) {
         await ctx.scheduler.runAfter(
           0,
@@ -305,6 +321,18 @@ export const completeStep = mutation({
           100,
           internal.orchestrator.checkCampaignCompletion,
           { campaignId: task.campaignId }
+        );
+      }
+      if (task.contentBatchId) {
+        await ctx.scheduler.runAfter(
+          0,
+          internal.orchestrator.dispatchNextBatchTask,
+          { contentBatchId: task.contentBatchId }
+        );
+        await ctx.scheduler.runAfter(
+          100,
+          internal.orchestrator.checkBatchCompletion,
+          { contentBatchId: task.contentBatchId }
         );
       }
     }
@@ -326,10 +354,20 @@ export const completeBranch = mutation({
     taskId: v.id("tasks"),
     branchLabel: v.string(),
     agentName: v.string(),
+    resourceIds: v.array(v.id("resources")),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("Task not found");
+
+    // Verify all resourceIds exist
+    if (args.resourceIds.length === 0) {
+      throw new ConvexError("resourceIds is required — every branch must register at least one resource");
+    }
+    for (const rid of args.resourceIds) {
+      const r = await ctx.db.get(rid);
+      if (!r) throw new ConvexError(`Resource ${rid} not found`);
+    }
 
     const pending = (task.pendingBranches || []).filter(
       (label) => label !== args.branchLabel
@@ -354,16 +392,22 @@ export const completeBranch = mutation({
       const nextStepIndex = currentStep + 1;
 
       if (nextStepIndex < pipeline.length) {
-        // Check campaign pause gate
-        let campaignPaused = false;
+        // Check campaign/batch pause gate
+        let parentPaused = false;
         if (task.campaignId) {
           const campaign = await ctx.db.get(task.campaignId);
           if (campaign && campaign.status === "paused") {
-            campaignPaused = true;
+            parentPaused = true;
+          }
+        }
+        if (!parentPaused && task.contentBatchId) {
+          const batch = await ctx.db.get(task.contentBatchId);
+          if (batch && batch.status === "paused") {
+            parentPaused = true;
           }
         }
 
-        if (!campaignPaused) {
+        if (!parentPaused) {
           const nextAgent = pipeline[nextStepIndex].agent;
           if (nextAgent) {
             await ctx.scheduler.runAfter(

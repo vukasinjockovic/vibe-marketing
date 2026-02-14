@@ -12,6 +12,7 @@ export async function logActivity(
     message: string;
     taskId?: Id<"tasks">;
     campaignId?: Id<"campaigns">;
+    contentBatchId?: Id<"contentBatches">;
     metadata?: any;
   },
 ) {
@@ -22,6 +23,7 @@ export async function logActivity(
     message: opts.message,
     taskId: opts.taskId,
     campaignId: opts.campaignId,
+    contentBatchId: opts.contentBatchId,
     metadata: opts.metadata,
   });
 }
@@ -41,7 +43,8 @@ export const listByProject = query({
     return await ctx.db
       .query("activities")
       .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
-      .take(50);
+      .order("desc")
+      .collect();
   },
 });
 
@@ -52,6 +55,18 @@ export const listByCampaign = query({
     return await ctx.db
       .query("activities")
       .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .order("desc")
+      .collect();
+  },
+});
+
+// List activities by content batch (newest first)
+export const listByContentBatch = query({
+  args: { contentBatchId: v.id("contentBatches") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("activities")
+      .withIndex("by_content_batch", (q) => q.eq("contentBatchId", args.contentBatchId))
       .order("desc")
       .collect();
   },
@@ -76,6 +91,7 @@ export const log = mutation({
     agentName: v.string(),
     taskId: v.optional(v.id("tasks")),
     campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
     message: v.string(),
     metadata: v.optional(v.any()),
   },
@@ -86,6 +102,7 @@ export const log = mutation({
       agentName: args.agentName,
       taskId: args.taskId,
       campaignId: args.campaignId,
+      contentBatchId: args.contentBatchId,
       message: args.message,
       metadata: args.metadata,
     });

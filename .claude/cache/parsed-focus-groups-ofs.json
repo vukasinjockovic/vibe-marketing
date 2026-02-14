@@ -1,0 +1,2133 @@
+[
+  {
+    "number": 1,
+    "category": "Wedding Life Stage",
+    "name": "Fresh Newlyweds",
+    "nickname": "The Just-Got-Our-Photos-Back Couple",
+    "overview": "Couples who married within the last 0-6 months and have recently received their professional wedding photos. They're on an emotional high, overwhelmed by the volume of beautiful images, and desperate to do something meaningful with them — but paralysed by choice. This is the highest-intent buyer in the entire funnel.",
+    "demographics": {
+      "ageRange": "26-38, peaks at 28-34",
+      "gender": "70% female decision-maker, joint purchase",
+      "income": "Middle to upper-middle class",
+      "lifestyle": "Recently finished a major life event, transitioning from \"planning mode\" to \"settling in\"",
+      "triggers": [
+        "Photographer delivers gallery",
+        "seeing other couples' framed photos on social media",
+        "visiting a friend's home with wedding wall"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Love",
+        "commitment",
+        "memory preservation",
+        "aesthetics"
+      ],
+      "beliefs": [
+        "Our wedding was special and deserves to be celebrated in our home",
+        "professional photos are an investment that shouldn't live on a hard drive"
+      ],
+      "lifestyle": "Recently married, possibly setting up first shared home, energised about making their space \"theirs\"",
+      "identity": "See themselves as a committed couple building a life together, proud of the day they created"
+    },
+    "coreDesires": [
+      "Turn their favourite wedding photos into something they see every day",
+      "Show off their wedding day to visitors without scrolling through a phone",
+      "Create a focal point in their home that tells their love story",
+      "Feel the emotion of the day every time they walk past",
+      "Do justice to the money spent on professional photography",
+      "Make their home feel personal, not generic",
+      "Give meaningful gifts to parents from the wedding photos"
+    ],
+    "painPoints": [
+      "Received 500+ photos and don't know which to choose",
+      "Professional photos cost thousands but are trapped on a USB or cloud drive",
+      "Don't know what size prints work for their wall space",
+      "Overwhelmed by options: canvas, frame, acrylic, metal, album",
+      "Keep meaning to \"get around to it\" but weeks become months",
+      "Worried about quality — online printing services feel risky",
+      "Don't want to make the wrong choice and waste money on a photo that doesn't look right printed large"
+    ],
+    "fears": [
+      "Choosing the wrong photo and regretting it once it's on the wall",
+      "Colours looking different printed vs on screen",
+      "Spending money on prints that arrive damaged or poor quality",
+      "Their wedding becoming \"just another thing that happened\" if they don't preserve it",
+      "Time passing and the emotional connection to the day fading",
+      "Photos looking pixelated or blurry when printed large"
+    ],
+    "beliefs": [
+      "Professional wedding photos deserve more than sitting on a hard drive",
+      "A beautiful home has personal touches, not just bought decor",
+      "Everyone else seems to have their photos up already — why haven't we?",
+      "Quality matters — cheap prints look cheap",
+      "This is a once-in-a-lifetime purchase, worth doing properly"
+    ],
+    "objections": [
+      "I can't decide which photo to use",
+      "I don't know what size would look right",
+      "Canvas or frame? I can't tell the difference online",
+      "What if the colours look off?",
+      "I'll do it eventually, no rush",
+      "I don't even know what wall to put it on",
+      "We're still renting — is it worth it?"
+    ],
+    "emotionalTriggers": [
+      "Seeing their wedding photos sitting unused on a computer or phone",
+      "Visiting a friend's home and seeing framed wedding portraits",
+      "Approaching their first anniversary and feeling guilty about not printing",
+      "A parent or in-law asking \"did you ever frame any of your photos?\"",
+      "Scrolling through Instagram and seeing other couples' beautiful wedding walls",
+      "Moving into a new home and having empty walls",
+      "The photographer posting their photos on social media and receiving compliments"
+    ],
+    "languagePatterns": [
+      "We spent so much on the photographer and they're just sitting on a USB",
+      "I keep meaning to get them printed but I can't choose",
+      "I want something we'll look at every single day",
+      "Our walls are so bare — we need SOMETHING up there",
+      "I love this photo but will it look good that big?",
+      "We want something that's not just another generic thing on the wall",
+      "I want to cry happy tears every time I see it"
+    ],
+    "ebookAngles": [
+      "Your wedding photos deserve more than living on a phone",
+      "Before/after: empty wall → stunning wedding canvas reveal",
+      "How to choose THE ONE photo from 500+ wedding images",
+      "Tips for picking the right size print for different rooms",
+      "Real couples showing their wedding wall setups"
+    ],
+    "marketingHooks": [
+      "You spent thousands on the photographer. Don't let the photos live on a USB.",
+      "Your wedding day was the best day of your life. Shouldn't you see it every day?",
+      "That photo you keep showing everyone on your phone? Imagine it on your wall.",
+      "From screen to wall: one photo that changes your whole room",
+      "600+ wedding photos. 1 perfect canvas. Zero regrets."
+    ],
+    "transformationPromise": "From a couple whose beautiful wedding photos sit forgotten on a hard drive -> to a couple who relives their wedding day every time they walk through their home"
+  },
+  {
+    "number": 2,
+    "category": "Wedding Life Stage",
+    "name": "Photo Guilt Brides",
+    "nickname": "The 10,000 Photos Still on My Phone",
+    "overview": "Women who married 6-18 months ago and are now past the post-wedding high but still haven't done anything with their photos. The initial excitement has faded into guilt and procrastination. They intended to order prints months ago but life got in the way. They need a push — not more options, but fewer choices and a clear next step.",
+    "demographics": {
+      "ageRange": "27-36, peaks at 29-33",
+      "gender": "90% female",
+      "income": "Middle class",
+      "lifestyle": "Busy professional or new parent, juggling post-wedding life adjustments",
+      "triggers": [
+        "Facebook \"On This Day\" memories",
+        "anniversary approaching",
+        "friend getting married and asking about their photos"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Sentimentality",
+        "aesthetics",
+        "completing things they start"
+      ],
+      "beliefs": [
+        "They SHOULD have done this already",
+        "there's a \"right\" way to display photos and they haven't figured it out"
+      ],
+      "lifestyle": "Overwhelmed by daily life, decision fatigue from the wedding hasn't fully worn off",
+      "identity": "See themselves as someone who cares about their home but hasn't had time to make it happen"
+    },
+    "coreDesires": [
+      "Stop feeling guilty about their unused wedding photos",
+      "Finally have something beautiful on their walls",
+      "Get it done without having to make 50 decisions",
+      "Feel like a \"proper\" married couple with photos in their home",
+      "Cross this off their never-ending to-do list",
+      "Show their parents something tangible from the day"
+    ],
+    "painPoints": [
+      "Decision paralysis — too many photos, too many options",
+      "Feeling guilty every time someone asks \"did you print any?\"",
+      "Facebook/Instagram memories popping up reminding them of what they haven't done",
+      "Knowing photos degrade or could be lost from phones/cloud",
+      "Don't have time to sit down and curate a selection",
+      "Perfectionism — want it to be \"right\" so they do nothing instead",
+      "Life moved on (maybe pregnant or had a baby) and wedding feels long ago"
+    ],
+    "fears": [
+      "That the moment has passed and it's somehow \"too late\"",
+      "Hard drive crash or cloud storage failure losing their only copies",
+      "Looking back in 20 years and having nothing physical from the wedding",
+      "Being judged for not having their photos up yet",
+      "Spending money on something she should have done sooner (feels like a wasted second expense)"
+    ],
+    "beliefs": [
+      "Good wives/partners would have done this already",
+      "Everyone else has their photos framed by now",
+      "It should be perfect or it's not worth doing",
+      "Making one choice means losing all the other photo options",
+      "Physical photos matter more than digital — but acting on that is hard"
+    ],
+    "objections": [
+      "I keep meaning to but life keeps getting in the way",
+      "I genuinely can't choose — they're all beautiful",
+      "I'll wait until we move/renovate/settle in",
+      "I don't want to spend more money after the wedding costs",
+      "What if I pick the wrong one and change my mind?",
+      "I'm not sure what would look good in our space"
+    ],
+    "emotionalTriggers": [
+      "Facebook \"Memories\" showing wedding photos from a year ago",
+      "Anniversary approaching — guilt spikes",
+      "Friend asking \"did you ever get those framed?\"",
+      "Moving house and realising walls are still bare",
+      "Seeing someone else's beautiful photo wall on social media",
+      "Pregnancy announcement — wanting to document the love story before baby arrives",
+      "Phone storage full notification — 10,000 photos and counting"
+    ],
+    "languagePatterns": [
+      "I really need to do something with our wedding photos",
+      "I've been meaning to get prints done for months",
+      "I can't believe it's been a year and they're still on my laptop",
+      "My mum keeps asking when she can get a photo for her wall",
+      "I just can't choose — there are too many good ones",
+      "I want to but I don't know where to start",
+      "Life just got in the way"
+    ],
+    "ebookAngles": [
+      "It's been 6 months since your wedding. Your photos are still on a USB. Let's fix that.",
+      "You don't need to choose 50 photos. You need ONE.",
+      "The \"1-photo challenge\" — pick your absolute favourite and print just that",
+      "Anniversary countdown content — \"Your anniversary is coming. Surprise yourself.\"",
+      "Relatable memes about wedding photo procrastination"
+    ],
+    "marketingHooks": [
+      "Your wedding was 6 months ago. Your photos are still on a USB. Sound familiar?",
+      "You don't need to choose 50 photos. Start with ONE.",
+      "That photo you keep going back to? That's the one.",
+      "Stop scrolling past your own wedding. Put it on the wall.",
+      "Your phone has 10,000 photos. Your walls have zero."
+    ],
+    "transformationPromise": "From a bride paralysed by choice with beautiful photos trapped on a hard drive -> to a wife who walks past her favourite wedding moment every single day"
+  },
+  {
+    "number": 3,
+    "category": "Wedding Life Stage",
+    "name": "Anniversary Milestone Couples",
+    "nickname": "The It's-Been-X-Years-Already",
+    "overview": "Couples approaching or celebrating a significant wedding anniversary (1st, 5th, 10th, 15th, 20th, 25th). The anniversary triggers nostalgia, reflection on how far they've come, and often a desire to mark the milestone with something permanent. Many never printed wedding photos and now feel the urgency. Others want to create a \"then and now\" display.",
+    "demographics": {
+      "ageRange": "27-55+ depending on anniversary milestone",
+      "gender": "60% female, 40% male (men shop more for anniversary gifts)",
+      "income": "Varies widely — 1st anniversary to 25th",
+      "lifestyle": "Established couples, likely with children, settled in their home",
+      "triggers": [
+        "Anniversary date approaching",
+        "couples' friends celebrating milestones",
+        "social media memories"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Commitment",
+        "nostalgia",
+        "family",
+        "tradition",
+        "celebrating love"
+      ],
+      "beliefs": [
+        "Anniversaries should be marked",
+        "time passes too fast",
+        "photos capture what matters"
+      ],
+      "lifestyle": "Routine-oriented, established home, know what they like",
+      "identity": "Proud of their marriage, see themselves as a lasting partnership"
+    },
+    "coreDesires": [
+      "A meaningful anniversary gift that isn't generic flowers or dinner",
+      "To relive the emotion of their wedding day",
+      "Something that celebrates how far they've come together",
+      "A gift their partner will genuinely love and keep forever",
+      "To refresh their home with a nod to their love story",
+      "Mark the milestone in a tangible, lasting way"
+    ],
+    "painPoints": [
+      "What do you get someone who has everything?",
+      "Every anniversary feels the same — dinner and flowers",
+      "Old wedding photos might be low resolution or faded",
+      "Never got around to framing photos originally",
+      "Want something sentimental but not cheesy",
+      "Hard to find gifts that feel meaningful after many years"
+    ],
+    "fears": [
+      "Anniversary becoming \"just another day\"",
+      "Partner not caring or feeling the gift is cheesy",
+      "Old photos not printing well due to age or resolution",
+      "Making a cliche choice"
+    ],
+    "beliefs": [
+      "Time passes faster than you think — capture the moments",
+      "Sentimental gifts > expensive gifts",
+      "The best gifts show you know the person",
+      "Marriage is worth celebrating, especially in a world where many don't last"
+    ],
+    "objections": [
+      "Our wedding photos are old — will they print OK?",
+      "Is a canvas/print too basic? They already have stuff on the walls",
+      "They might think it's cheesy",
+      "I want something unique, not something everyone does",
+      "I always leave it to the last minute"
+    ],
+    "emotionalTriggers": [
+      "Anniversary date circled on calendar — need to get a gift",
+      "Looking through old wedding photos and feeling emotional",
+      "Friend posting their \"X years ago today\" anniversary photos on social media",
+      "Partner mentioning they wish they had printed photos",
+      "Empty spot on the wall that needs something meaningful",
+      "Renewed appreciation after a rough period in marriage"
+    ],
+    "languagePatterns": [
+      "I can't believe it's been X years",
+      "I want to get her/him something really meaningful this year",
+      "We never printed our wedding photos — maybe it's time",
+      "Something that shows I put thought into it",
+      "I want to surprise them",
+      "I teared up looking at our old wedding photos"
+    ],
+    "ebookAngles": [
+      "How long have YOUR wedding photos been sitting unprinted?",
+      "1 year. 5 years. 10 years. The photo still makes you feel the same.",
+      "The anniversary gift they'll actually keep forever",
+      "Anniversary-themed countdown posts: \"10 days to show them you remember\"",
+      "Then-and-now couple photos side by side"
+    ],
+    "marketingHooks": [
+      "The anniversary gift that makes them cry (the good kind)",
+      "X years later. The love is the same. Put it on the wall.",
+      "Flowers die. Dinner ends. This stays forever.",
+      "Your wedding day was the beginning. Show them you still remember every detail.",
+      "The gift that says 'I'd marry you all over again'"
+    ],
+    "transformationPromise": "From a couple searching for a meaningful anniversary gift beyond flowers and dinner -> to partners who give each other something they'll look at every day for the next X years"
+  },
+  {
+    "number": 4,
+    "category": "Wedding Life Stage",
+    "name": "Elopement & Micro-Wedding Couples",
+    "nickname": "The We-Did-It-Our-Way",
+    "overview": "Couples who had an intimate ceremony — elopement, registry office, backyard wedding, or micro-wedding with under 30 guests. They may not have had a traditional photographer, making their few photos even more precious. They value authenticity over spectacle and want to celebrate their day without the \"big wedding\" trappings.",
+    "demographics": {
+      "ageRange": "28-42, peaks at 30-38",
+      "gender": "Even split — both partners involved in decisions",
+      "income": "Varies widely — some eloped to save money, others by choice",
+      "lifestyle": "Independent-minded, value experiences over appearances",
+      "triggers": [
+        "Receiving elopement photos",
+        "realising they have very few photos from the day",
+        "friends asking to see wedding photos"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Authenticity",
+        "intimacy",
+        "practicality",
+        "anti-waste"
+      ],
+      "beliefs": [
+        "Their wedding was perfect despite being \"non-traditional,\" small weddings are underrated"
+      ],
+      "lifestyle": "Often travel-oriented, minimalist-leaning, experience-focused",
+      "identity": "Proud of choosing their own path, sometimes defensive about not having a \"real\" wedding"
+    },
+    "coreDesires": [
+      "Validate their choice — \"our day was just as special\"",
+      "Make the most of the few photos they have",
+      "A way to share their day with people who weren't there",
+      "Something beautiful to mark the occasion since the event was small",
+      "Prove to themselves (and maybe family) that it mattered"
+    ],
+    "painPoints": [
+      "Only have 30-100 photos instead of 500+",
+      "Some photos may be from phones, not professional cameras",
+      "Family members who weren't invited may feel excluded — a print can bridge that gap",
+      "Limited options for \"wedding wall\" since the event was small",
+      "Feeling like their elopement \"doesn't count\" in the eyes of others"
+    ],
+    "fears": [
+      "Regretting not having more photos as years pass",
+      "Family thinking the wedding wasn't important to them",
+      "Losing their few precious photos to technology failure",
+      "Not having anything physical to show their future children"
+    ],
+    "beliefs": [],
+    "objections": [
+      "We only have a few photos — is it worth making a canvas from them?",
+      "Some of our photos are from phones — will they print well?",
+      "We didn't have a 'big' wedding so it feels odd to make a big deal of the photos"
+    ],
+    "emotionalTriggers": [
+      "Receiving the small but perfect photo gallery from their photographer",
+      "Family member asking \"where are your wedding photos?\"",
+      "Seeing micro-wedding photo displays on social media",
+      "Moving to a new home together and wanting to mark their partnership",
+      "Pregnancy — wanting to document \"before baby\" era"
+    ],
+    "languagePatterns": [
+      "It was small but it was perfect",
+      "We only have like 50 photos but I love every single one",
+      "We did it our way",
+      "We don't need to prove anything but I still want to remember",
+      "I want our future kids to see how happy we were"
+    ],
+    "ebookAngles": [
+      "Big weddings aren't the only ones worth framing",
+      "30 photos. 1 perfect canvas. Your story.",
+      "Elopement/micro-wedding appreciation posts",
+      "The smaller the wedding, the bigger each photo matters"
+    ],
+    "marketingHooks": [
+      "Big love doesn't need a big wedding. It needs a big frame.",
+      "You chose intimacy over spectacle. Now put that moment on your wall.",
+      "50 photos. Every one of them gold.",
+      "Your wedding was small. Your love story is epic. Frame it."
+    ],
+    "transformationPromise": "From a couple whose intimate wedding feels unrecognised or under-celebrated -> to a couple with a stunning visual reminder that their choice was perfect"
+  },
+  {
+    "number": 5,
+    "category": "Wedding Life Stage",
+    "name": "Destination Wedding Couples",
+    "nickname": "The Best-Trip-of-Our-Lives",
+    "overview": "Couples who married abroad — Mediterranean villas, Caribbean beaches, alpine retreats, or UK countryside escapes. Their wedding photos have an extra layer of magic: exotic backdrops, golden hour light, travel energy. These photos practically beg to be printed large. The couple associates the wedding with the entire travel experience.",
+    "demographics": {
+      "ageRange": "28-40, peaks at 30-36",
+      "gender": "60% female, often the initial decision-maker",
+      "income": "Upper-middle class (destination weddings are expensive)",
+      "lifestyle": "Travel-oriented, experience-seekers, social media active",
+      "triggers": [
+        "Returning from the trip",
+        "photos being delivered",
+        "travel nostalgia"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Adventure",
+        "aesthetics",
+        "uniqueness",
+        "experiences over things"
+      ],
+      "beliefs": [
+        "Their wedding location made it extra special",
+        "photos in exotic settings are basically art"
+      ],
+      "lifestyle": "",
+      "identity": "See themselves as worldly, cultured, not bound by convention"
+    },
+    "coreDesires": [
+      "Display photos that look like they belong in a gallery",
+      "Relive the destination experience — the place AND the day",
+      "Show guests who couldn't attend what they missed",
+      "Turn stunning destination backdrops into wall art"
+    ],
+    "painPoints": [
+      "Photos are so beautiful it feels like a waste to keep them digital",
+      "Hard to choose from hundreds of stunning shots",
+      "Want large format but worried about quality at scale",
+      "Photos from different lighting/locations make it hard to create a cohesive display"
+    ],
+    "fears": [
+      "Not doing justice to the stunning location in print",
+      "Prints not matching the vibrancy of the originals",
+      "Choosing wrong photos and missing the \"magic\" shots"
+    ],
+    "beliefs": [],
+    "objections": [
+      "These photos deserve something really special — I don't want to go cheap",
+      "I want a gallery wall but how do I make different locations cohesive?",
+      "Will the sunset colours actually print properly?"
+    ],
+    "emotionalTriggers": [
+      "Travel nostalgia hitting after returning home to grey weather",
+      "Photographer delivers gallery with jaw-dropping scenic shots",
+      "Friends commenting \"these look like paintings\" on social media",
+      "Seeing travel photography displayed in a hotel or restaurant"
+    ],
+    "languagePatterns": [
+      "These photos are too beautiful to stay on a computer",
+      "It was like getting married in a painting",
+      "Everyone says these should be framed",
+      "I want to feel like I'm back there every time I see it"
+    ],
+    "ebookAngles": [
+      "Your destination wedding photos are basically art. Treat them that way.",
+      "Stunning destination wedding canvases as hero images",
+      "From Santorini to your living room wall",
+      "Travel-to-home transition content"
+    ],
+    "marketingHooks": [
+      "Your destination wedding was a once-in-a-lifetime moment. Make it permanent.",
+      "Santorini sunsets don't last. Canvas prints do.",
+      "You didn't fly 3,000 miles for a USB stick.",
+      "Every guest who couldn't make it deserves to see this on your wall."
+    ],
+    "transformationPromise": "From a couple whose stunning destination wedding photos are trapped in a digital gallery -> to a couple whose living room transports them back to the most magical day of their lives"
+  },
+  {
+    "number": 6,
+    "category": "Honeymoon & Travel Memories",
+    "name": "Honeymoon Memory Makers",
+    "nickname": "The That-Trip-Changed-Everything",
+    "overview": "Couples who just returned from their honeymoon — whether it was Bali, the Maldives, Iceland, or a European road trip. They're experiencing post-holiday blues mixed with newlywed bliss. The honeymoon felt like an extension of the wedding and the photos capture a unique intimacy: relaxed, unposed, genuinely happy.",
+    "demographics": {
+      "ageRange": "26-38",
+      "gender": "65% female",
+      "income": "Middle to upper class",
+      "lifestyle": "Recently married, post-holiday blues, settling into married life",
+      "triggers": [
+        "Returning from honeymoon",
+        "uploading holiday photos",
+        "post-holiday blues"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Adventure",
+        "romance",
+        "shared experiences",
+        "memory making"
+      ],
+      "beliefs": [
+        "The honeymoon was the real start of married life",
+        "those candid moments are more \"us\" than posed wedding photos"
+      ],
+      "lifestyle": "",
+      "identity": "Travel couple, adventurers, memory-makers"
+    },
+    "coreDesires": [
+      "Preserve the honeymoon magic before it fades",
+      "Mix honeymoon and wedding photos in their home",
+      "Relive the relaxed, genuine happiness",
+      "Create something that captures the trip's essence"
+    ],
+    "painPoints": [
+      "Post-holiday blues — the trip is over and reality sets in",
+      "Hundreds of beautiful travel photos with no clear \"hero\" shot",
+      "Honeymoon photos feel personal — harder to share publicly than wedding shots",
+      "Different quality levels: some phone shots, some camera, some selfies"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Cold/grey weather after returning from somewhere tropical",
+      "Scrolling through holiday photos and missing the trip",
+      "Partner saying \"I wish we could go back\"",
+      "Instagram reminding them of the trip"
+    ],
+    "languagePatterns": [
+      "I already miss it",
+      "That was the best week of my life",
+      "I want to feel like we're still there",
+      "These photos are so us"
+    ],
+    "ebookAngles": [
+      "Your honeymoon is over. The feeling doesn't have to be.",
+      "Beach/travel scene canvases that double as decor and memory",
+      "The best souvenir you'll ever bring home",
+      "Post-holiday nostalgia content"
+    ],
+    "marketingHooks": [
+      "The tan fades. The photos don't have to.",
+      "Your honeymoon photos are the most honest pictures of your love. Frame them.",
+      "The best souvenir doesn't fit in a suitcase.",
+      "Back to reality? Bring the honeymoon home."
+    ],
+    "transformationPromise": "From post-honeymoon blues with beautiful travel photos fading into phone camera rolls -> to a couple who brings the magic of the trip into their daily life through stunning wall art"
+  },
+  {
+    "number": 7,
+    "category": "Honeymoon & Travel Memories",
+    "name": "Travel-as-Identity Couples",
+    "nickname": "The Adventure Partners",
+    "overview": "Couples for whom travel is a core part of their identity and relationship. They don't just travel — they document, curate, and share. Their home is an extension of their adventures: maps, postcards, and ideally, beautifully displayed photos from their travels together. Wedding and honeymoon photos fit into a broader travel-memory display strategy.",
+    "demographics": {
+      "ageRange": "25-40",
+      "gender": "Even split",
+      "income": "Upper-middle class, dual income",
+      "lifestyle": "Travel 2-4x/year, social media active, experience-oriented",
+      "triggers": [
+        "Travel TikTok/Instagram content",
+        "post-trip editing",
+        "home redecoration"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Experience",
+        "adventure",
+        "aesthetics",
+        "storytelling"
+      ],
+      "beliefs": [
+        "Your home should reflect your life",
+        "travel photography is art"
+      ],
+      "lifestyle": "",
+      "identity": "\"We're a travel couple\" — core to how they see themselves"
+    },
+    "coreDesires": [
+      "A gallery wall that tells the story of their travels together",
+      "High-quality prints that look like real art, not tourist snapshots",
+      "A cohesive display that grows with each new trip",
+      "Wedding/honeymoon photos as part of the broader travel collection"
+    ],
+    "painPoints": [
+      "Want a curated look but don't know how to achieve it",
+      "Mixing different photo sizes, orientations, and lighting conditions",
+      "Fear of a \"messy\" or disjointed gallery wall",
+      "Too many great photos, hard to narrow down"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Returning from a trip and wanting to add it to the wall",
+      "Seeing curated travel gallery walls on Pinterest/Instagram",
+      "Moving to a new place and wanting to \"tell their story\""
+    ],
+    "languagePatterns": [
+      "We want our home to tell our story",
+      "I love homes where you can see who lives there",
+      "Our adventures deserve more than an Instagram post"
+    ],
+    "ebookAngles": [
+      "Your adventures deserve a wall, not just a feed",
+      "Gallery wall inspiration — mixing travel, wedding, and family photos",
+      "How to build a gallery wall that grows with you"
+    ],
+    "marketingHooks": [
+      "Your adventures aren't over when the plane lands. Put them on the wall.",
+      "Every trip tells a chapter. Build the book on your wall.",
+      "A gallery wall that grows with every adventure."
+    ],
+    "transformationPromise": "From a couple whose travel memories are scattered across Instagram posts and phone galleries -> to a couple whose home is a living gallery of their greatest adventures together"
+  },
+  {
+    "number": 8,
+    "category": "Baby & Growing Family",
+    "name": "Expecting Parents",
+    "nickname": "The Nesting Decorators",
+    "overview": "First-time parents-to-be in the \"nesting\" phase — decorating the nursery, preparing the home, and emotionally preparing for the biggest change of their lives. They're sentimental, future-focused, and eager to create a warm, loving environment. Wedding and couple photos suddenly feel more significant: this is the foundation of the family they're building.",
+    "demographics": {
+      "ageRange": "27-38, peaks at 29-34",
+      "gender": "80% female (nesting is predominantly a maternal behaviour)",
+      "income": "Middle class",
+      "lifestyle": "Preparing for baby, decorating nursery, researching everything",
+      "triggers": [
+        "Pregnancy",
+        "nursery decoration, \"before baby\" photo panic",
+        "gender reveal"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Family",
+        "home",
+        "warmth",
+        "preparation",
+        "nesting"
+      ],
+      "beliefs": [
+        "The home should be warm and personal for the baby",
+        "their love story is the foundation of the family"
+      ],
+      "lifestyle": "",
+      "identity": "Transitioning from \"couple\" to \"family\" — want to honour both"
+    },
+    "coreDesires": [
+      "Create a warm, personal nursery with family photos",
+      "Document the \"before baby\" era of their relationship",
+      "Build a visual family story the child will grow up seeing",
+      "Have a beautiful home that feels ready for a baby",
+      "Capture the couple's love story before it becomes \"mum and dad\""
+    ],
+    "painPoints": [
+      "Nursery decor feels generic without personal photos",
+      "Realise they never printed wedding photos and baby is coming",
+      "Overwhelmed by nursery preparation — one more thing to do",
+      "Want meaningful decor but running out of time before due date",
+      "Budget is already stretched with baby purchases"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Setting up the nursery and realising walls are empty",
+      "Maternity photoshoot making them think about prints",
+      "Nesting instinct kicking in during third trimester",
+      "Wanting to show the baby \"where they came from\"",
+      "Seeing other nurseries with family photo walls on Pinterest"
+    ],
+    "languagePatterns": [
+      "I want the nursery to feel warm and personal",
+      "We need to get our wedding photos printed before baby comes!",
+      "I want our baby to grow up seeing our love story on the walls",
+      "The nursery needs something — it feels so generic",
+      "I'm nesting HARD and need to get this done before D-day"
+    ],
+    "ebookAngles": [
+      "Before baby arrives, get your love story on the wall",
+      "Nursery gallery wall inspiration with couple + baby photos",
+      "The photo your child will ask about when they're 5",
+      "Nesting checklist content — \"Have you printed your photos yet?\""
+    ],
+    "marketingHooks": [
+      "Before you're 'Mum and Dad,' you're a love story. Put it on the wall.",
+      "Your baby will grow up seeing your love every single day.",
+      "The nursery isn't complete without YOUR story in it.",
+      "Nesting to-do list: ✓ Crib ✓ Clothes ✓ YOUR love story on the wall"
+    ],
+    "transformationPromise": "From expecting parents with a generic nursery and unprinted wedding photos -> to a family whose home tells the love story that started it all"
+  },
+  {
+    "number": 9,
+    "category": "Baby & Growing Family",
+    "name": "Milestone-Obsessed New Parents",
+    "nickname": "The They-Grow-So-Fast",
+    "overview": "Parents of babies aged 0-12 months who are acutely aware of how fast their baby is changing. They photograph EVERYTHING. Every smile, every outfit, every \"first.\" They're already nostalgic for stages that ended weeks ago. They're the most emotionally raw audience — overwhelmed by love, sleep deprivation, and the relentless pace of change.\n\nReddit insight: \"It goes by so fast\" is the #1 cliche new parents hear — and eventually become. Posts about babies' first smiles, first laughs, and milestone moments generate massive engagement. \"The privilege to change a diaper at 3am\" — parents reframe exhaustion as gratitude.",
+    "demographics": {
+      "ageRange": "26-38",
+      "gender": "75% female",
+      "income": "Middle class",
+      "lifestyle": "Sleep-deprived, phone full of baby photos, emotionally overwhelming first year",
+      "triggers": [
+        "Baby hitting milestones",
+        "monthly photo updates",
+        "phone storage warnings",
+        "baby outgrowing clothes"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Family",
+        "memory preservation",
+        "legacy",
+        "documenting everything"
+      ],
+      "beliefs": [
+        "Every moment is precious",
+        "they're growing too fast",
+        "need to capture everything before it's gone"
+      ],
+      "lifestyle": "Exhausted but fiercely in love, phone is their primary camera, social media is their outlet",
+      "identity": "New parent defining themselves through their child — \"I'm a mum/dad now\""
+    },
+    "coreDesires": [
+      "Freeze time — keep this tiny baby forever",
+      "Create something physical they can hold onto as baby grows",
+      "Build a visual record of baby's first year",
+      "Share baby's milestones with family (especially distant grandparents)",
+      "Prove to themselves they're documenting this well enough",
+      "Have something for baby to see when they're older"
+    ],
+    "painPoints": [
+      "500 photos a week but none are printed",
+      "Phone storage constantly full",
+      "Don't have time to sort through photos, let alone print them",
+      "Each stage passes so quickly they feel they're \"missing\" it even while living it",
+      "Guilt about not documenting enough (or too much screen time documenting)",
+      "Want to create something but too exhausted to figure out what"
+    ],
+    "fears": [
+      "Forgetting what their baby looked like at each stage",
+      "Losing thousands of photos in a phone crash or cloud failure",
+      "Not creating enough physical memories for the child's future",
+      "Baby growing up and having no printed photos of their childhood",
+      "Other parents seeming to document better (curated social media)"
+    ],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Baby outgrowing a phase — \"they'll never be this small again\"",
+      "Going through phone photos and realising how much baby has changed",
+      "The monthly age milestone — \"happy 6 months!\"",
+      "Grandparents asking for photos to frame",
+      "Sleep deprivation + hormones = peak sentimentality",
+      "Baby's first birthday approaching",
+      "Reddit post: \"Keep reading to your infant\" — it WORKS, the small things matter"
+    ],
+    "languagePatterns": [
+      "They grow so fast",
+      "I can't believe they were ever this small",
+      "I have a million photos and zero on the wall",
+      "I want something I can hold",
+      "My phone is full of photos I'll never look at properly",
+      "I want them to see these when they're older",
+      "I didn't know it would be like this — the love is overwhelming",
+      "Ohhhh big stretch!"
+    ],
+    "ebookAngles": [
+      "They'll never be this small again. Print the photo.",
+      "Monthly milestone celebration posts",
+      "Your phone has 4,000 baby photos. Your walls have zero.",
+      "The photo your child will ask about when they're 10",
+      "Sleep-deprived parent solidarity content with memory preservation CTA"
+    ],
+    "marketingHooks": [
+      "They'll never be this small again.",
+      "4,000 photos on your phone. Zero on your wall. Let's fix that.",
+      "This tiny face won't be tiny forever. Print it now.",
+      "The best photo you've ever taken deserves more than 47 likes.",
+      "In 20 years, they'll want to see this. Will it still exist?"
+    ],
+    "transformationPromise": "From a sleep-deprived parent with thousands of precious baby photos trapped on a phone -> to a parent who preserved the most precious moments in a form their child will treasure forever"
+  },
+  {
+    "number": 10,
+    "category": "Baby & Growing Family",
+    "name": "Baptism & Christening Parents",
+    "nickname": "The Ceremony Keepers",
+    "overview": "Parents marking their child's baptism, christening, or naming ceremony — a significant religious or cultural milestone. These events are often the first major family gathering since the baby's birth. The photos capture extended family, tradition, and the continuation of generational values. Grandparents are deeply invested.",
+    "demographics": {
+      "ageRange": "26-40",
+      "gender": "70% female (often the organiser)",
+      "income": "Middle class",
+      "lifestyle": "Family-oriented, culturally or religiously connected, tradition-valuing",
+      "triggers": [
+        "Baptism ceremony",
+        "family gathering photos",
+        "grandparent involvement",
+        "professional photos from the day"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Faith",
+        "family",
+        "tradition",
+        "legacy",
+        "community"
+      ],
+      "beliefs": [
+        "Religious/cultural milestones should be marked permanently",
+        "family lineage matters"
+      ],
+      "lifestyle": "",
+      "identity": "Part of a larger family story — continuing traditions"
+    },
+    "coreDesires": [
+      "A beautiful keepsake from an important spiritual moment",
+      "A gift for grandparents (they'll cherish it most)",
+      "Document the generational gathering — great-grandparents may not be around forever",
+      "Mark the day in a way the child can see when they're older"
+    ],
+    "painPoints": [
+      "Baptism photos often taken by family, not professionals — quality varies",
+      "Hard to get \"the perfect shot\" with babies who don't cooperate",
+      "Already spent money on the event — print feels like an afterthought",
+      "Don't want to wait too long and lose the momentum"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Grandparents present at the ceremony — precious multi-generational photos",
+      "Baby looking angelic in the christening outfit",
+      "Extended family together in one photo for the first time",
+      "Priest/officiant saying words about the child's future — emotional peak",
+      "Realising elderly family members may not be in many more photos"
+    ],
+    "languagePatterns": [
+      "My mum would LOVE this on her wall",
+      "Four generations in one photo — we need to print this",
+      "They looked like an angel in that outfit",
+      "This might be the last photo with gran in it"
+    ],
+    "ebookAngles": [
+      "Four generations in one photo. Print it before it gets lost.",
+      "Christening/baptism photo gift ideas for grandparents",
+      "The photo your child will treasure when they're old enough to understand",
+      "Multi-generational family photo appreciation"
+    ],
+    "marketingHooks": [
+      "Four generations in one photo. This deserves more than a phone screen.",
+      "The christening outfit won't fit again. But the photo lasts forever.",
+      "The gift grandma will put on the mantelpiece immediately.",
+      "One day they'll ask about their baptism. Show them."
+    ],
+    "transformationPromise": "From a family with precious baptism photos scattered across relatives' phones -> to a family that preserved a sacred moment for generations to come"
+  },
+  {
+    "number": 11,
+    "category": "Baby & Growing Family",
+    "name": "Time-Flies Toddler Parents",
+    "nickname": "The When-Did-They-Get-So-Big",
+    "overview": "Parents of children aged 1-3 who are already deeply nostalgic for the baby phase. The child is walking, talking, developing a personality — and the parents can barely remember what they looked like as a newborn. They're the \"it goes by so fast\" crowd who are living the cliche and feeling it acutely.\n\nReddit insight: Posts like \"I'm nobody's baby and it hurts a little\" (parent missing being cared for) and \"Motherhood is so... sad?\" (mourning each passing phase even while enjoying it) reveal deep nostalgia running parallel to daily exhaustion.",
+    "demographics": {
+      "ageRange": "27-40",
+      "gender": "70% female",
+      "income": "Middle class",
+      "lifestyle": "Toddler chaos, possibly expecting #2, established in routines",
+      "triggers": [
+        "Looking at old baby photos",
+        "phone \"on this day\" memories",
+        "second pregnancy",
+        "baby clothes no longer fitting"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Family",
+        "time",
+        "nostalgia",
+        "capturing fleeting moments"
+      ],
+      "beliefs": [
+        "They grow up too fast",
+        "you blink and they're different",
+        "the baby phase was precious"
+      ],
+      "lifestyle": "",
+      "identity": "Experienced parent now, but mourning the tiny baby they had"
+    },
+    "coreDesires": [
+      "Preserve the tiny baby version before they forget what it looked like",
+      "Create a visual timeline of growth",
+      "Have physical proof of how small they once were",
+      "Show the child one day — \"look how tiny you were\""
+    ],
+    "painPoints": [
+      "Can barely remember newborn phase — it blurs together",
+      "Thousands of photos but can't find the best ones",
+      "Realise they waited too long and now baby is a toddler",
+      "Second pregnancy — even less time to organise first child's photos"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Phone \"memories\" showing baby photos from 1-2 years ago",
+      "Finding tiny baby clothes while organising",
+      "Child's first birthday — milestone triggers nostalgia",
+      "Second pregnancy announcement — wanting to preserve #1's baby era",
+      "\"Want to know how to instantly age your baby? Give them a sibling.\" (Reddit)"
+    ],
+    "languagePatterns": [
+      "When did they get so big?",
+      "I can't believe they were ever this small",
+      "I'm already forgetting what they looked like as a newborn",
+      "We need to print these before they're 18",
+      "Time flies — I wish I could freeze time"
+    ],
+    "ebookAngles": [
+      "Side-by-side: newborn vs now",
+      "You think you'll remember. You won't. Print the photo.",
+      "\"Phone memories\" — when the app shows you what they looked like a year ago",
+      "Birthday milestone content: \"1 year of this face\""
+    ],
+    "marketingHooks": [
+      "You think you'll remember what they looked like at 3 months. You won't.",
+      "They'll never be this small again. (You've heard it before. Now feel it.)",
+      "Your phone remembers. Your wall should too.",
+      "From 7 pounds to running around the house. Print the journey."
+    ],
+    "transformationPromise": "From a parent whose precious baby photos are lost in thousands of phone camera roll shots -> to a parent who preserved the tiny moments before they disappeared into memory"
+  },
+  {
+    "number": 12,
+    "category": "Emotional & Psychological",
+    "name": "Phone Photo Hoarders",
+    "nickname": "The 47,000 Photos Zero on the Wall",
+    "overview": "The universal segment — people of any age or life stage who have accumulated thousands of photos on their phones and have printed exactly zero of them. They know they should do something. They've thought about it many times. But the gap between \"I should print photos\" and actually doing it feels enormous. This is the broadest segment and the most relatable.",
+    "demographics": {
+      "ageRange": "25-55",
+      "gender": "65% female",
+      "income": "Any income level",
+      "lifestyle": "Digital-first, smartphone-dependent, overwhelmed by photo volume",
+      "triggers": [
+        "Phone storage full notification",
+        "scrolling through old photos",
+        "seeing framed photos in someone else's home"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Memories",
+        "organisation",
+        "aesthetics (aspirationally)"
+      ],
+      "beliefs": [
+        "Digital photos aren't \"real\" enough",
+        "printing is something they \"should\" do but never do"
+      ],
+      "lifestyle": "",
+      "identity": "Organised in theory, chaotic in practice when it comes to photos"
+    },
+    "coreDesires": [
+      "Break the cycle of accumulating and never printing",
+      "Just ONE photo on the wall as a starting point",
+      "Feel like they've honoured their memories somehow",
+      "Reduce the guilt of thousands of unseen photos"
+    ],
+    "painPoints": [
+      "Overwhelmed by volume — where do you even start?",
+      "Don't know which service to use, what size, what format",
+      "Keep saying \"I'll do it this weekend\" and never do",
+      "Fear of choosing wrong and wasting money",
+      "Don't have time to curate through thousands of photos"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "\"Storage Almost Full\" notification on phone",
+      "A friend's home with beautiful framed photos — instant jealousy",
+      "Death or illness of a family member — urgency hits",
+      "New Year's resolution energy",
+      "Moving house — fresh walls, fresh start"
+    ],
+    "languagePatterns": [
+      "I have like 40,000 photos on my phone and none on my walls",
+      "I keep meaning to print some photos",
+      "I don't even know where to start",
+      "My phone is basically a camera I never develop",
+      "One day I'll get around to it"
+    ],
+    "ebookAngles": [
+      "Your phone has 40,000 photos. Start with one.",
+      "The only photo on your wall should be the one that makes you smile every time",
+      "Relatable memes about photo hoarding",
+      "Simple step-by-step: how to go from phone to wall in 3 steps"
+    ],
+    "marketingHooks": [
+      "47,000 photos on your phone. Zero on your wall. Sound familiar?",
+      "You don't need to print 100 photos. Start with 1.",
+      "Your photos aren't memories until you can see them.",
+      "The 'I'll do it later' is why your walls are empty."
+    ],
+    "transformationPromise": "From a chronic photo hoarder paralysed by choice with thousands of unseen images -> to someone who finally has their favourite moment displayed where they can see it every single day"
+  },
+  {
+    "number": 13,
+    "category": "Emotional & Psychological",
+    "name": "Gallery Wall Dreamers",
+    "nickname": "The I-Want-THAT-Wall",
+    "overview": "People who have saved hundreds of gallery wall inspiration pins on Pinterest and posts on Instagram but haven't created one in their own home. They know exactly what they want it to look like — they just can't seem to make it happen. The gap between inspiration and execution is paralysing. They need curation, not more options.",
+    "demographics": {
+      "ageRange": "25-40",
+      "gender": "80% female",
+      "income": "Middle class",
+      "lifestyle": "Pinterest/Instagram active, interior design enthusiast, aspirational",
+      "triggers": [
+        "Home decor Instagram content",
+        "visiting friends with gallery walls",
+        "moving house",
+        "Pinterest binging"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Aesthetics",
+        "home design",
+        "self-expression",
+        "curation"
+      ],
+      "beliefs": [
+        "Your home should be beautiful AND personal",
+        "gallery walls are the ultimate expression of personality"
+      ],
+      "lifestyle": "",
+      "identity": "Interior design enthusiast, creative, visual thinker"
+    },
+    "coreDesires": [
+      "A gallery wall that looks like it belongs on Instagram",
+      "A cohesive display mixing wedding, travel, baby, and art",
+      "Professional-looking results without hiring an interior designer",
+      "Templates or guidance that remove the guesswork"
+    ],
+    "painPoints": [
+      "Scared to put holes in the wall and get it wrong",
+      "Can't figure out which sizes work together",
+      "Inspiration overload — every gallery wall looks different",
+      "Don't know if their photos are \"good enough\" to print that big",
+      "Afraid it'll look cluttered instead of curated"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Seeing a perfectly curated gallery wall on social media",
+      "Guest complimenting someone else's photo wall",
+      "Moving to a new home — blank walls are a canvas",
+      "Interior design TV shows featuring personal photo walls"
+    ],
+    "languagePatterns": [
+      "I want a gallery wall SO BAD",
+      "I've saved like 200 pins but can't figure out how to do it",
+      "I'm scared of getting the spacing wrong",
+      "What sizes go together?",
+      "I need someone to just tell me what to do"
+    ],
+    "ebookAngles": [
+      "Gallery wall templates: \"Copy this exact layout\"",
+      "Before/after gallery wall reveals",
+      "5 sizes that always work together",
+      "Gallery wall mistakes everyone makes (and how to avoid them)"
+    ],
+    "marketingHooks": [
+      "You've pinned 200 gallery walls. Time to build your own.",
+      "Stop scrolling through inspiration. Start with one frame.",
+      "Gallery walls aren't as hard as Pinterest makes them look.",
+      "Your wall isn't blank — it's waiting for your story."
+    ],
+    "transformationPromise": "From an inspired but paralysed gallery wall dreamer with hundreds of saved pins -> to a proud homeowner with a stunning personal gallery that guests can't stop commenting on"
+  },
+  {
+    "number": 14,
+    "category": "Emotional & Psychological",
+    "name": "Sentimental Home Storytellers",
+    "nickname": "The My-Home-Should-Tell-Our-Story",
+    "overview": "People who believe a home should be more than just furniture and paint — it should reflect who lives there. They value personal touches, family history, and meaningful decor over trend-following. They're the emotional buyers — they don't just want a canvas, they want a piece of their story on the wall.",
+    "demographics": {
+      "ageRange": "28-50",
+      "gender": "70% female",
+      "income": "Middle class",
+      "lifestyle": "Settled, homeowner (or long-term renter), values \"home\" as identity",
+      "triggers": [
+        "Moving house",
+        "renovating",
+        "life milestones",
+        "visiting grandparents' homes filled with photos"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Family",
+        "legacy",
+        "authenticity",
+        "warmth",
+        "roots"
+      ],
+      "beliefs": [
+        "The best homes have soul",
+        "you can tell everything about a family from their walls"
+      ],
+      "lifestyle": "",
+      "identity": "Homemaker, family keeper, the \"heart\" of the household"
+    },
+    "coreDesires": [
+      "A home that tells visitors exactly who lives there",
+      "To surround themselves and their family with meaningful moments",
+      "To create a space that feels warm, personal, and lived-in",
+      "Something that triggers memory and emotion, not just looks nice"
+    ],
+    "painPoints": [
+      "Home feels impersonal or \"like a showroom\"",
+      "Bought generic wall art that doesn't mean anything",
+      "Friends' homes feel warm and theirs feels cold",
+      "Don't know how to mix personal photos with decor tastefully"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Visiting grandparents' home — walls full of family photos, warmth everywhere",
+      "A guest asking \"whose photos are these?\" — wanting to have that conversation",
+      "Feeling disconnected from their home after a renovation (everything's new but sterile)",
+      "Watching home makeover shows that include personal elements"
+    ],
+    "languagePatterns": [
+      "I want our home to tell our story",
+      "I love homes where you can see who lives there",
+      "It looks nice but it doesn't feel like us",
+      "My nan's house was full of photos — I loved that",
+      "I want warmth, not a showroom"
+    ],
+    "ebookAngles": [
+      "Your home tells a story. What does your wall say?",
+      "The difference between a house and a home is the photos on the wall",
+      "Grandparents' homes vs modern minimalism — the warmth question",
+      "How to mix personal photos with art"
+    ],
+    "marketingHooks": [
+      "A house has furniture. A home has your story on the walls.",
+      "You know those homes that feel warm the moment you walk in? Photos are why.",
+      "Your nan had it right. Put the photos on the wall.",
+      "The best interior design is the one that makes you feel something."
+    ],
+    "transformationPromise": "From a homeowner with a nicely furnished but soulless space -> to a family whose home radiates warmth and tells their story to everyone who walks in"
+  },
+  {
+    "number": 15,
+    "category": "Emotional & Psychological",
+    "name": "Memory Anxiety Sufferers",
+    "nickname": "The What-If-I-Lose-These-Photos",
+    "overview": "People who are genuinely worried about losing their digital photos. They've heard stories about phone crashes, cloud storage shutdowns, hard drive failures. They understand that digital is fragile. They want physical insurance — something that exists in the real world that can't be \"deleted\" or \"corrupted.\"",
+    "demographics": {
+      "ageRange": "30-55",
+      "gender": "55% female",
+      "income": "Any",
+      "lifestyle": "Cautious, backup-minded, may have experienced data loss before",
+      "triggers": [
+        "News about cloud storage changes",
+        "phone crash",
+        "friend losing photos",
+        "tech failure"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Security",
+        "preservation",
+        "future-proofing",
+        "legacy"
+      ],
+      "beliefs": [
+        "Digital isn't permanent",
+        "physical objects outlast technology",
+        "future generations need real photos"
+      ],
+      "lifestyle": "",
+      "identity": "The cautious one, the planner, the \"what if\" thinker"
+    },
+    "coreDesires": [
+      "A physical backup of their most precious memories",
+      "Peace of mind that important photos exist outside the digital world",
+      "Something that will survive technology changes",
+      "A photo their grandchildren can hold 50 years from now"
+    ],
+    "painPoints": [
+      "Cloud storage policies changing (reduced free storage, shutdown risks)",
+      "Phone crashes and data recovery nightmares",
+      "Hard drives failing with no backup",
+      "Technology format changes (remember CDs? DVDs? Zip drives?)",
+      "Elderly parents' photos trapped on obsolete tech"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Phone crash scare — even if recovered, the panic is real",
+      "News story about a cloud service shutting down",
+      "Finding old physical photos in a box — still there after decades",
+      "Elderly relative showing photos from 50+ years ago",
+      "Tech company changing storage terms"
+    ],
+    "languagePatterns": [
+      "What if my phone breaks and I lose everything?",
+      "Cloud storage won't be around forever",
+      "I found my parents' wedding photos in a box — they're 40 years old and still perfect",
+      "Digital can just... disappear",
+      "I need to print these before something happens"
+    ],
+    "ebookAngles": [
+      "Your cloud storage won't exist in 50 years. This canvas will.",
+      "Found in a box: why physical photos outlast every technology",
+      "The psychology of physical vs digital memories",
+      "Your grandparents' photos survived. Will yours?"
+    ],
+    "marketingHooks": [
+      "Your grandparents' photos survived 50 years in a box. Will your iCloud?",
+      "Digital is convenient. Physical is forever.",
+      "The photo you can hold outlasts every technology.",
+      "Print it before it's just a file name you can't open."
+    ],
+    "transformationPromise": "From anxious photo hoarder worried about digital impermanence -> to someone with peace of mind knowing their most precious moments exist in permanent, physical form"
+  },
+  {
+    "number": 16,
+    "category": "Emotional & Psychological",
+    "name": "Loss & Legacy Preservers",
+    "nickname": "The Before-It's-Too-Late",
+    "overview": "People who have experienced loss — or fear it. A grandparent's declining health, a parent's aging, or the death of a loved one has triggered an urgent need to preserve family photos. They're not just buying a canvas; they're buying permanence. They want to ensure that the people they love are never forgotten.",
+    "demographics": {
+      "ageRange": "30-60",
+      "gender": "65% female",
+      "income": "Any",
+      "lifestyle": "Family-oriented, may be processing grief or anticipatory grief",
+      "triggers": [
+        "Death of a family member",
+        "health scare",
+        "elderly parent declining",
+        "finding old photos of deceased loved ones"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Legacy",
+        "family",
+        "honour",
+        "remembrance",
+        "permanence"
+      ],
+      "beliefs": [
+        "Photos are how we keep people alive in our daily lives",
+        "the worst thing is forgetting"
+      ],
+      "lifestyle": "",
+      "identity": "Family keeper, the one who remembers, legacy builder"
+    },
+    "coreDesires": [
+      "Ensure a loved one's face is seen every day",
+      "Honour someone who has passed",
+      "Create something lasting from a precious photo",
+      "Give other family members a way to remember",
+      "Preserve multi-generational photos before they deteriorate"
+    ],
+    "painPoints": [
+      "Realising they have very few photos of someone who passed",
+      "Old photos fading, damaged, or trapped in shoeboxes",
+      "Not knowing how to restore old or low-quality photos",
+      "Emotional weight of choosing which photos to print",
+      "Family disagreements about photos and keepsakes"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Death of a close family member",
+      "Finding an old photo that captures exactly how they remember someone",
+      "Grandparent becoming frail — \"get photos while we can\"",
+      "Anniversary of a death",
+      "Cleaning out a deceased relative's home and finding photo albums"
+    ],
+    "languagePatterns": [
+      "This might be the last photo with nan in it",
+      "I want to see their face every day",
+      "I wish I had more photos of them",
+      "I want my kids to know who they were",
+      "Before it's too late"
+    ],
+    "ebookAngles": [
+      "The photo you're most grateful for is one you almost didn't take",
+      "Print the photo while everyone's still here",
+      "Multi-generational family photo appreciation",
+      "Sensitivity-aware content about preserving memories of loved ones"
+    ],
+    "marketingHooks": [
+      "You never know which photo will become the most precious one you own.",
+      "Print it while they're still here to see it on your wall.",
+      "The face you want to see every morning deserves more than a phone screen.",
+      "Some photos become more valuable every year. This is one of them."
+    ],
+    "transformationPromise": "From someone grieving or anxious about loss with precious photos trapped in digital form -> to someone who sees their loved one's face every day and knows that memory is permanently preserved"
+  },
+  {
+    "number": 17,
+    "category": "Gifting & Occasions",
+    "name": "Thoughtful Gift Givers",
+    "nickname": "The I-Found-the-Perfect-Gift",
+    "overview": "People shopping for someone else — buying photo products as gifts for couples, parents, grandparents, or friends. They want something meaningful, personal, and unique. Photo gifts solve the \"what do you get someone who has everything?\" problem. They're often buying for a specific occasion: wedding, anniversary, Christmas, Mother's Day.",
+    "demographics": {
+      "ageRange": "25-60",
+      "gender": "70% female",
+      "income": "Middle class",
+      "lifestyle": "Thoughtful, values meaningful gifts over expensive ones",
+      "triggers": [
+        "Upcoming birthday/anniversary/Christmas",
+        "seeing someone else give a photo gift",
+        "social media gift ideas"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Thoughtfulness",
+        "personalisation",
+        "emotional impact",
+        "uniqueness"
+      ],
+      "beliefs": [
+        "The best gifts make people cry (happy tears)",
+        "personal > expensive"
+      ],
+      "lifestyle": "",
+      "identity": "The thoughtful friend, the gift-giver, the one who \"always finds the perfect thing\""
+    },
+    "coreDesires": [
+      "A gift that makes the recipient emotional",
+      "Something truly personal and unique — not off a shelf",
+      "To be remembered as the person who gave \"that amazing gift\"",
+      "Easy ordering process — they don't want to build a website"
+    ],
+    "painPoints": [
+      "Need access to the recipient's photos (don't always have them)",
+      "Worried about quality without seeing it in person first",
+      "Delivery timing — needs to arrive before the occasion",
+      "Don't know what size or style the recipient would want",
+      "Returns policy concerns for personalised products"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Seeing a friend open a personalised photo gift and cry",
+      "Searching \"unique anniversary gift\" online",
+      "Being stuck for gift ideas and seeing a photo gift ad",
+      "Christmas gift guide content featuring photo products",
+      "Social media unboxing videos"
+    ],
+    "languagePatterns": [
+      "I want to get them something they'll actually keep",
+      "I'm looking for something really meaningful",
+      "I want them to cry when they open it",
+      "What do you get someone who has everything?",
+      "I need it by Friday — can you deliver in time?"
+    ],
+    "ebookAngles": [
+      "Gift ideas that make people cry (the good kind)",
+      "Unboxing reaction content — recipients opening photo gifts",
+      "What to get the couple who has everything",
+      "Gift guide content by occasion: wedding, anniversary, baby, Christmas"
+    ],
+    "marketingHooks": [
+      "What do you get someone who has everything? Their favourite photo on canvas.",
+      "The gift they'll actually keep forever.",
+      "Be the person who gives the gift that makes everyone cry.",
+      "Nobody remembers who gave the blender. Everyone remembers who gave this."
+    ],
+    "transformationPromise": "From a gift-giver stressed about finding something meaningful -> to the hero who gave the most emotional, personal, treasured gift anyone has ever received"
+  },
+  {
+    "number": 18,
+    "category": "Gifting & Occasions",
+    "name": "Mother's & Father's Day Shoppers",
+    "nickname": "The What-Do-You-Get-Them",
+    "overview": "Adult children (often 25-40) shopping for their parents on Mother's Day, Father's Day, or Christmas. Parents are notoriously difficult to buy for — they say they \"don't want anything.\" A photo gift of grandchildren, the family together, or a cherished memory is the ultimate solution. This segment has extremely seasonal buying patterns.",
+    "demographics": {
+      "ageRange": "25-40 (the buyer), buying for parents aged 50-70",
+      "gender": "60% female",
+      "income": "Middle class",
+      "lifestyle": "Adult child, possibly with their own kids (grandchildren = perfect gift content)",
+      "triggers": [
+        "Mother's Day (March UK",
+        "May elsewhere)",
+        "Father's Day (June)",
+        "Christmas",
+        "parent's birthday"
+      ]
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "A gift their parent will actually use and display",
+      "Something that makes them emotional and proud",
+      "Easy to order with fast delivery for seasonal deadlines",
+      "A photo their parent doesn't already have",
+      "Something grandparents can show visitors"
+    ],
+    "painPoints": [
+      "Parents say \"don't get me anything\" every year",
+      "Previous gifts sit unused — clothes, vouchers, candles",
+      "Need to coordinate getting a good photo without the parent knowing",
+      "Delivery timing anxiety for seasonal gifts",
+      "Quality concerns — want it to look premium"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Parent saying \"I just want a photo of the grandkids\"",
+      "Visiting parents' home and seeing old/outdated photos on the wall",
+      "Mother's/Father's Day approaching with no gift idea",
+      "Grandchild hitting a milestone — new photo worth printing"
+    ],
+    "languagePatterns": [
+      "My mum would cry if I gave her this",
+      "Dad says he doesn't want anything but I know he'd love this",
+      "Nan's fridge is covered in printed photos — she'll love a proper canvas",
+      "I need a Mother's Day gift that actually means something"
+    ],
+    "ebookAngles": [
+      "The Mother's Day gift she'll cry over (in the best way)",
+      "Grandparent-grandchild photo products",
+      "The gift your parents actually want (hint: it's a photo)",
+      "Seasonal countdown content — \"Mother's Day is in X days\""
+    ],
+    "marketingHooks": [
+      "She says she doesn't want anything. Give her this.",
+      "The only gift that goes straight on the wall.",
+      "A photo of the grandkids on canvas? She'll never take it down.",
+      "Dad will say he doesn't care. He'll cry when he opens it."
+    ],
+    "transformationPromise": "From a frustrated gift-shopper buying yet another impersonal present -> to the child who gave the gift that their parent cherishes most and shows every visitor"
+  },
+  {
+    "number": 19,
+    "category": "Gifting & Occasions",
+    "name": "Wedding Gift Seekers",
+    "nickname": "The Not-Another-Toaster",
+    "overview": "People attending a wedding who want to give a unique, personal gift — not something from a registry. They know the couple is drowning in kitchen appliances and vouchers. A beautifully framed engagement photo, a canvas of a photo from the couple's relationship, or a gift voucher for post-wedding photo printing stands out from the crowd.",
+    "demographics": {
+      "ageRange": "25-55",
+      "gender": "65% female",
+      "income": "Middle class",
+      "lifestyle": "Wedding guest, values being a good gift-giver",
+      "triggers": [
+        "Wedding invitation",
+        "seeing the couple's engagement photos",
+        "searching \"unique wedding gift\""
+      ]
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Stand out from the crowd of generic gifts",
+      "Give something the couple will actually display",
+      "Show they put real thought into the gift",
+      "A gift that commemorates the couple's love, not just their kitchen"
+    ],
+    "painPoints": [
+      "Registry items feel impersonal",
+      "Cash gifts feel transactional",
+      "Don't have access to the couple's best photos",
+      "Don't know the couple's home decor style",
+      "Budget constraints for wedding gifts"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Receiving a wedding invitation and needing to choose a gift",
+      "Seeing an engagement photo of the couple that's beautiful",
+      "Wanting to be remembered as the guest who gave \"the best gift\"",
+      "Social media ads for personalised wedding gifts"
+    ],
+    "languagePatterns": [
+      "I want to get them something different",
+      "Everyone's getting them the same boring stuff",
+      "I want it to be personal, not just another thing",
+      "Do they really need another serving dish?"
+    ],
+    "ebookAngles": [
+      "Wedding gifts they'll actually keep: not a toaster",
+      "The gift that makes the bride cry at the bridal shower",
+      "Photo gift voucher as a \"let them choose their own photo\" solution"
+    ],
+    "marketingHooks": [
+      "Toasters break. Blenders collect dust. This goes on the wall.",
+      "Be the guest who gives the gift they actually keep.",
+      "The wedding gift that outlasts the marriage registry.",
+      "Stop googling 'unique wedding gift.' You found it."
+    ],
+    "transformationPromise": "From a wedding guest stressing about finding a meaningful gift beyond the registry -> to the guest who gave the gift the couple points to on the wall for decades"
+  },
+  {
+    "number": 20,
+    "category": "Gifting & Occasions",
+    "name": "Last-Minute Gift Panickers",
+    "nickname": "The It's-Their-Anniversary-Tomorrow",
+    "overview": "The procrastinator. The partner who forgot. The friend who realised the party is this weekend. They need something fast, meaningful, and available NOW. Speed of delivery is everything. Quality matters but convenience matters more. Digital gift vouchers, express shipping, and \"order by X for next-day delivery\" are the hooks.",
+    "demographics": {
+      "ageRange": "25-50",
+      "gender": "60% male (stereotypical last-minute shoppers)",
+      "income": "Any",
+      "lifestyle": "Busy, disorganised about gift-giving, willing to pay premium for speed",
+      "triggers": [
+        "Calendar reminder",
+        "partner mentioning the date",
+        "social media reminding them"
+      ]
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Something that looks like they planned ahead",
+      "Fast delivery — next-day or same-day if possible",
+      "Easy to order — no complex customisation",
+      "Something that looks impressive despite being last-minute"
+    ],
+    "painPoints": [
+      "Most personalised gifts require 5-7 business days",
+      "\"Express\" often means 3 days — still too late",
+      "Digital vouchers feel lazy even though they solve the timing problem",
+      "Limited options when time is short"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Calendar notification: \"Anniversary tomorrow\"",
+      "Partner making plans and they have nothing ready",
+      "Seeing a friend post an amazing anniversary gift on social media",
+      "Panic. Pure panic."
+    ],
+    "languagePatterns": [
+      "I need this by tomorrow",
+      "Can you do next-day delivery?",
+      "I forgot and I need something NOW",
+      "It needs to look like I put thought into it"
+    ],
+    "ebookAngles": [
+      "Anniversary tomorrow? We've got you.",
+      "Express delivery promotion content",
+      "Gift voucher as \"instant delivery\" solution",
+      "Forgot? Here's how to look like you didn't."
+    ],
+    "marketingHooks": [
+      "Anniversary in 24 hours? We ship tomorrow.",
+      "The gift that looks like you planned for months. (You didn't.)",
+      "Instant gift voucher. They choose the photo. You take the credit.",
+      "Forgot? It happens. Here's how to save it."
+    ],
+    "transformationPromise": "From a panicking procrastinator with no gift and no time -> to someone who pulls off a thoughtful, personal gift that nobody believes was last-minute"
+  },
+  {
+    "number": 21,
+    "category": "Home & Lifestyle",
+    "name": "First Home Buyers",
+    "nickname": "The We-Finally-Have-Walls-to-Fill",
+    "overview": "Couples who have just bought or moved into their first home together. The excitement of ownership meets the reality of empty walls, unfurnished rooms, and the desire to make the space \"theirs.\" Wedding photos, engagement photos, travel memories — they all have a purpose now. The home is their canvas.",
+    "demographics": {
+      "ageRange": "27-38, peaks at 29-34",
+      "gender": "Even split — joint decision",
+      "income": "Middle class (stretched from house deposit)",
+      "lifestyle": "New homeowner, excited but budget-conscious, nesting",
+      "triggers": [
+        "Moving in",
+        "empty walls",
+        "Pinterest house inspiration",
+        "first guests visiting"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Home ownership",
+        "personalisation",
+        "building a life",
+        "nesting"
+      ],
+      "beliefs": [
+        "Their first home should reflect who they are",
+        "this is \"real life\" now"
+      ],
+      "lifestyle": "",
+      "identity": "Homeowner — milestone achieved, building from scratch"
+    },
+    "coreDesires": [
+      "Make the house feel like THEIR home, not a rental",
+      "Fill empty walls with something meaningful",
+      "Impress first-time visitors with a put-together space",
+      "Start their \"gallery wall journey\" from scratch",
+      "Use existing photos (wedding, travel) rather than buying generic art"
+    ],
+    "painPoints": [
+      "Budget exhausted from buying the house",
+      "Empty walls feel depressing but don't know where to start",
+      "Overwhelmed by the number of rooms to decorate",
+      "Generic wall art feels pointless — want something personal",
+      "Worried about damaging new walls with wrong hangings"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "First guests coming over — \"we need something on the walls\"",
+      "Sitting in an empty room and feeling it lacks personality",
+      "Seeing friends' finished homes on social media",
+      "Partner suggesting \"we should finally frame our wedding photos\"",
+      "Housewarming party approaching"
+    ],
+    "languagePatterns": [
+      "Our walls are so bare",
+      "This house needs to feel like us",
+      "We have all these photos but nowhere to put them... until now",
+      "I want people to walk in and know it's OUR home",
+      "We can finally put holes in the walls!"
+    ],
+    "ebookAngles": [
+      "New home? New walls? Time to tell your story.",
+      "First thing on the wall: the photo that started it all",
+      "Gallery wall starter guides for new homeowners",
+      "Renting = no holes. Owning = your rules."
+    ],
+    "marketingHooks": [
+      "You saved for years for these walls. Now fill them with your story.",
+      "New home energy: first photo goes up today.",
+      "Four walls. Your whole love story. Let's go.",
+      "The first thing on the wall sets the tone for everything."
+    ],
+    "transformationPromise": "From new homeowners staring at bare walls -> to proud homeowners whose space tells their story from the moment you walk in"
+  },
+  {
+    "number": 22,
+    "category": "Home & Lifestyle",
+    "name": "Blank Wall Fillers",
+    "nickname": "The Our-Living-Room-Looks-So-Empty",
+    "overview": "People who have lived in their space for a while but still have bare walls. It's not a new home — they've just never gotten around to decorating. They might have generic art or nothing at all. The motivation often comes from embarrassment when guests visit or from finally having a \"moment of clarity\" about how sterile their space feels.",
+    "demographics": {
+      "ageRange": "25-45",
+      "gender": "Even split",
+      "income": "Any",
+      "lifestyle": "Settled but decorating-avoidant, pragmatic over aesthetic",
+      "triggers": [
+        "Guests visiting",
+        "partner complaining",
+        "seeing decorated spaces online",
+        "boredom with current space"
+      ]
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Something — ANYTHING — on the wall",
+      "Low-effort, high-impact transformation",
+      "A single statement piece rather than a complex gallery",
+      "Something that \"finishes\" the room"
+    ],
+    "painPoints": [
+      "Don't know where to start",
+      "Decision paralysis about what to hang",
+      "Worried about commitment — what if they change their mind?",
+      "Generic art feels pointless, but doing nothing is worse",
+      "Don't think of themselves as \"interior design people\""
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Partner: \"We really need to do something about that wall\"",
+      "Guests visiting and the bare wall feeling embarrassing",
+      "Scrolling Instagram home decor and feeling jealous",
+      "Being in someone else's home that feels \"complete\""
+    ],
+    "languagePatterns": [
+      "That wall has been bare for 3 years",
+      "I just need ONE thing to make it look finished",
+      "I'm not a 'decor person' but this is embarrassing",
+      "What even goes on a living room wall?"
+    ],
+    "ebookAngles": [
+      "One canvas. One wall. Total transformation.",
+      "Before/after with JUST one large print added",
+      "You don't need a gallery wall. You need one photo.",
+      "The \"bare minimum\" approach — simplest possible wall improvement"
+    ],
+    "marketingHooks": [
+      "One canvas changes everything.",
+      "That blank wall has been staring at you for years. Time to stare back.",
+      "You don't need 10 pieces. You need one that matters.",
+      "The empty wall is saying something. Answer it."
+    ],
+    "transformationPromise": "From someone embarrassed by bare, personality-free walls -> to someone whose space finally feels complete with one meaningful focal point"
+  },
+  {
+    "number": 23,
+    "category": "Home & Lifestyle",
+    "name": "Social Media Aesthetic Seekers",
+    "nickname": "The Gallery-Wall-Inspo",
+    "overview": "Young adults (primarily women) who are deeply influenced by Instagram, TikTok, and Pinterest home decor trends. They want their home to look \"Insta-worthy.\" They're as motivated by how their space photographs for social media as by how it feels to live in. Photo products for them are dual-purpose: personal meaning AND aesthetic content.",
+    "demographics": {
+      "ageRange": "22-32",
+      "gender": "85% female",
+      "income": "Entry to middle class",
+      "lifestyle": "Social media active, trend-aware, aesthetics-driven",
+      "triggers": [
+        "TikTok home tours",
+        "Instagram \"room reveal\" reels",
+        "Pinterest mood boards"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Aesthetics",
+        "social validation",
+        "self-expression",
+        "trend-awareness"
+      ],
+      "beliefs": [
+        "Your space IS your personal brand",
+        "everything should be \"curated\""
+      ],
+      "lifestyle": "",
+      "identity": "Aesthetic creator, lifestyle curator"
+    },
+    "coreDesires": [
+      "A home that looks as good on camera as it does in person",
+      "Trending home decor that also has personal meaning",
+      "Content for their own social media — \"new gallery wall reveal!\"",
+      "Products that photograph well and look premium"
+    ],
+    "painPoints": [
+      "Want trendy AND personal — hard to balance",
+      "Prints need to match their overall aesthetic/colour scheme",
+      "Budget conscious but want premium look",
+      "Trends change quickly — worried about something looking dated"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Viral TikTok gallery wall video",
+      "Seeing a friend's home photo that gets tons of engagement",
+      "Moving into a new flat and wanting to document the \"glow-up\"",
+      "Before/after content inspiring \"I could do that\""
+    ],
+    "languagePatterns": [
+      "This is so aesthetic",
+      "Gallery wall inspo",
+      "I need this for my room",
+      "This would look so good on my wall",
+      "Neutral tones only"
+    ],
+    "ebookAngles": [
+      "Aesthetic gallery wall reveals (shot beautifully for social sharing)",
+      "\"Gallery wall of the week\" features",
+      "Colour palette matching guides",
+      "How to make your photo wall Instagram-worthy"
+    ],
+    "marketingHooks": [
+      "Gallery wall of your dreams? Start here.",
+      "Aesthetic AF and actually meaningful.",
+      "Your room tour is about to hit different.",
+      "The gallery wall that gets ALL the comments."
+    ],
+    "transformationPromise": "From someone with bare walls and a Pinterest board full of inspiration -> to someone whose home is both aesthetically perfect AND deeply personal"
+  },
+  {
+    "number": 24,
+    "category": "Demographic & Regional",
+    "name": "UK Millennial Couples",
+    "nickname": "The Getting-On-the-Property-Ladder",
+    "overview": "UK couples aged 28-38 who have recently bought their first home — a massive milestone in the UK where homeownership is increasingly difficult. The emotional weight of finally owning combined with wedding/family milestones creates a perfect storm of motivation. They want to make their space truly theirs.",
+    "demographics": {
+      "ageRange": "28-38",
+      "gender": "Even split",
+      "income": "Middle class, dual income, budget-conscious after house deposit",
+      "lifestyle": "First-time homeowner, recently married or planning, possibly expecting",
+      "triggers": [],
+      "location": "Urban/suburban UK — London commuter belt, Manchester, Birmingham, Bristol, Edinburgh"
+    },
+    "psychographics": {
+      "values": [
+        "Homeownership as achievement",
+        "quality of life",
+        "building a future"
+      ],
+      "beliefs": [
+        "We worked so hard for this — we deserve to make it ours"
+      ],
+      "lifestyle": "",
+      "identity": "Achiever, builder, proud homeowner"
+    },
+    "coreDesires": [
+      "Make the flat/house feel like their own after years of renting",
+      "Celebrate their milestones visually — wedding, home, baby",
+      "Build a space that reflects their journey as a couple",
+      "Quality products that justify the investment"
+    ],
+    "painPoints": [
+      "Spent everything on the deposit — budget is tight",
+      "Small spaces (UK housing) limit display options",
+      "Want quality but can't afford premium interior designers",
+      "Renting for years trained them to never put anything on walls"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Getting the keys to their first home",
+      "First anniversary + first home = double celebration",
+      "Parent or in-law visiting and the space being bare",
+      "\"We can finally put holes in the walls\" realisation"
+    ],
+    "languagePatterns": [
+      "We've finally got our own place",
+      "I can't believe we can actually hang things up",
+      "We need to do something with this room",
+      "It still feels like someone else's house"
+    ],
+    "ebookAngles": [
+      "First home celebration content — \"your walls, your rules\"",
+      "Small-space gallery wall solutions (UK flat-sized)",
+      "Budget-friendly photo displays",
+      "The first thing we put on the wall was..."
+    ],
+    "marketingHooks": [
+      "Your first home. Your first wall. Your first photo.",
+      "You saved for years for these walls. Make them count.",
+      "After renting, finally: YOUR walls, YOUR story.",
+      "Small flat, big love. One canvas changes everything."
+    ],
+    "transformationPromise": "From new UK homeowners whose space still feels like a rental -> to proud homeowners whose walls celebrate every milestone that got them here"
+  },
+  {
+    "number": 25,
+    "category": "Demographic & Regional",
+    "name": "Australian & NZ Remote Buyers",
+    "nickname": "The Shipping-From-Where",
+    "overview": "Customers in Australia and New Zealand who are excited about the products but immediately concerned about shipping: cost, time, customs, and damage risk. Their buying journey has an extra friction point that UK/EU buyers don't face. They need reassurance about international shipping quality and reasonable delivery times.",
+    "demographics": {
+      "ageRange": "25-45",
+      "gender": "65% female",
+      "income": "Middle to upper-middle class (willing to pay for quality)",
+      "lifestyle": "",
+      "triggers": [],
+      "location": "Australia (Sydney, Melbourne, Brisbane, Perth) and NZ (Auckland, Wellington)"
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Access to products they can't get locally at comparable quality",
+      "Reasonable shipping costs that don't double the price",
+      "Tracking and insurance for peace of mind",
+      "Packaging that survives long-haul transit"
+    ],
+    "painPoints": [
+      "Shipping costs often as much as the product itself",
+      "2-4 week delivery times",
+      "Customs/duties adding unexpected charges",
+      "Risk of damage during long-distance shipping",
+      "No easy returns for international orders"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Finding a product they genuinely love and can't get locally",
+      "Free or discounted shipping promotions",
+      "Positive reviews from other AU/NZ customers",
+      "Seeing the product quality in unboxing videos"
+    ],
+    "languagePatterns": [
+      "Do you ship to Australia?",
+      "How long does delivery take?",
+      "Is shipping included in the price?",
+      "Will it arrive safely?",
+      "Are there customs charges on top?"
+    ],
+    "ebookAngles": [
+      "Yes, we ship to Australia and New Zealand!",
+      "Packaging and shipping process behind-the-scenes",
+      "AU/NZ customer testimonials and unboxing",
+      "Shipping FAQ content specifically for these markets"
+    ],
+    "marketingHooks": [
+      "From our studio to your wall — wherever you are.",
+      "Australian customers: we've got you covered.",
+      "Quality printing, worldwide delivery, zero surprises.",
+      "Your love story doesn't stop at the border. Neither do we."
+    ],
+    "transformationPromise": "From an international customer frustrated by shipping barriers -> to a delighted customer who received a premium product that travelled across the world safely"
+  },
+  {
+    "number": 26,
+    "category": "Demographic & Regional",
+    "name": "Canadian Seasonal Gifters",
+    "nickname": "The Long-Winter-Decorators",
+    "overview": "Canadian customers whose buying behaviour is heavily seasonal. Long winters drive indoor focus — home decoration peaks October-February. Canadians also have distinct gifting patterns: Thanksgiving (October), Christmas, Valentine's Day, and Family Day (February). Photo products as wall art are both functional (brightening dark winter rooms) and emotional.",
+    "demographics": {
+      "ageRange": "27-45",
+      "gender": "60% female",
+      "income": "Middle class",
+      "lifestyle": "",
+      "triggers": [],
+      "location": "Ontario, BC, Alberta, Quebec (English-speaking)"
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Warm, personal home decor to brighten long winters",
+      "Meaningful gifts for family occasions",
+      "Quality products that reflect Canadian values of warmth and family",
+      "Reliable shipping during harsh winter weather"
+    ],
+    "painPoints": [
+      "Winter shipping risks — freezing temperatures, delays",
+      "Need gifts to arrive on time for early Canadian Thanksgiving",
+      "Limited local options for premium photo printing",
+      "Want to support small businesses but shipping from Europe feels risky"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "First snowfall — nesting season begins",
+      "Canadian Thanksgiving (October) — family gathering, photo moments",
+      "Cottage season ending — printing summer photos",
+      "Long dark evenings — staring at bare walls"
+    ],
+    "languagePatterns": [
+      "I want to make our home cozy for winter",
+      "Need this in time for Thanksgiving",
+      "Our cottage photos would look amazing as canvases",
+      "It's so dark by 4pm — we need something bright on the walls"
+    ],
+    "ebookAngles": [
+      "\"Brighten your winter walls\" — warm photo content during dark months",
+      "Canadian holiday gift guides",
+      "Summer-to-winter transition: \"Print your summer memories before the snow comes\""
+    ],
+    "marketingHooks": [
+      "Long winters need warm walls. Print the sunshine.",
+      "Your summer memories deserve to get you through January.",
+      "The Canadian winter is dark. Your walls don't have to be.",
+      "From cottage season to cozy season — your photos bridge the gap."
+    ],
+    "transformationPromise": "From a Canadian couple staring at bare walls through dark winter evenings -> to a couple surrounded by warm, sunlit memories that make every room feel like summer"
+  },
+  {
+    "number": 27,
+    "category": "Demographic & Regional",
+    "name": "DIY Brides Turned Customers",
+    "nickname": "The I-Tried-to-Do-It-Myself",
+    "overview": "Women who attempted to print, frame, or display their wedding photos themselves and were disappointed with the results. Drugstore prints looked cheap. IKEA frames didn't match. The gallery wall attempt looked messy. They've learned the hard way that \"DIY\" and \"professional-looking\" don't always mix. They're now ready to invest in proper quality.",
+    "demographics": {
+      "ageRange": "26-38",
+      "gender": "90% female",
+      "income": "Budget-conscious but willing to upgrade after bad experience",
+      "lifestyle": "Pinterest-inspired, crafty, sometimes over-ambitious",
+      "triggers": [
+        "Failed DIY project",
+        "comparing their prints to professional-quality ones",
+        "friend's beautiful canvas"
+      ]
+    },
+    "psychographics": {
+      "values": [],
+      "beliefs": [],
+      "lifestyle": "",
+      "identity": ""
+    },
+    "coreDesires": [
+      "Professional-quality results they couldn't achieve themselves",
+      "To finally get the \"finished look\" they envisioned",
+      "Products that look as good in real life as they do online",
+      "To replace the disappointing DIY attempt"
+    ],
+    "painPoints": [
+      "Drugstore prints looked washed out and cheap",
+      "Colours didn't match the screen — too dark, too light, too yellow",
+      "IKEA frames looked great on Pinterest, mediocre in their home",
+      "Canvas from cheap website arrived thin, poorly wrapped, pixelated",
+      "Already spent money on the failed attempt — hesitant to spend again"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Side-by-side comparison of their DIY attempt vs professional quality",
+      "Friend receiving a premium canvas that looks stunning",
+      "Seeing a \"quality comparison\" post on social media",
+      "Anniversary approaching — \"this time I'm doing it properly\""
+    ],
+    "languagePatterns": [
+      "I tried doing it myself and it looked terrible",
+      "The colours were completely off",
+      "It looked so thin and cheap",
+      "I'm done trying to save money on this — I want it done properly",
+      "My friend's canvas looks amazing — where did she get it?"
+    ],
+    "ebookAngles": [
+      "Quality comparison: cheap vs premium",
+      "\"You get what you pay for\" — tactful education content",
+      "Behind-the-scenes: how our printing process differs",
+      "Customer before/after: old attempt vs new purchase"
+    ],
+    "marketingHooks": [
+      "Tried the cheap option? We understand. Try the right one.",
+      "Your wedding photos deserve better than a drugstore print.",
+      "The difference between 'fine' and 'wow' is the print quality.",
+      "You invested in the photographer. Now invest in the print."
+    ],
+    "transformationPromise": "From a frustrated bride disappointed by cheap, DIY-quality prints -> to a woman who finally sees her wedding photos the way they were meant to look"
+  },
+  {
+    "number": 28,
+    "category": "Demographic & Regional",
+    "name": "Second-Time-Around Parents",
+    "nickname": "The This-Time-I'm-Getting-Prints",
+    "overview": "Parents expecting or raising their second child who regret not printing more photos of their first child. The guilt is real — they have thousands of photos of #1 on their phone but nothing on the wall. Now, with #2 on the way, they're determined to do it differently. They want to print photos of BOTH children and create a cohesive family display.\n\nReddit insight: \"Want to know how to instantly age your baby? Give them a sibling.\" — the second child makes parents acutely nostalgic for the first child's baby phase. \"I held her and she instantly felt so big in my arms.\"",
+    "demographics": {
+      "ageRange": "28-40",
+      "gender": "75% female",
+      "income": "Middle class",
+      "lifestyle": "Experienced parent, busier than ever, motivated by guilt and nostalgia",
+      "triggers": [
+        "Second pregnancy",
+        "packing away first child's baby clothes",
+        "comparing baby photos"
+      ]
+    },
+    "psychographics": {
+      "values": [
+        "Fairness (treating both children equally)",
+        "family legacy",
+        "not repeating mistakes"
+      ],
+      "beliefs": [
+        "\"I messed up with #1 — not this time,\" both children deserve equal documentation"
+      ],
+      "lifestyle": "",
+      "identity": "Experienced parent who knows better, motivated by guilt and love"
+    },
+    "coreDesires": [
+      "Print photos of first child before second arrives",
+      "Create a fair, equal display of both children",
+      "Build a growing family gallery wall",
+      "Not repeat the mistake of never printing",
+      "Have something to show child #1 they were documented too"
+    ],
+    "painPoints": [
+      "Massive guilt about not printing first child's photos",
+      "Even less time now with two children",
+      "Budget tighter with two kids",
+      "Don't know how to start — too many photos across years",
+      "Want a display that grows but doesn't look random"
+    ],
+    "fears": [],
+    "beliefs": [],
+    "objections": [],
+    "emotionalTriggers": [
+      "Packing away baby #1's clothes and finding newborn photos on phone",
+      "Second pregnancy announcement — \"this time we're doing it properly\"",
+      "Child #1 asking \"where are MY baby photos?\"",
+      "Sibling photos — first child holding new baby = instant must-print",
+      "If I don't do it now with two kids, I never will"
+    ],
+    "languagePatterns": [
+      "I didn't print any of their baby photos and I feel so guilty",
+      "This time I'm actually going to get prints done",
+      "They're already not a baby anymore — I need to print these",
+      "I want both kids to see themselves on the wall equally",
+      "If I don't do it now I never will"
+    ],
+    "ebookAngles": [
+      "Baby #2 is on the way. Did you print baby #1's photos yet?",
+      "Sibling photo wall ideas — fair representation of both children",
+      "It's not too late — but don't wait any longer",
+      "The first-child-holding-baby-sibling photo — \"this one HAS to be on the wall\""
+    ],
+    "marketingHooks": [
+      "Baby #2 is coming. Baby #1's photos are still on your phone. Sound familiar?",
+      "This time, you're getting them printed. (We believe you.)",
+      "Two kids. Two canvases. One family wall.",
+      "The guilt stops here. Start with one photo."
+    ],
+    "transformationPromise": "From a guilty parent whose first child's baby photos never made it off the phone -> to a family with a beautiful, growing wall that celebrates every child equally"
+  }
+]
