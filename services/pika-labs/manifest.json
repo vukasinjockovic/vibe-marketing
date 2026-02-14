@@ -1,0 +1,28 @@
+{
+  "name": "pika-labs",
+  "displayName": "Pika Labs",
+  "description": "AI video generation via Pika Labs API for short marketing clips",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "video_generation",
+      "defaultPriority": 3,
+      "useCases": ["video_generation", "short_clips", "social_video", "animated_content"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/pika-labs/generate.py",
+  "testPath": "services/pika-labs/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["PIKA_API_KEY"],
+    "primaryEnvVar": "PIKA_API_KEY",
+    "docsUrl": "https://pika.art/developers"
+  },
+  "costInfo": {
+    "summary": "Free: 250 credits/month",
+    "freeTier": true
+  }
+}

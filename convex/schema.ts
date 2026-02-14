@@ -388,6 +388,10 @@ export default defineSchema({
       debate: v.optional(v.number()),
       textOnly: v.optional(v.number()),
     })),
+    mediaConfig: v.optional(v.object({
+      imagePrompt: v.optional(v.boolean()),
+      videoScript: v.optional(v.boolean()),
+    })),
     skillConfig: v.optional(v.object({
       selections: v.optional(v.array(v.object({
         categoryKey: v.string(),
@@ -430,6 +434,11 @@ export default defineSchema({
     slug: v.string(),
     description: v.string(),
     type: v.union(v.literal("preset"), v.literal("custom")),
+    category: v.optional(v.union(
+      v.literal("sales"),
+      v.literal("engagement"),
+      v.literal("audience"),
+    )),
     forkedFrom: v.optional(v.id("pipelines")),
     mainSteps: v.array(v.object({
       order: v.number(),
@@ -462,7 +471,8 @@ export default defineSchema({
     }),
     requiredAgentCategories: v.optional(v.array(v.string())),
   }).index("by_type", ["type"])
-    .index("by_slug", ["slug"]),
+    .index("by_slug", ["slug"])
+    .index("by_category", ["category"]),
 
   // ═══════════════════════════════════════════
   // CAMPAIGNS
@@ -837,9 +847,31 @@ export default defineSchema({
     costInfo: v.string(),
     useCases: v.array(v.string()),
     docsUrl: v.optional(v.string()),
+    // Plugin metadata
+    manifestVersion: v.optional(v.string()),
+    integrationType: v.optional(v.union(
+      v.literal("script"), v.literal("mcp"),
+      v.literal("both"), v.literal("local")
+    )),
+    selfHostedConfig: v.optional(v.object({
+      dockerCompose: v.optional(v.string()),
+      healthCheckUrl: v.optional(v.string()),
+      defaultPort: v.optional(v.number()),
+    })),
+    freeTier: v.optional(v.boolean()),
+    // Runtime health tracking
+    lastHealthCheck: v.optional(v.number()),
+    lastHealthStatus: v.optional(v.union(
+      v.literal("healthy"), v.literal("degraded"),
+      v.literal("unreachable"), v.literal("unknown")
+    )),
+    failureCount: v.optional(v.number()),
+    lastFailureAt: v.optional(v.number()),
+    lastSuccessAt: v.optional(v.number()),
   }).index("by_category", ["categoryId"])
     .index("by_active", ["isActive"])
-    .index("by_name", ["name"]),
+    .index("by_name", ["name"])
+    .index("by_category_priority", ["categoryId", "priority"]),
 
   // ═══════════════════════════════════════════
   // AGENT SERVICE DEPENDENCIES
@@ -851,6 +883,45 @@ export default defineSchema({
     required: v.boolean(),
   }).index("by_agent", ["agentName"])
     .index("by_capability", ["capability"]),
+
+  // ═══════════════════════════════════════════
+  // SERVICE CHAIN OVERRIDES (campaign/batch level)
+  // ═══════════════════════════════════════════
+
+  serviceChainOverrides: defineTable({
+    campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
+    categoryId: v.id("serviceCategories"),
+    serviceChain: v.array(v.id("services")),
+    setBy: v.string(),
+    setAt: v.number(),
+  }).index("by_campaign", ["campaignId"])
+    .index("by_content_batch", ["contentBatchId"])
+    .index("by_campaign_category", ["campaignId", "categoryId"])
+    .index("by_batch_category", ["contentBatchId", "categoryId"]),
+
+  // ═══════════════════════════════════════════
+  // SERVICE EXECUTION LOG
+  // ═══════════════════════════════════════════
+
+  serviceExecutionLog: defineTable({
+    serviceId: v.id("services"),
+    categoryName: v.string(),
+    agentName: v.string(),
+    taskId: v.optional(v.id("tasks")),
+    campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
+    status: v.union(v.literal("success"), v.literal("failed"),
+      v.literal("timeout"), v.literal("rate_limited")),
+    durationMs: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+    retryAttempt: v.number(),
+    estimatedCost: v.optional(v.number()),
+    executedAt: v.number(),
+  }).index("by_service", ["serviceId"])
+    .index("by_category", ["categoryName"])
+    .index("by_agent", ["agentName"])
+    .index("by_task", ["taskId"]),
 
   // ═══════════════════════════════════════════
   // ANALYTICS & TRACKING

@@ -166,6 +166,7 @@ export const run = internalMutation({
           name: "Research Only",
           slug: "research-only",
           type: "preset" as const,
+          category: "sales" as const,
           description: "Keyword research + SERP analysis. Output: research reports only.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -179,6 +180,7 @@ export const run = internalMutation({
           name: "Content Draft",
           slug: "content-draft",
           type: "preset" as const,
+          category: "sales" as const,
           description: "Research → write → review → humanize. Output: final articles ready for review.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -195,6 +197,7 @@ export const run = internalMutation({
           name: "Full Content Production",
           slug: "full-content-production",
           type: "preset" as const,
+          category: "sales" as const,
           description: "Articles + images + social posts + email excerpts. The standard pipeline.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -217,6 +220,7 @@ export const run = internalMutation({
           name: "Launch Package",
           slug: "launch-package",
           type: "preset" as const,
+          category: "sales" as const,
           description: "Everything: articles + landing page + email sequence + ads + images + social.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -242,6 +246,7 @@ export const run = internalMutation({
           name: "[Audience Discovery] From Scratch",
           slug: "audience-discovery",
           type: "preset" as const,
+          category: "audience" as const,
           description: "Generate focus group profiles from scratch for a new market.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -253,8 +258,9 @@ export const run = internalMutation({
         },
         {
           name: "[Audience Discovery] From Existing Document",
-          slug: "document-import",
+          slug: "audience-discovery-import",
           type: "preset" as const,
+          category: "audience" as const,
           description: "Parse an uploaded audience document into structured focus groups.",
           mainSteps: [
             { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -697,6 +703,7 @@ export const seedMissing = internalMutation({
         name: "[Audience Discovery] From Scratch",
         slug: "audience-discovery",
         type: "preset" as const,
+        category: "audience" as const,
         description: "Generate focus group profiles from scratch for a new market.",
         mainSteps: [
           { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -713,13 +720,14 @@ export const seedMissing = internalMutation({
 
     const docImport = await ctx.db
       .query("pipelines")
-      .withIndex("by_slug", (q) => q.eq("slug", "document-import"))
+      .withIndex("by_slug", (q) => q.eq("slug", "audience-discovery-import"))
       .unique();
     if (!docImport) {
       await ctx.db.insert("pipelines", {
         name: "[Audience Discovery] From Existing Document",
-        slug: "document-import",
+        slug: "audience-discovery-import",
         type: "preset" as const,
+        category: "audience" as const,
         description: "Parse an uploaded audience document into structured focus groups.",
         mainSteps: [
           { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -744,6 +752,7 @@ export const seedMissing = internalMutation({
         name: "Quick Engagement Batch",
         slug: "quick-engagement-batch",
         type: "preset" as const,
+        category: "engagement" as const,
         description: "Generate → review → humanize. Fast engagement posts without trend research.",
         mainSteps: [
           { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -752,8 +761,10 @@ export const seedMissing = internalMutation({
           { order: 3, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
         ],
         parallelBranches: [
-          { triggerAfterStep: 2, agent: "vibe-image-director", model: "sonnet", label: "Image Brief", description: "Generate image prompt for post visual" },
+          { triggerAfterStep: 1, agent: "vibe-image-director", model: "sonnet", label: "Image Prompt", description: "Generate image prompt from post's image brief" },
+          { triggerAfterStep: 1, agent: "vibe-script-writer", model: "sonnet", label: "Reels Script", description: "Generate short-form video script for Reels format" },
         ],
+        convergenceStep: 2,
         onComplete: { telegram: true, summary: true, generateManifest: true },
       });
       results.push("Seeded Quick Engagement Batch pipeline");
@@ -771,6 +782,7 @@ export const seedMissing = internalMutation({
         name: "Full Engagement Batch",
         slug: "full-engagement-batch",
         type: "preset" as const,
+        category: "engagement" as const,
         description: "Trend research → generate → review → humanize. Full engagement pipeline with trend-driven content.",
         mainSteps: [
           { order: 0, label: "Created", description: "Task created", outputDir: "" },
@@ -780,8 +792,10 @@ export const seedMissing = internalMutation({
           { order: 4, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice", outputDir: "final" },
         ],
         parallelBranches: [
-          { triggerAfterStep: 3, agent: "vibe-image-director", model: "sonnet", label: "Image Brief", description: "Generate image prompt for post visual" },
+          { triggerAfterStep: 2, agent: "vibe-image-director", model: "sonnet", label: "Image Prompt", description: "Generate image prompt from post's image brief" },
+          { triggerAfterStep: 2, agent: "vibe-script-writer", model: "sonnet", label: "Reels Script", description: "Generate short-form video script for Reels format" },
         ],
+        convergenceStep: 3,
         onComplete: { telegram: true, summary: true, generateManifest: true },
       });
       results.push("Seeded Full Engagement Batch pipeline");

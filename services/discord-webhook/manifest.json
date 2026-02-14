@@ -1,0 +1,28 @@
+{
+  "name": "discord-webhook",
+  "displayName": "Discord Webhook",
+  "description": "Send notifications and alerts to Discord channels via webhooks",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "notifications",
+      "defaultPriority": 2,
+      "useCases": ["notifications", "alerts", "status_updates", "team_notifications"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/discord-webhook/notify.py",
+  "testPath": "services/discord-webhook/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["DISCORD_WEBHOOK_URL"],
+    "primaryEnvVar": "DISCORD_WEBHOOK_URL",
+    "docsUrl": "https://discord.com/developers/docs/resources/webhook"
+  },
+  "costInfo": {
+    "summary": "Free",
+    "freeTier": true
+  }
+}

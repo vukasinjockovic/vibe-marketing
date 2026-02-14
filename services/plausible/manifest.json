@@ -1,0 +1,28 @@
+{
+  "name": "plausible",
+  "displayName": "Plausible Analytics",
+  "description": "Privacy-friendly web analytics for tracking page views, conversions, and campaign performance",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "analytics",
+      "defaultPriority": 2,
+      "useCases": ["web_analytics", "pageview_tracking", "conversion_tracking", "campaign_analytics"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/plausible/query.py",
+  "testPath": "services/plausible/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["PLAUSIBLE_API_KEY", "PLAUSIBLE_SITE_ID"],
+    "primaryEnvVar": "PLAUSIBLE_API_KEY",
+    "docsUrl": "https://plausible.io/docs/stats-api"
+  },
+  "costInfo": {
+    "summary": "Free (self-hosted) or $9/month (cloud)",
+    "freeTier": true
+  }
+}

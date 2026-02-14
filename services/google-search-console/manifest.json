@@ -1,0 +1,33 @@
+{
+  "name": "google-search-console",
+  "displayName": "Google Search Console",
+  "description": "Search performance data, indexing status, and site analytics via Google Search Console API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "analytics",
+      "defaultPriority": 1,
+      "useCases": ["search_analytics", "indexing_status", "click_data", "impression_data"]
+    },
+    {
+      "category": "serp_tracking",
+      "defaultPriority": 2,
+      "useCases": ["position_tracking", "query_performance", "page_rankings"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/google-search-console/query.py",
+  "testPath": "services/google-search-console/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["GSC_SERVICE_ACCOUNT"],
+    "primaryEnvVar": "GSC_SERVICE_ACCOUNT",
+    "docsUrl": "https://developers.google.com/webmaster-tools/v1/how-tos/authorizing"
+  },
+  "costInfo": {
+    "summary": "Free",
+    "freeTier": true
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "sendgrid",
+  "displayName": "SendGrid",
+  "description": "Email delivery service for transactional and marketing emails via Twilio SendGrid",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "email_sending",
+      "defaultPriority": 2,
+      "useCases": ["email_sending", "transactional_email", "marketing_email", "email_analytics"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/sendgrid/send.py",
+  "testPath": "services/sendgrid/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["SENDGRID_API_KEY"],
+    "primaryEnvVar": "SENDGRID_API_KEY",
+    "docsUrl": "https://docs.sendgrid.com/"
+  },
+  "costInfo": {
+    "summary": "Free: 100 emails/day",
+    "freeTier": true
+  }
+}

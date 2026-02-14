@@ -1,0 +1,33 @@
+{
+  "name": "fal-flux-dev",
+  "displayName": "Fal FLUX Dev",
+  "description": "Fast and affordable image generation via Fal AI FLUX Dev model",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 2,
+      "useCases": ["image_generation", "draft_visuals", "rapid_prototyping", "social_media_images"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/fal-flux-dev/generate.py",
+  "testPath": "services/fal-flux-dev/test.py",
+  "mcp": {
+    "serverName": "fal",
+    "envMapping": {
+      "FAL_KEY": "${FAL_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["FAL_KEY"],
+    "primaryEnvVar": "FAL_KEY",
+    "docsUrl": "https://fal.ai/models/fal-ai/flux/dev"
+  },
+  "costInfo": {
+    "summary": "$0.01 per image",
+    "freeTier": false
+  }
+}

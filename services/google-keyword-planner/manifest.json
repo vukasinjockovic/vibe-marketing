@@ -1,0 +1,28 @@
+{
+  "name": "google-keyword-planner",
+  "displayName": "Google Keyword Planner",
+  "description": "Keyword research and search volume estimates via Google Ads API Keyword Planner",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "seo_keywords",
+      "defaultPriority": 2,
+      "useCases": ["keyword_research", "search_volume", "keyword_ideas", "bid_estimates"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/google-keyword-planner/query.py",
+  "testPath": "services/google-keyword-planner/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["GOOGLE_ADS_API_KEY"],
+    "primaryEnvVar": "GOOGLE_ADS_API_KEY",
+    "docsUrl": "https://developers.google.com/google-ads/api/docs/keyword-planning/overview"
+  },
+  "costInfo": {
+    "summary": "Free with Google Ads account",
+    "freeTier": true
+  }
+}

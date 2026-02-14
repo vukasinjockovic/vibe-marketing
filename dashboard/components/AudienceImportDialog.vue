@@ -19,7 +19,7 @@ const { mutate: createDocument } = useConvexMutation(api.documents.create)
 const { mutate: createTask } = useConvexMutation(api.tasks.create)
 const { data: pipeline } = useConvexQuery(
   api.pipelines.getBySlug,
-  { slug: 'document-import' },
+  { slug: 'audience-discovery-import' },
 )
 
 const selectedFile = ref<File | null>(null)

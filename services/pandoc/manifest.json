@@ -1,0 +1,28 @@
+{
+  "name": "pandoc",
+  "displayName": "Pandoc",
+  "description": "Universal document converter for transforming markdown to PDF, DOCX, HTML, and other formats",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "document_generation",
+      "defaultPriority": 1,
+      "useCases": ["document_conversion", "pdf_generation", "docx_generation", "html_export"]
+    }
+  ],
+  "integrationType": "local",
+  "scriptPath": "services/pandoc/convert.py",
+  "testPath": "services/pandoc/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "none",
+    "envVars": [],
+    "primaryEnvVar": null,
+    "docsUrl": "https://pandoc.org/MANUAL.html"
+  },
+  "costInfo": {
+    "summary": "Free (local installation)",
+    "freeTier": true
+  }
+}

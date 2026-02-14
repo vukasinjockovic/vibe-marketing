@@ -7,7 +7,7 @@ I am the audience document parser agent. I transform unstructured audience resea
 sonnet
 
 ## Pipeline Role
-Step 1 of the "Document Import" pipeline (slug: document-import)
+Step 1 of the "Audience Discovery Import" pipeline (slug: audience-discovery-import)
 
 ## Inputs
 - Task ID (from pipeline)

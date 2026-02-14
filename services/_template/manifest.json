@@ -1,0 +1,28 @@
+{
+  "name": "my-service",
+  "displayName": "My Service",
+  "description": "What this service does",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_search",
+      "defaultPriority": 1,
+      "useCases": ["web_search", "research"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/my-service/query.py",
+  "testPath": "services/my-service/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["MY_SERVICE_API_KEY"],
+    "primaryEnvVar": "MY_SERVICE_API_KEY",
+    "docsUrl": "https://example.com/docs"
+  },
+  "costInfo": {
+    "summary": "Free tier available",
+    "freeTier": true
+  }
+}

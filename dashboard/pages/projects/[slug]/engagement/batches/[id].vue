@@ -362,6 +362,14 @@ function formatTime(ts: number) {
         </div>
       </div>
 
+      <!-- Services -->
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-foreground mb-3">Service Health</h2>
+        <div class="rounded-lg border bg-card shadow-sm p-4">
+          <ServiceOverridePanel :content-batch-id="batchId" />
+        </div>
+      </div>
+
       <!-- Recent Activity -->
       <div class="mb-6">
         <h2 class="text-lg font-semibold text-foreground mb-3">Recent Activity</h2>

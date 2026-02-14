@@ -5,7 +5,7 @@ SOP for the vibe-audience-parser agent. Parses uploaded audience research docume
 ## Trigger
 
 Activated when:
-- A task of type "document-import" is assigned to vibe-audience-parser
+- A task of type "audience-discovery-import" is assigned to vibe-audience-parser
 - The task metadata contains `uploadedFilePath` and `productId`
 - The pipeline step is "parse-document"
 

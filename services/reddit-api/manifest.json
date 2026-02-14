@@ -1,0 +1,34 @@
+{
+  "name": "reddit-api",
+  "displayName": "Reddit API",
+  "description": "Reddit API for monitoring subreddits, tracking discussions, and audience research",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "social_reddit",
+      "defaultPriority": 1,
+      "useCases": ["social_monitoring", "subreddit_research", "discussion_tracking", "audience_insights"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/reddit-api/query.py",
+  "testPath": "services/reddit-api/test.py",
+  "mcp": {
+    "serverName": "reddit",
+    "envMapping": {
+      "REDDIT_CLIENT_ID": "${REDDIT_CLIENT_ID}",
+      "REDDIT_CLIENT_SECRET": "${REDDIT_CLIENT_SECRET}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"],
+    "primaryEnvVar": "REDDIT_CLIENT_ID",
+    "docsUrl": "https://www.reddit.com/dev/api/"
+  },
+  "costInfo": {
+    "summary": "Free: 100 requests/minute",
+    "freeTier": true
+  }
+}

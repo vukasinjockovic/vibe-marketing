@@ -1,0 +1,28 @@
+{
+  "name": "apify",
+  "displayName": "Apify",
+  "description": "Web scraping platform with pre-built actors for social media, e-commerce, and general scraping",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_scraping",
+      "defaultPriority": 3,
+      "useCases": ["web_scraping", "social_scraping", "data_extraction"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/apify/scrape.py",
+  "testPath": "services/apify/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["APIFY_API_TOKEN"],
+    "primaryEnvVar": "APIFY_API_TOKEN",
+    "docsUrl": "https://docs.apify.com/"
+  },
+  "costInfo": {
+    "summary": "Free: $5/month platform credits",
+    "freeTier": true
+  }
+}

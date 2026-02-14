@@ -83,6 +83,10 @@ export const create = mutation({
       debate: v.optional(v.number()),
       textOnly: v.optional(v.number()),
     })),
+    mediaConfig: v.optional(v.object({
+      imagePrompt: v.optional(v.boolean()),
+      videoScript: v.optional(v.boolean()),
+    })),
     skillConfig: skillConfigValidator,
     notes: v.optional(v.string()),
   },
@@ -158,7 +162,17 @@ export const activate = mutation({
     if (!batch.pipelineSnapshot) {
       const pipeline = await ctx.db.get(batch.pipelineId);
       if (pipeline) {
-        await ctx.db.patch(args.id, { pipelineSnapshot: pipeline });
+        const snapshot = { ...pipeline } as any;
+        // Apply mediaConfig toggles to parallel branches
+        const mediaConfig = batch.mediaConfig as any;
+        if (snapshot.parallelBranches && mediaConfig) {
+          snapshot.parallelBranches = snapshot.parallelBranches.filter((b: any) => {
+            if (b.agent === "vibe-image-director" && mediaConfig.imagePrompt === false) return false;
+            if (b.agent === "vibe-script-writer" && mediaConfig.videoScript === false) return false;
+            return true;
+          });
+        }
+        await ctx.db.patch(args.id, { pipelineSnapshot: snapshot });
       }
     }
 

@@ -1,0 +1,28 @@
+{
+  "name": "resend",
+  "displayName": "Resend",
+  "description": "Modern email sending API for transactional and marketing emails",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "email_sending",
+      "defaultPriority": 1,
+      "useCases": ["email_sending", "transactional_email", "marketing_email", "email_sequences"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/resend/send.py",
+  "testPath": "services/resend/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["RESEND_API_KEY"],
+    "primaryEnvVar": "RESEND_API_KEY",
+    "docsUrl": "https://resend.com/docs"
+  },
+  "costInfo": {
+    "summary": "Free: 3,000 emails/month",
+    "freeTier": true
+  }
+}

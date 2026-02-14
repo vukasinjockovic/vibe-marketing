@@ -1,0 +1,28 @@
+{
+  "name": "wordpress",
+  "displayName": "WordPress",
+  "description": "Publish and manage content on WordPress sites via REST API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "cms_publishing",
+      "defaultPriority": 1,
+      "useCases": ["content_publishing", "blog_posts", "page_management", "media_upload"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/wordpress/publish.py",
+  "testPath": "services/wordpress/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["WP_APPLICATION_PASSWORD", "WP_SITE_URL", "WP_USERNAME"],
+    "primaryEnvVar": "WP_APPLICATION_PASSWORD",
+    "docsUrl": "https://developer.wordpress.org/rest-api/"
+  },
+  "costInfo": {
+    "summary": "Free (self-hosted WordPress)",
+    "freeTier": true
+  }
+}

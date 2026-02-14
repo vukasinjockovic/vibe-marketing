@@ -83,8 +83,11 @@ const productRoles: { value: ProductRole; label: string }[] = [
   { value: 'downsell', label: 'Downsell' },
 ]
 
-// Load pipeline presets
-const { data: pipelinePresets } = useConvexQuery(api.pipelines.listPresets, {})
+// Load sales pipeline presets
+const { data: pipelinePresets } = useConvexQuery(
+  api.pipelines.listByCategory,
+  { category: 'sales' },
+)
 
 // Selected pipeline details
 const { data: selectedPipeline } = useConvexQuery(

@@ -1,0 +1,33 @@
+{
+  "name": "brave-search",
+  "displayName": "Brave Search",
+  "description": "Web search via Brave Search API for research, trend discovery, and competitive analysis",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_search",
+      "defaultPriority": 1,
+      "useCases": ["web_search", "research", "trend_discovery", "competitive_analysis"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/brave-search/query.py",
+  "testPath": "services/brave-search/test.py",
+  "mcp": {
+    "serverName": "brave-search",
+    "envMapping": {
+      "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["BRAVE_API_KEY"],
+    "primaryEnvVar": "BRAVE_API_KEY",
+    "docsUrl": "https://brave.com/search/api/"
+  },
+  "costInfo": {
+    "summary": "Free: 2,000 queries/month",
+    "freeTier": true
+  }
+}

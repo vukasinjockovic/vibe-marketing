@@ -29,6 +29,12 @@ const colorMap: Record<string, string> = {
   // Service statuses
   configured: 'bg-green-100 text-green-700',
   needs_key: 'bg-yellow-100 text-yellow-700',
+  enabled: 'bg-green-100 text-green-700',
+  degraded: 'bg-yellow-100 text-yellow-700',
+  disabled: 'bg-red-100 text-red-700',
+  healthy: 'bg-green-100 text-green-700',
+  unreachable: 'bg-red-100 text-red-700',
+  ready: 'bg-green-100 text-green-700',
   // Generic
   pending: 'bg-muted text-muted-foreground',
   in_progress: 'bg-blue-100 text-blue-700',

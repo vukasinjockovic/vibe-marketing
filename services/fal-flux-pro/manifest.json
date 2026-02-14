@@ -1,0 +1,33 @@
+{
+  "name": "fal-flux-pro",
+  "displayName": "Fal FLUX Pro",
+  "description": "High-quality image generation via Fal AI FLUX Pro model",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 1,
+      "useCases": ["image_generation", "marketing_visuals", "hero_images", "product_shots"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/fal-flux-pro/generate.py",
+  "testPath": "services/fal-flux-pro/test.py",
+  "mcp": {
+    "serverName": "fal",
+    "envMapping": {
+      "FAL_KEY": "${FAL_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["FAL_KEY"],
+    "primaryEnvVar": "FAL_KEY",
+    "docsUrl": "https://fal.ai/models/fal-ai/flux-pro"
+  },
+  "costInfo": {
+    "summary": "$0.03 per image",
+    "freeTier": false
+  }
+}

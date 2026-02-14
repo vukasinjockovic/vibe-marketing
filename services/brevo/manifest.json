@@ -1,0 +1,28 @@
+{
+  "name": "brevo",
+  "displayName": "Brevo",
+  "description": "Email and marketing automation platform (formerly Sendinblue) for email campaigns",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "email_sending",
+      "defaultPriority": 3,
+      "useCases": ["email_sending", "transactional_email", "marketing_email", "contact_management"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/brevo/send.py",
+  "testPath": "services/brevo/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["BREVO_API_KEY"],
+    "primaryEnvVar": "BREVO_API_KEY",
+    "docsUrl": "https://developers.brevo.com/"
+  },
+  "costInfo": {
+    "summary": "Free: 300 emails/day",
+    "freeTier": true
+  }
+}

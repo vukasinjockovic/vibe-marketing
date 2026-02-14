@@ -1,0 +1,34 @@
+{
+  "name": "dataforseo-serp",
+  "displayName": "DataForSEO SERP",
+  "description": "SERP tracking and rank monitoring via DataForSEO API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "serp_tracking",
+      "defaultPriority": 1,
+      "useCases": ["serp_tracking", "rank_monitoring", "position_tracking"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/dataforseo-serp/query.py",
+  "testPath": "services/dataforseo-serp/test.py",
+  "mcp": {
+    "serverName": "dataforseo",
+    "envMapping": {
+      "DATAFORSEO_LOGIN": "${DATAFORSEO_LOGIN}",
+      "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["DATAFORSEO_LOGIN", "DATAFORSEO_PASSWORD"],
+    "primaryEnvVar": "DATAFORSEO_LOGIN",
+    "docsUrl": "https://docs.dataforseo.com/"
+  },
+  "costInfo": {
+    "summary": "$0.075 per request",
+    "freeTier": false
+  }
+}

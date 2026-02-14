@@ -45,6 +45,17 @@ export const listPresets = query({
   },
 });
 
+// List pipelines by category
+export const listByCategory = query({
+  args: { category: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("pipelines")
+      .withIndex("by_category", (q) => q.eq("category", args.category as any))
+      .collect();
+  },
+});
+
 // Get pipeline by id
 export const get = query({
   args: { id: v.id("pipelines") },
@@ -71,6 +82,11 @@ export const create = mutation({
     slug: v.string(),
     description: v.string(),
     type: v.union(v.literal("preset"), v.literal("custom")),
+    category: v.optional(v.union(
+      v.literal("sales"),
+      v.literal("engagement"),
+      v.literal("audience"),
+    )),
     forkedFrom: v.optional(v.id("pipelines")),
     mainSteps: v.array(stepValidator),
     parallelBranches: v.optional(v.array(branchValidator)),
@@ -133,6 +149,7 @@ export const fork = mutation({
       slug: args.newSlug,
       description: original.description,
       type: "custom",
+      category: original.category,
       forkedFrom: args.pipelineId,
       mainSteps: original.mainSteps,
       parallelBranches: original.parallelBranches,

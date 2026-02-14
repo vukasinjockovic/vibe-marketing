@@ -1,0 +1,33 @@
+{
+  "name": "perplexity",
+  "displayName": "Perplexity",
+  "description": "AI-powered web search and research via Perplexity API for deep research queries",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_search",
+      "defaultPriority": 2,
+      "useCases": ["web_search", "research", "deep_research", "fact_checking"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/perplexity/query.py",
+  "testPath": "services/perplexity/test.py",
+  "mcp": {
+    "serverName": "perplexity",
+    "envMapping": {
+      "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["PERPLEXITY_API_KEY"],
+    "primaryEnvVar": "PERPLEXITY_API_KEY",
+    "docsUrl": "https://docs.perplexity.ai/"
+  },
+  "costInfo": {
+    "summary": "Free tier available",
+    "freeTier": true
+  }
+}

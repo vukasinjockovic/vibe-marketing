@@ -1,0 +1,28 @@
+{
+  "name": "telegram-bot",
+  "displayName": "Telegram Bot",
+  "description": "Send notifications and alerts to Telegram channels and chats via Bot API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "notifications",
+      "defaultPriority": 1,
+      "useCases": ["notifications", "alerts", "status_updates", "human_notifications"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/telegram-bot/notify.py",
+  "testPath": "services/telegram-bot/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"],
+    "primaryEnvVar": "TELEGRAM_BOT_TOKEN",
+    "docsUrl": "https://core.telegram.org/bots/api"
+  },
+  "costInfo": {
+    "summary": "Free",
+    "freeTier": true
+  }
+}

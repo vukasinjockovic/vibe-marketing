@@ -16,6 +16,18 @@ const { data: batches, loading: loadingBatches } = useConvexQuery(
 
 const showCreateChannel = ref(false)
 const showCreateBatch = ref(false)
+const editingChannel = ref<any>(null)
+const showEditChannel = ref(false)
+
+function openEditChannel(channel: any) {
+  editingChannel.value = channel
+  showEditChannel.value = true
+}
+
+function onChannelSaved() {
+  showEditChannel.value = false
+  editingChannel.value = null
+}
 
 function platformIcon(platform: string) {
   const icons: Record<string, string> = {
@@ -122,9 +134,17 @@ const recentBatches = computed(() => {
           <p v-if="channel.description" class="text-sm text-muted-foreground mb-3 line-clamp-2">
             {{ channel.description }}
           </p>
-          <div class="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{{ batchesForChannel(channel._id).length }} batches</span>
-            <span v-if="channel.platformConfig?.username">@{{ channel.platformConfig.username }}</span>
+          <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center gap-3 text-xs text-muted-foreground">
+              <span>{{ batchesForChannel(channel._id).length }} batches</span>
+              <span v-if="channel.platformConfig?.username">@{{ channel.platformConfig.username }}</span>
+            </div>
+            <button
+              class="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted"
+              @click="openEditChannel(channel)"
+            >
+              Edit
+            </button>
           </div>
         </div>
       </div>
@@ -187,6 +207,16 @@ const recentBatches = computed(() => {
         v-if="projectId"
         :project-id="projectId"
         @created="showCreateChannel = false"
+      />
+    </VModal>
+
+    <!-- Edit Channel Modal -->
+    <VModal v-model="showEditChannel" title="Edit Channel" size="lg" persistent>
+      <ChannelForm
+        v-if="projectId && editingChannel"
+        :project-id="projectId"
+        :channel="editingChannel"
+        @saved="onChannelSaved"
       />
     </VModal>
 

@@ -1,0 +1,28 @@
+{
+  "name": "recraft-v3",
+  "displayName": "Recraft V3",
+  "description": "High-quality image generation with strong text rendering via Recraft V3 API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 5,
+      "useCases": ["image_generation", "text_in_images", "brand_assets", "marketing_visuals"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/recraft-v3/generate.py",
+  "testPath": "services/recraft-v3/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["RECRAFT_API_KEY"],
+    "primaryEnvVar": "RECRAFT_API_KEY",
+    "docsUrl": "https://www.recraft.ai/docs"
+  },
+  "costInfo": {
+    "summary": "$0.04 per image",
+    "freeTier": false
+  }
+}

@@ -32,6 +32,7 @@ import type * as resourceHistory from "../resourceHistory.js";
 import type * as resources from "../resources.js";
 import type * as revisions from "../revisions.js";
 import type * as seed from "../seed.js";
+import type * as seedServices from "../seedServices.js";
 import type * as services from "../services.js";
 import type * as skillCategories from "../skillCategories.js";
 import type * as skills from "../skills.js";
@@ -68,6 +69,7 @@ declare const fullApi: ApiFromModules<{
   resources: typeof resources;
   revisions: typeof revisions;
   seed: typeof seed;
+  seedServices: typeof seedServices;
   services: typeof services;
   skillCategories: typeof skillCategories;
   skills: typeof skills;

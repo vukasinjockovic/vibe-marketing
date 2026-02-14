@@ -261,10 +261,12 @@ export const completeStep = mutation({
       if (!parentPaused) {
         // Check for parallel branches triggered after the completed step
         let branchesDispatched = false;
+        let convergenceStep: number | undefined;
 
         if (task.campaignId) {
           const campaign = await ctx.db.get(task.campaignId);
           const snapshot = campaign?.pipelineSnapshot as any;
+          convergenceStep = snapshot?.convergenceStep;
           const parallelBranches = snapshot?.parallelBranches as any[] | undefined;
 
           if (parallelBranches?.length) {
@@ -299,14 +301,59 @@ export const completeStep = mutation({
           }
         }
 
-        // Always dispatch the next main step agent (branches run in parallel)
-        const nextAgent = pipeline[nextStepIndex].agent;
-        if (nextAgent) {
-          await ctx.scheduler.runAfter(
-            0,
-            internal.orchestrator.requestDispatch,
-            { taskId: args.taskId, agentName: nextAgent }
-          );
+        // Content batch parallel branch dispatch
+        if (task.contentBatchId && !branchesDispatched) {
+          const batch = await ctx.db.get(task.contentBatchId);
+          const snapshot = batch?.pipelineSnapshot as any;
+          convergenceStep = snapshot?.convergenceStep;
+          const parallelBranches = snapshot?.parallelBranches as any[] | undefined;
+
+          if (parallelBranches?.length) {
+            const completedStepOrder = pipeline[currentStepIndex].step;
+            const triggered = parallelBranches.filter(
+              (b: any) => b.triggerAfterStep === completedStepOrder
+            );
+
+            if (triggered.length > 0) {
+              branchesDispatched = true;
+
+              const branchLabels = triggered.map((b: any) => b.label);
+              await ctx.db.patch(args.taskId, { pendingBranches: branchLabels });
+
+              const byModel: Record<string, { label: string; agent: string }[]> = {};
+              for (const b of triggered) {
+                const model = b.model || "sonnet";
+                if (!byModel[model]) byModel[model] = [];
+                byModel[model].push({ label: b.label, agent: b.agent });
+              }
+
+              for (const [model, branches] of Object.entries(byModel)) {
+                await ctx.scheduler.runAfter(
+                  0,
+                  internal.orchestrator.requestBranchDispatch,
+                  { taskId: args.taskId, branches, model }
+                );
+              }
+            }
+          }
+        }
+
+        // Dispatch next main step — unless convergence gate blocks it
+        const nextStepOrder = pipeline[nextStepIndex].step;
+        const hasPendingBranches = branchesDispatched || ((task.pendingBranches?.length ?? 0) > 0);
+        const blockedByConvergence = convergenceStep !== undefined
+          && nextStepOrder >= convergenceStep
+          && hasPendingBranches;
+
+        if (!blockedByConvergence) {
+          const nextAgent = pipeline[nextStepIndex].agent;
+          if (nextAgent) {
+            await ctx.scheduler.runAfter(
+              0,
+              internal.orchestrator.requestDispatch,
+              { taskId: args.taskId, agentName: nextAgent }
+            );
+          }
         }
       }
     } else {
@@ -386,35 +433,46 @@ export const completeBranch = mutation({
     });
 
     if (pending.length === 0) {
-      // All branches done — advance to next main step agent
+      // All branches done — dispatch the gated step or advance
       const currentStep = task.pipelineStep;
       const pipeline = [...task.pipeline];
-      const nextStepIndex = currentStep + 1;
+      const currentStepData = pipeline[currentStep];
 
-      if (nextStepIndex < pipeline.length) {
-        // Check campaign/batch pause gate
-        let parentPaused = false;
-        if (task.campaignId) {
-          const campaign = await ctx.db.get(task.campaignId);
-          if (campaign && campaign.status === "paused") {
-            parentPaused = true;
-          }
+      // Check campaign/batch pause gate
+      let parentPaused = false;
+      if (task.campaignId) {
+        const campaign = await ctx.db.get(task.campaignId);
+        if (campaign && campaign.status === "paused") {
+          parentPaused = true;
         }
-        if (!parentPaused && task.contentBatchId) {
-          const batch = await ctx.db.get(task.contentBatchId);
-          if (batch && batch.status === "paused") {
-            parentPaused = true;
-          }
+      }
+      if (!parentPaused && task.contentBatchId) {
+        const batch = await ctx.db.get(task.contentBatchId);
+        if (batch && batch.status === "paused") {
+          parentPaused = true;
         }
+      }
 
-        if (!parentPaused) {
-          const nextAgent = pipeline[nextStepIndex].agent;
-          if (nextAgent) {
-            await ctx.scheduler.runAfter(
-              0,
-              internal.orchestrator.requestDispatch,
-              { taskId: args.taskId, agentName: nextAgent }
-            );
+      if (!parentPaused) {
+        if (currentStepData.status === "in_progress" && currentStepData.agent) {
+          // Convergence gate held this step — dispatch it now
+          await ctx.scheduler.runAfter(
+            0,
+            internal.orchestrator.requestDispatch,
+            { taskId: args.taskId, agentName: currentStepData.agent }
+          );
+        } else {
+          // Current step already ran — dispatch next step
+          const nextStepIndex = currentStep + 1;
+          if (nextStepIndex < pipeline.length) {
+            const nextAgent = pipeline[nextStepIndex].agent;
+            if (nextAgent) {
+              await ctx.scheduler.runAfter(
+                0,
+                internal.orchestrator.requestDispatch,
+                { taskId: args.taskId, agentName: nextAgent }
+              );
+            }
           }
         }
       }

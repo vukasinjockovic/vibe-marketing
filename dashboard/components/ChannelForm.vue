@@ -3,13 +3,18 @@ import { api } from '../../convex/_generated/api'
 
 const props = defineProps<{
   projectId: string
+  channel?: any // Pass existing channel for edit mode
 }>()
 
 const emit = defineEmits<{
   created: []
+  saved: []
 }>()
 
+const isEdit = computed(() => !!props.channel)
+
 const { mutate: createChannel } = useConvexMutation(api.channels.create)
+const { mutate: updateChannel } = useConvexMutation(api.channels.update)
 const toast = useToast()
 
 const form = reactive({
@@ -31,9 +36,25 @@ const platforms = [
   { value: 'instagram', label: 'Instagram' },
 ]
 
-// Auto-generate slug from name
+// Populate form when editing
+watch(() => props.channel, (ch) => {
+  if (ch) {
+    form.name = ch.name || ''
+    form.slug = ch.slug || ''
+    form.platform = ch.platform || 'facebook'
+    form.description = ch.description || ''
+    form.username = ch.platformConfig?.username || ''
+    form.pageUrl = ch.platformConfig?.pageUrl || ''
+    form.postsPerDay = ch.postingConfig?.postsPerDay || 3
+    form.timezone = ch.postingConfig?.timezone || 'Europe/London'
+  }
+}, { immediate: true })
+
+// Auto-generate slug from name (only in create mode)
 watch(() => form.name, (name) => {
-  form.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  if (!isEdit.value) {
+    form.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  }
 })
 
 const submitting = ref(false)
@@ -42,25 +63,43 @@ async function submit() {
   if (!form.name || !form.slug) return
   submitting.value = true
   try {
-    await createChannel({
-      projectId: props.projectId as any,
-      name: form.name,
-      slug: form.slug,
-      platform: form.platform,
-      description: form.description || undefined,
-      platformConfig: {
-        username: form.username || undefined,
-        pageUrl: form.pageUrl || undefined,
-      },
-      postingConfig: {
-        postsPerDay: form.postsPerDay,
-        timezone: form.timezone,
-      },
-    })
-    toast.success(`Channel "${form.name}" created!`)
-    emit('created')
+    if (isEdit.value) {
+      await updateChannel({
+        id: props.channel._id,
+        name: form.name,
+        description: form.description || undefined,
+        platformConfig: {
+          username: form.username || undefined,
+          pageUrl: form.pageUrl || undefined,
+        },
+        postingConfig: {
+          postsPerDay: form.postsPerDay,
+          timezone: form.timezone,
+        },
+      })
+      toast.success(`Channel "${form.name}" updated!`)
+      emit('saved')
+    } else {
+      await createChannel({
+        projectId: props.projectId as any,
+        name: form.name,
+        slug: form.slug,
+        platform: form.platform,
+        description: form.description || undefined,
+        platformConfig: {
+          username: form.username || undefined,
+          pageUrl: form.pageUrl || undefined,
+        },
+        postingConfig: {
+          postsPerDay: form.postsPerDay,
+          timezone: form.timezone,
+        },
+      })
+      toast.success(`Channel "${form.name}" created!`)
+      emit('created')
+    }
   } catch (e: any) {
-    toast.error(e.message || 'Failed to create channel')
+    toast.error(e.message || `Failed to ${isEdit.value ? 'update' : 'create'} channel`)
   } finally {
     submitting.value = false
   }
@@ -72,7 +111,8 @@ async function submit() {
     <VFormField label="Platform">
       <select
         v-model="form.platform"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        :disabled="isEdit"
+        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
       >
         <option v-for="p in platforms" :key="p.value" :value="p.value">{{ p.label }}</option>
       </select>
@@ -87,7 +127,7 @@ async function submit() {
       />
     </VFormField>
 
-    <VFormField label="Slug">
+    <VFormField v-if="!isEdit" label="Slug">
       <input
         v-model="form.slug"
         type="text"
@@ -151,7 +191,7 @@ async function submit() {
         :disabled="submitting || !form.name"
         class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
       >
-        {{ submitting ? 'Creating...' : 'Create Channel' }}
+        {{ submitting ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save Changes' : 'Create Channel') }}
       </button>
     </div>
   </form>

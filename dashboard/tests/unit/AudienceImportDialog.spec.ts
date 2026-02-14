@@ -26,7 +26,7 @@ describe('AudienceImportDialog', () => {
       error: ref(null),
     }))
     vi.stubGlobal('useConvexQuery', () => ({
-      data: ref({ _id: 'pipeline123', slug: 'document-import' }),
+      data: ref({ _id: 'pipeline123', slug: 'audience-discovery-import' }),
       loading: ref(false),
       error: ref(null),
     }))

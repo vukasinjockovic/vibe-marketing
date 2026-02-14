@@ -1,0 +1,32 @@
+{
+  "name": "crawl4ai",
+  "displayName": "Crawl4AI",
+  "description": "Self-hosted web scraping and crawling via Crawl4AI Docker container",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_scraping",
+      "defaultPriority": 2,
+      "useCases": ["web_scraping", "content_extraction", "bulk_crawling"]
+    }
+  ],
+  "integrationType": "local",
+  "scriptPath": "services/crawl4ai/scrape.py",
+  "testPath": "services/crawl4ai/test.py",
+  "mcp": null,
+  "selfHosted": {
+    "dockerCompose": "services/crawl4ai/docker-compose.yml",
+    "healthCheckUrl": "http://localhost:11235/health",
+    "defaultPort": 11235
+  },
+  "auth": {
+    "type": "api_key",
+    "envVars": ["CRAWL4AI_URL"],
+    "primaryEnvVar": "CRAWL4AI_URL",
+    "docsUrl": "https://github.com/unclecode/crawl4ai"
+  },
+  "costInfo": {
+    "summary": "Free (self-hosted)",
+    "freeTier": true
+  }
+}

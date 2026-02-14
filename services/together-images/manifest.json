@@ -1,0 +1,33 @@
+{
+  "name": "together-images",
+  "displayName": "Together AI Images",
+  "description": "Image generation via Together AI inference API with multiple model options",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 3,
+      "useCases": ["image_generation", "marketing_visuals", "batch_generation"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/together-images/generate.py",
+  "testPath": "services/together-images/test.py",
+  "mcp": {
+    "serverName": "together",
+    "envMapping": {
+      "TOGETHER_API_KEY": "${TOGETHER_API_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["TOGETHER_API_KEY"],
+    "primaryEnvVar": "TOGETHER_API_KEY",
+    "docsUrl": "https://docs.together.ai/docs/images-overview"
+  },
+  "costInfo": {
+    "summary": "$0.02 per image",
+    "freeTier": false
+  }
+}

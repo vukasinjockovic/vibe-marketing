@@ -1,0 +1,28 @@
+{
+  "name": "calibre",
+  "displayName": "Calibre",
+  "description": "Ebook management and conversion tool for generating EPUB, MOBI, and other ebook formats",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "document_generation",
+      "defaultPriority": 2,
+      "useCases": ["ebook_generation", "epub_conversion", "format_conversion", "ebook_management"]
+    }
+  ],
+  "integrationType": "local",
+  "scriptPath": "services/calibre/convert.py",
+  "testPath": "services/calibre/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "none",
+    "envVars": [],
+    "primaryEnvVar": null,
+    "docsUrl": "https://manual.calibre-ebook.com/"
+  },
+  "costInfo": {
+    "summary": "Free (local installation)",
+    "freeTier": true
+  }
+}

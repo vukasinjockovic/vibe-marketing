@@ -1,0 +1,28 @@
+{
+  "name": "runway-gen4",
+  "displayName": "Runway Gen-4",
+  "description": "AI video generation via Runway Gen-4 API for marketing video clips",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "video_generation",
+      "defaultPriority": 2,
+      "useCases": ["video_generation", "marketing_clips", "product_demos", "social_video"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/runway-gen4/generate.py",
+  "testPath": "services/runway-gen4/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["RUNWAY_API_KEY"],
+    "primaryEnvVar": "RUNWAY_API_KEY",
+    "docsUrl": "https://docs.dev.runwayml.com/"
+  },
+  "costInfo": {
+    "summary": "~$0.50 per 5-second clip",
+    "freeTier": false
+  }
+}

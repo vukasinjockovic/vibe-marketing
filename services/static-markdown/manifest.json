@@ -1,0 +1,28 @@
+{
+  "name": "static-markdown",
+  "displayName": "Static Markdown",
+  "description": "Local markdown file output for static site generators and content repositories",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "cms_publishing",
+      "defaultPriority": 2,
+      "useCases": ["static_publishing", "markdown_output", "file_based_cms", "content_export"]
+    }
+  ],
+  "integrationType": "local",
+  "scriptPath": "services/static-markdown/publish.py",
+  "testPath": "services/static-markdown/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "none",
+    "envVars": [],
+    "primaryEnvVar": null,
+    "docsUrl": null
+  },
+  "costInfo": {
+    "summary": "Free (local)",
+    "freeTier": true
+  }
+}

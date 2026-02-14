@@ -20,7 +20,8 @@
     "marked": "^17.0.2",
     "nuxt": "^3.16.0",
     "radix-vue": "^1.9.17",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@iconify-json/heroicons": "^1.2.0",

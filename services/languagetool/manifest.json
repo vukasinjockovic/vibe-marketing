@@ -1,0 +1,32 @@
+{
+  "name": "languagetool",
+  "displayName": "LanguageTool",
+  "description": "Self-hosted grammar, style, and spell checking via LanguageTool server",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "content_quality",
+      "defaultPriority": 1,
+      "useCases": ["grammar_check", "spell_check", "style_check", "proofreading"]
+    }
+  ],
+  "integrationType": "local",
+  "scriptPath": "services/languagetool/check.py",
+  "testPath": "services/languagetool/test.py",
+  "mcp": null,
+  "selfHosted": {
+    "dockerCompose": "services/languagetool/docker-compose.yml",
+    "healthCheckUrl": "http://localhost:8081/v2/languages",
+    "defaultPort": 8081
+  },
+  "auth": {
+    "type": "api_key",
+    "envVars": ["LANGUAGETOOL_URL"],
+    "primaryEnvVar": "LANGUAGETOOL_URL",
+    "docsUrl": "https://dev.languagetool.org/http-server"
+  },
+  "costInfo": {
+    "summary": "Free (self-hosted)",
+    "freeTier": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "firecrawl",
+  "displayName": "Firecrawl",
+  "description": "Web scraping and crawling service for extracting clean content from websites",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_scraping",
+      "defaultPriority": 1,
+      "useCases": ["web_scraping", "content_extraction", "site_crawling"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/firecrawl/scrape.py",
+  "testPath": "services/firecrawl/test.py",
+  "mcp": {
+    "serverName": "firecrawl",
+    "envMapping": {
+      "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["FIRECRAWL_API_KEY"],
+    "primaryEnvVar": "FIRECRAWL_API_KEY",
+    "docsUrl": "https://docs.firecrawl.dev/"
+  },
+  "costInfo": {
+    "summary": "Free: 500 credits/month",
+    "freeTier": true
+  }
+}

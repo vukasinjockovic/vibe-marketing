@@ -18,20 +18,15 @@ const { data: channels } = useConvexQuery(
   computed(() => ({ projectId: props.projectId as any })),
 )
 
-const { data: pipelines } = useConvexQuery(api.pipelines.list, {})
+const { data: engagementPipelines } = useConvexQuery(
+  api.pipelines.listByCategory,
+  { category: 'engagement' },
+)
 
 const { data: focusGroups } = useConvexQuery(
   api.focusGroups.listByProject,
   computed(() => ({ projectId: props.projectId as any })),
 )
-
-// Filter to engagement pipelines
-const engagementPipelines = computed(() => {
-  if (!pipelines.value) return []
-  return pipelines.value.filter((p: any) =>
-    p.slug.includes('engagement') || p.slug.includes('quick-engagement') || p.slug.includes('full-engagement')
-  )
-})
 
 const form = reactive({
   channelId: '',
@@ -44,6 +39,10 @@ const form = reactive({
   contentThemes: '',
   trendSources: '',
   notes: '',
+  mediaConfig: {
+    imagePrompt: true,
+    videoScript: true,
+  },
 })
 
 // Auto-generate slug from name
@@ -74,7 +73,7 @@ async function submit() {
   submitting.value = true
   try {
     // Snapshot the pipeline
-    const pipeline = pipelines.value?.find((p: any) => p._id === form.pipelineId)
+    const pipeline = engagementPipelines.value?.find((p: any) => p._id === form.pipelineId)
 
     await createBatch({
       projectId: props.projectId as any,
@@ -88,6 +87,7 @@ async function submit() {
       targetFocusGroupIds: form.targetFocusGroupIds as any[],
       contentThemes: form.contentThemes ? form.contentThemes.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       trendSources: form.trendSources ? form.trendSources.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      mediaConfig: form.mediaConfig,
       notes: form.notes || undefined,
     })
     toast.success(`Batch "${form.name}" created!`)
@@ -175,13 +175,34 @@ async function submit() {
           <option v-for="p in engagementPipelines" :key="p._id" :value="p._id">
             {{ p.name }}
           </option>
-          <optgroup v-if="pipelines?.length" label="All Pipelines">
-            <option v-for="p in pipelines" :key="p._id" :value="p._id">
-              {{ p.name }}
-            </option>
-          </optgroup>
         </select>
       </VFormField>
+    </div>
+
+    <!-- Media Toggles -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <label class="flex items-center gap-3 cursor-pointer p-3 rounded-md border border-border hover:bg-muted/50 transition-colors">
+        <input
+          v-model="form.mediaConfig.imagePrompt"
+          type="checkbox"
+          class="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+        />
+        <div>
+          <span class="text-sm font-medium">Generate Image Prompts</span>
+          <p class="text-xs text-muted-foreground">Creates visual prompts for each post</p>
+        </div>
+      </label>
+      <label class="flex items-center gap-3 cursor-pointer p-3 rounded-md border border-border hover:bg-muted/50 transition-colors">
+        <input
+          v-model="form.mediaConfig.videoScript"
+          type="checkbox"
+          class="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+        />
+        <div>
+          <span class="text-sm font-medium">Generate Reels Scripts</span>
+          <p class="text-xs text-muted-foreground">Creates short-form video scripts for each post</p>
+        </div>
+      </label>
     </div>
 
     <!-- Focus Groups -->

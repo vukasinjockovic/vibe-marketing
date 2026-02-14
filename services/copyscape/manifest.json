@@ -1,0 +1,28 @@
+{
+  "name": "copyscape",
+  "displayName": "Copyscape",
+  "description": "Plagiarism detection and content originality checking via Copyscape API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "content_quality",
+      "defaultPriority": 2,
+      "useCases": ["plagiarism_detection", "content_originality", "duplicate_content_check"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/copyscape/check.py",
+  "testPath": "services/copyscape/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["COPYSCAPE_API_KEY"],
+    "primaryEnvVar": "COPYSCAPE_API_KEY",
+    "docsUrl": "https://www.copyscape.com/apiconfigure.php"
+  },
+  "costInfo": {
+    "summary": "$0.05 per search",
+    "freeTier": false
+  }
+}

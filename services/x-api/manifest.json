@@ -1,0 +1,33 @@
+{
+  "name": "x-api",
+  "displayName": "X (Twitter) API",
+  "description": "X/Twitter API for reading tweets, trends, and social engagement data",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "social_x",
+      "defaultPriority": 1,
+      "useCases": ["social_monitoring", "trend_analysis", "engagement_tracking", "audience_research"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/x-api/query.py",
+  "testPath": "services/x-api/test.py",
+  "mcp": {
+    "serverName": "twitter",
+    "envMapping": {
+      "X_BEARER_TOKEN": "${X_BEARER_TOKEN}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["X_BEARER_TOKEN"],
+    "primaryEnvVar": "X_BEARER_TOKEN",
+    "docsUrl": "https://developer.x.com/en/docs"
+  },
+  "costInfo": {
+    "summary": "Free: read-only access",
+    "freeTier": true
+  }
+}

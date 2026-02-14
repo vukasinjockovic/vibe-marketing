@@ -1,0 +1,34 @@
+{
+  "name": "dataforseo-keywords",
+  "displayName": "DataForSEO Keywords",
+  "description": "Keyword research and search volume data via DataForSEO API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "seo_keywords",
+      "defaultPriority": 1,
+      "useCases": ["keyword_research", "search_volume", "keyword_difficulty", "related_keywords"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/dataforseo-keywords/query.py",
+  "testPath": "services/dataforseo-keywords/test.py",
+  "mcp": {
+    "serverName": "dataforseo",
+    "envMapping": {
+      "DATAFORSEO_LOGIN": "${DATAFORSEO_LOGIN}",
+      "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["DATAFORSEO_LOGIN", "DATAFORSEO_PASSWORD"],
+    "primaryEnvVar": "DATAFORSEO_LOGIN",
+    "docsUrl": "https://docs.dataforseo.com/"
+  },
+  "costInfo": {
+    "summary": "$0.075 per request",
+    "freeTier": false
+  }
+}

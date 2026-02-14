@@ -1,0 +1,28 @@
+{
+  "name": "google-custom-search",
+  "displayName": "Google Custom Search",
+  "description": "Google Custom Search Engine API for targeted web searches",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "web_search",
+      "defaultPriority": 3,
+      "useCases": ["web_search", "research", "site_search"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/google-custom-search/query.py",
+  "testPath": "services/google-custom-search/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["GOOGLE_CSE_API_KEY"],
+    "primaryEnvVar": "GOOGLE_CSE_API_KEY",
+    "docsUrl": "https://developers.google.com/custom-search/v1/overview"
+  },
+  "costInfo": {
+    "summary": "Free: 100 queries/day",
+    "freeTier": true
+  }
+}

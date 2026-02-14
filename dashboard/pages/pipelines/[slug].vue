@@ -218,10 +218,11 @@ async function deletePipeline() {
                   <h3 class="font-semibold text-foreground">{{ step.label }}</h3>
                 </div>
                 <p v-if="step.description" class="text-sm text-muted-foreground mb-2">{{ step.description }}</p>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2 items-center">
                   <span v-if="step.agent" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
                     {{ step.agent }}
                   </span>
+                  <AgentServiceBadge v-if="step.agent" :agent-name="step.agent" />
                   <span v-if="step.model" class="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
                     {{ step.model }}
                   </span>

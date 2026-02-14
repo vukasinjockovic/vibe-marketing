@@ -1,0 +1,28 @@
+{
+  "name": "gpt-image",
+  "displayName": "GPT Image (DALL-E)",
+  "description": "Image generation via OpenAI DALL-E / GPT Image API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 4,
+      "useCases": ["image_generation", "marketing_visuals", "concept_art", "illustrations"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/gpt-image/generate.py",
+  "testPath": "services/gpt-image/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["OPENAI_API_KEY"],
+    "primaryEnvVar": "OPENAI_API_KEY",
+    "docsUrl": "https://platform.openai.com/docs/guides/images"
+  },
+  "costInfo": {
+    "summary": "$0.04 per image",
+    "freeTier": false
+  }
+}

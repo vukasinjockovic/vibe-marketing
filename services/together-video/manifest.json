@@ -1,0 +1,33 @@
+{
+  "name": "together-video",
+  "displayName": "Together AI Video",
+  "description": "Video generation via Together AI inference API",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "video_generation",
+      "defaultPriority": 1,
+      "useCases": ["video_generation", "marketing_clips", "social_video"]
+    }
+  ],
+  "integrationType": "mcp",
+  "scriptPath": "services/together-video/generate.py",
+  "testPath": "services/together-video/test.py",
+  "mcp": {
+    "serverName": "together",
+    "envMapping": {
+      "TOGETHER_API_KEY": "${TOGETHER_API_KEY}"
+    }
+  },
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["TOGETHER_API_KEY"],
+    "primaryEnvVar": "TOGETHER_API_KEY",
+    "docsUrl": "https://docs.together.ai/docs/video-overview"
+  },
+  "costInfo": {
+    "summary": "~$0.50 per clip",
+    "freeTier": false
+  }
+}
