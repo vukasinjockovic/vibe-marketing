@@ -271,6 +271,48 @@ Instead of guessing, analyze what's working for top creators in your niche:
 
 ---
 
+## Pipeline Completion (When Used as vibe-social-writer Agent)
+
+When running as a pipeline branch agent, you MUST register resources before completing the branch:
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<outputFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "social_post",
+  "title": "Social Posts: <platform> — <source content title>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to output file>",
+  "contentHash": "'$HASH'",
+  "content": "<full post content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-social-writer",
+  "metadata": {
+    "platform": "<platform>",
+    "characterCount": <count>,
+    "hashtags": ["..."],
+    "postType": "<type>"
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete branch with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "social-posts",
+  "agentName": "vibe-social-writer",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
+
+---
+
 ## Related Skills
 
 - **copywriting**: For longer-form content that feeds social

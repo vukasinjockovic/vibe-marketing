@@ -190,9 +190,71 @@ generatedAt: {ISO timestamp}
 {content here}
 ```
 
-### Step 10: Update Task
+### Step 10: Register Resource + Complete Pipeline Step
 
-Set your task status to `completed` in Convex. The orchestrator will route the content to `vibe-content-reviewer` (if in pipeline) or directly to the review queue.
+After writing the output file, register it as a resource and complete the pipeline step.
+
+**Step 10a: Determine your resource type from this table:**
+
+| Your Agent Name | resourceType | Notes |
+|----------------|-------------|-------|
+| vibe-content-writer | `article` | Long-form articles, blog posts |
+| vibe-keyword-researcher | `research_material` or `brief` | Use `research_material` for keyword research, `brief` for content briefs |
+| vibe-serp-analyzer | `research_material` | SERP analysis reports |
+| vibe-content-repurposer | `email_excerpt` | Email newsletter excerpts from articles |
+
+**Step 10b: Register the resource:**
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<outputDir>/<deliverableType>_<taskId>.md" | cut -d' ' -f1)
+
+# 2. Register the resource (use YOUR resourceType from the table above)
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "<YOUR_TYPE>",
+  "title": "<deliverableType>: <title from brief>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to output file>",
+  "contentHash": "'$HASH'",
+  "content": "<full markdown content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "<your-agent-name>",
+  "metadata": {
+    "wordCount": <actual count>,
+    "targetKeyword": "<from brief>",
+    "awarenessStage": "<L1 assessment>",
+    "skillsUsed": {"L2": "...", "L3": [...], "L4": "..."},
+    "deliverableType": "<type>"
+  }
+}' --url http://localhost:3210)
+```
+
+**Step 10c: Complete the pipeline step or branch:**
+
+If you are a **main pipeline step** (vibe-content-writer, vibe-keyword-researcher, vibe-serp-analyzer):
+```bash
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "<your-agent-name>",
+  "qualityScore": <1-10>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+If you are a **branch agent** (vibe-content-repurposer):
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "<your-branch-label>",
+  "agentName": "<your-agent-name>",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 ## Error Handling
 

@@ -461,6 +461,36 @@ Provide:
 
 ---
 
+## Pipeline Completion (When Used as vibe-humanizer Agent)
+
+When running as a pipeline agent (not standalone editing), you MUST register your work before completing the step:
+
+```bash
+# 1. Find existing resources for this task (the reviewed content)
+RESOURCES=$(npx convex run resources:listByTask '{"taskId":"<TASK_ID>"}' --url http://localhost:3210)
+RESOURCE_ID=$(echo $RESOURCES | jq -r '.[0]._id')
+
+# 2. Update resource status to "humanized"
+npx convex run resources:updateStatus '{
+  "id": "'$RESOURCE_ID'",
+  "status": "humanized",
+  "updatedBy": "vibe-humanizer",
+  "note": "Humanizer pass complete — removed N AI patterns"
+}' --url http://localhost:3210
+
+# 3. Complete step with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-humanizer",
+  "qualityScore": <1-10>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the reviewer/humanizer pattern.
+
+---
+
 ## Reference
 
 This skill is based on [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.

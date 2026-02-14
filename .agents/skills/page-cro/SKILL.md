@@ -174,6 +174,48 @@ When recommending experiments, consider tests for:
 
 ---
 
+## Pipeline Completion (When Used as vibe-landing-page-writer Agent)
+
+When running as a pipeline branch agent, you MUST register resources before completing the branch:
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<outputFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "landing_page",
+  "title": "Landing Page: <page purpose> — <campaign name>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to output file>",
+  "contentHash": "'$HASH'",
+  "content": "<full landing page content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-landing-page-writer",
+  "metadata": {
+    "sections": <sectionCount>,
+    "cta": "<primary call to action>",
+    "targetAudience": "<focus group name>",
+    "productId": "<product ID>"
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete branch with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "landing-page",
+  "agentName": "vibe-landing-page-writer",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
+
+---
+
 ## Related Skills
 
 - **signup-flow-cro**: If the issue is in the signup process itself

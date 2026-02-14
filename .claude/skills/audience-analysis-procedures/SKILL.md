@@ -143,16 +143,32 @@ npx convex run activities:log '{
 }' --url http://localhost:3210
 ```
 
-### Step 10: Complete Pipeline Step
+### Step 10: Register Resource + Complete Pipeline Step
+
+Register the source document as a resource, then complete the step:
 
 ```bash
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "research_material",
+  "title": "Audience Parse: <source filename>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<path to uploaded document>",
+  "status": "draft",
+  "pipelineStage": "research",
+  "createdBy": "vibe-audience-parser",
+  "metadata": {"focusGroupCount": N, "matchBreakdown": {"create_new": X, "enrich_existing": Y}}
+}' --url http://localhost:3210)
+
 npx convex run pipeline:completeStep '{
   "taskId": "<TASK_ID>",
   "agentName": "vibe-audience-parser",
-  "result": "success",
-  "notes": "Parsed N focus groups. Ready for human review."
+  "qualityScore": 7,
+  "resourceIds": ["'$RESOURCE_ID'"]
 }' --url http://localhost:3210
 ```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 NEVER update task status directly -- only through `pipeline:completeStep`.
 

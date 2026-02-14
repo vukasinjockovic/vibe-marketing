@@ -300,6 +300,50 @@ Log costs to Convex `agentActivity` for campaign cost dashboards.
 
 ---
 
+## Pipeline Completion
+
+After generating images, register each as a resource and complete the branch:
+
+```bash
+# For each generated image:
+HASH=$(sha256sum "<imagePath>" | cut -d' ' -f1)
+FILE_SIZE=$(stat -c%s "<imagePath>")
+
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "image",
+  "title": "Image: <imageType> for <content title>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to image>",
+  "contentHash": "'$HASH'",
+  "mimeType": "image/png",
+  "fileSizeBytes": '$FILE_SIZE',
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-image-creator",
+  "metadata": {
+    "provider": "<service used>",
+    "promptUsed": "<the prompt string>",
+    "dimensions": "<WxH>",
+    "generationCost": <cost>,
+    "format": "png"
+  }
+}' --url http://localhost:3210)
+
+# Complete branch with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "image-generation",
+  "agentName": "vibe-image-creator",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the branch agent pattern.
+
+---
+
 ## What This Skill Does NOT Cover
 
 - **Prompt creation** — that's `vibe-image-director` with `image-prompt-engineering`

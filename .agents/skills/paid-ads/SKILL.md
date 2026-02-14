@@ -307,6 +307,49 @@ For tracking, see also: [ga4.md](../../tools/integrations/ga4.md), [segment.md](
 
 ---
 
+## Pipeline Completion (When Used as vibe-ad-writer Agent)
+
+When running as a pipeline branch agent, you MUST register resources before completing the branch:
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<outputFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "ad_copy",
+  "title": "Ad Copy: <platform> — <campaign name>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to output file>",
+  "contentHash": "'$HASH'",
+  "content": "<full ad copy content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-ad-writer",
+  "metadata": {
+    "platform": "<google|meta|linkedin>",
+    "adType": "<search|display|social>",
+    "headline": "<primary headline>",
+    "cta": "<call to action>",
+    "targetAudience": "<focus group name>"
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete branch with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "ad-copy",
+  "agentName": "vibe-ad-writer",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
+
+---
+
 ## Related Skills
 
 - **copywriting**: For landing page copy that converts ad traffic

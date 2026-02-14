@@ -107,11 +107,32 @@ Collect all inferred fields into a single update:
 npx convex run focusGroupStaging:updateFields '{"id":"<stagingId>","awarenessStage":"problem_aware","awarenessConfidence":"high",...}' --url http://localhost:3210
 ```
 
-### Step A4: Complete Pipeline Step
+### Step A4: Register Resource + Complete Pipeline Step
+
+Register an enrichment report resource, then complete the step:
 
 ```bash
-npx convex run pipeline:completeStep '{"taskId":"<taskId>","agentName":"vibe-audience-enricher","notes":"Enriched N/M staging records. Fields: awarenessStage, sophisticationLevel, purchaseBehavior..."}' --url http://localhost:3210
+# Write enrichment summary to file
+# File: projects/{project-slug}/research/enrichment-report-{timestamp}.md
+
+HASH=$(sha256sum "<reportFilePath>" | cut -d' ' -f1)
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId":"<PROJECT_ID>",
+  "resourceType":"report",
+  "title":"Enrichment Report: <N> staging records",
+  "taskId":"<taskId>",
+  "filePath":"<reportFilePath>",
+  "contentHash":"'$HASH'",
+  "status":"draft",
+  "pipelineStage":"research",
+  "createdBy":"vibe-audience-enricher",
+  "metadata":{"enrichedCount":N,"totalCount":M,"fieldsEnriched":["awarenessStage","sophisticationLevel"]}
+}' --url http://localhost:3210)
+
+npx convex run pipeline:completeStep '{"taskId":"<taskId>","agentName":"vibe-audience-enricher","qualityScore":7,"resourceIds":["'$RESOURCE_ID'"]}' --url http://localhost:3210
 ```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 ### Step A5: Update Memory
 

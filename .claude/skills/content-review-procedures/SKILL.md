@@ -244,9 +244,36 @@ Generate a structured review document:
 - Line {Y}: "{flagged phrase}" → Rewrite to: "{suggested alternative}"
 ```
 
-### Step 8: Save Review & Update Task
+### Step 8: Save Review, Register Resources + Complete Pipeline Step
 
 Save review to: `projects/{project}/campaigns/{campaign}/reviewed/{taskId}-review.md`
+
+**Before completing the step**, update existing resources and register the review:
+
+```bash
+# 1. Find existing resources for this task (the draft content)
+RESOURCES=$(npx convex run resources:listByTask '{"taskId":"<TASK_ID>"}' --url http://localhost:3210)
+RESOURCE_ID=$(echo $RESOURCES | jq -r '.[0]._id')
+
+# 2. Update draft resource status to "reviewed" (or keep as "draft" if revision required)
+npx convex run resources:updateStatus '{
+  "id": "'$RESOURCE_ID'",
+  "status": "reviewed",
+  "updatedBy": "vibe-content-reviewer",
+  "qualityScore": <overallScore>,
+  "note": "<decision: approve/approve_with_notes/revision_required>"
+}' --url http://localhost:3210
+
+# 3. Complete step with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-content-reviewer",
+  "qualityScore": <overallScore>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the reviewer pattern.
 
 Update Convex:
 - If APPROVE or APPROVE WITH NOTES: `completeStep` → triggers next pipeline step (humanizer)

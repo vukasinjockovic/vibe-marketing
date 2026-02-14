@@ -666,7 +666,42 @@ Speaker: "Body content here."
 - Caption/subtitle requirements
 - Thumbnail suggestions (for YouTube)
 
-Update task status in Convex: mark video script deliverable as complete. Log activity.
+Register the video script as a resource and complete the pipeline step:
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<scriptFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "video_script",
+  "title": "Video Script: <videoFormat> — <title from brief>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to script file>",
+  "contentHash": "'$HASH'",
+  "content": "<full script content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-video-scripter",
+  "metadata": {
+    "durationSeconds": <estimated>,
+    "style": "<videoFormat>",
+    "scenes": <sceneCount>
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete step with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-video-scripter",
+  "qualityScore": <1-10>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 ---
 

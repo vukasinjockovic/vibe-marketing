@@ -387,21 +387,35 @@ mkdir -p projects/{project-slug}/research/
 # File: projects/{project-slug}/research/audience-intelligence-{YYYYMMDD-HHMMSS}.md
 ```
 
-#### 7b: Save to Convex Documents Table
+#### 7b: Register as Resource
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 ```bash
-npx convex run documents:create '{
-  "title": "Audience Intelligence: {Product Name}",
-  "content": "...(truncated for CLI, use first 5000 chars)...",
-  "type": "audience_doc",
-  "productId": "PRODUCT_ID",
+# Compute content hash
+HASH=$(sha256sum "projects/{project-slug}/research/audience-intelligence-{timestamp}.md" | cut -d' ' -f1)
+
+# Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
   "projectId": "PROJECT_ID",
+  "resourceType": "research_material",
+  "title": "Audience Intelligence: {Product Name}",
+  "taskId": "TASK_ID",
+  "filePath": "projects/{project-slug}/research/audience-intelligence-{timestamp}.md",
+  "contentHash": "'$HASH'",
+  "content": "...(truncated for CLI, use first 5000 chars)...",
+  "status": "draft",
+  "pipelineStage": "research",
   "createdBy": "vibe-audience-researcher",
-  "filePath": "projects/{project-slug}/research/audience-intelligence-{timestamp}.md"
-}' --url http://localhost:3210
+  "metadata": {
+    "focusGroupCount": N,
+    "topics": ["category1", "category2"],
+    "wordCount": WORD_COUNT
+  }
+}' --url http://localhost:3210)
 ```
 
-Save the returned document ID -- you will need it for staging records.
+Save the returned resource ID -- you will need it for the completeStep call.
 
 #### 7c: Parse into Staging Records
 
@@ -477,16 +491,9 @@ As your ABSOLUTE LAST action:
 ```bash
 npx convex run pipeline:completeStep '{
   "taskId": "TASK_ID",
-  "agent": "vibe-audience-researcher",
-  "output": {
-    "documentPath": "projects/{project-slug}/research/audience-intelligence-{timestamp}.md",
-    "documentId": "DOCUMENT_ID",
-    "focusGroupCount": N,
-    "stagingRecordCount": N,
-    "categories": ["Category 1", "Category 2", "..."],
-    "servicesUsed": ["web_search", "web_scraping"],
-    "researchQuality": "high|medium|low"
-  }
+  "agentName": "vibe-audience-researcher",
+  "qualityScore": 8,
+  "resourceIds": ["RESOURCE_ID"]
 }' --url http://localhost:3210
 ```
 

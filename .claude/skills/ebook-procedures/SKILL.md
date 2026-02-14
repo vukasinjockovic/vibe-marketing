@@ -281,7 +281,44 @@ projects/{project}/campaigns/{campaign}/assets/ebook/
 }
 ```
 
-Update task status in Convex: mark ebook deliverable as complete. Log activity.
+Register the ebook as a resource and complete the pipeline step:
+
+```bash
+# 1. Compute content hash of the compiled ebook file
+HASH=$(sha256sum "<ebookFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource (use "lead_magnet" for LEAD_MAGNET mode, "article" for FULL_BOOK)
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "lead_magnet",
+  "title": "Ebook: <title from brief>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to compiled ebook>",
+  "contentHash": "'$HASH'",
+  "content": "<full markdown content>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-ebook-writer",
+  "metadata": {
+    "format": "markdown",
+    "pageCount": <chapterCount>,
+    "topic": "<topic from brief>",
+    "wordCount": <actual count>,
+    "deliverableMode": "<LEAD_MAGNET or FULL_BOOK>"
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete step with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-ebook-writer",
+  "qualityScore": <1-10>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
 
 ---
 

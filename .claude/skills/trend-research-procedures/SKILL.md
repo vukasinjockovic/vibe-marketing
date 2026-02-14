@@ -101,11 +101,34 @@ Where N is the task number (extracted from task title).
 
 If no trends qualify (STEPPS < 18 or no focus group match >= 3), write a brief explaining why and suggest evergreen angles from the focus group data instead.
 
+## Resource Registration
+
+After writing the trend brief file, register it as a resource:
+
+```bash
+HASH=$(sha256sum "<briefFilePath>" | cut -d' ' -f1)
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "research_material",
+  "title": "Trend Brief #{N}: <top trend topic>",
+  "contentBatchId": "<BATCH_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to trend brief>",
+  "contentHash": "'$HASH'",
+  "status": "draft",
+  "pipelineStage": "research",
+  "createdBy": "vibe-trend-researcher",
+  "metadata": {"topics": [...], "steppsScore": <avg>, "trendCount": N}
+}' --url http://localhost:3210)
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
+
 ## Completion
 
 Call `pipeline:completeStep` with:
-- `outputPath`: path to the trend brief file
 - `qualityScore`: average STEPPS score of selected trends (normalized to 1-10 scale)
+- `resourceIds`: array of resource IDs from the registration step above
 
 ## Error Handling
 

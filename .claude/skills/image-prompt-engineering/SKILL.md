@@ -257,6 +257,46 @@ Include a quality checklist in every prompt spec:
 
 ---
 
+## Pipeline Completion
+
+After writing prompt spec JSON files, register each as a resource and complete the branch:
+
+```bash
+# For each prompt-*.json file written:
+HASH=$(sha256sum "<promptFilePath>" | cut -d' ' -f1)
+
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "image_prompt",
+  "title": "Image Prompt: <imageType> for <content title>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to prompt JSON>",
+  "contentHash": "'$HASH'",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-image-director",
+  "metadata": {
+    "style": "<style>",
+    "dimensions": "<WxH>",
+    "provider": "<recommended service>",
+    "promptText": "<the prompt string>"
+  }
+}' --url http://localhost:3210)
+
+# Complete branch with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "image-prompt",
+  "agentName": "vibe-image-director",
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the branch agent pattern.
+
+---
+
 ## What This Skill Does NOT Cover
 
 - **Image generation** — that's `vibe-image-generator`'s job

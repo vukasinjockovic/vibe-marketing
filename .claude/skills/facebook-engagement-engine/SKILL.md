@@ -798,3 +798,47 @@ Every batch begins with this summary:
 - Post #[X] -- Repost after: [date]
 - Post #[X] -- Repost after: [date]
 ```
+
+---
+
+## Pipeline Completion
+
+After writing the batch output file, register it as a resource and complete the pipeline step:
+
+```bash
+# 1. Compute content hash
+HASH=$(sha256sum "<batchFilePath>" | cut -d' ' -f1)
+
+# 2. Register the resource
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "social_post",
+  "title": "FB Batch: <batch name> (<N> posts)",
+  "contentBatchId": "<BATCH_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<absolute path to batch file>",
+  "contentHash": "'$HASH'",
+  "content": "<full batch markdown>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-facebook-engine",
+  "metadata": {
+    "platform": "facebook",
+    "characterCount": <total>,
+    "postCount": <N>,
+    "steppsScore": <average STEPPS>,
+    "postType": "engagement_batch",
+    "mixBreakdown": {"questions": X, "emotional": Y, "interactive": Z, "debate": W, "text_only": V}
+  }
+}' --url http://localhost:3210)
+
+# 3. Complete step with resource IDs (REQUIRED — will error without them)
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-facebook-engine",
+  "qualityScore": <average STEPPS normalized to 1-10>,
+  "resourceIds": ["'$RESOURCE_ID'"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for full protocol.
