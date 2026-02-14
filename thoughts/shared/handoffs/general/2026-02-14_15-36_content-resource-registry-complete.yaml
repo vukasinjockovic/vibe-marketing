@@ -1,0 +1,143 @@
+---
+session: general
+date: 2026-02-14
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Implemented full Content Resource Registry — schema, CRUD, pipeline enforcement, 18 agent skills, 6 dashboard components, 2 pages, backfill script, sync scripts, tsgo compiler
+now: Complete dashboard update for mobile devices — the dashboard must load beautifully for mobile screens
+
+test: "npx convex dev --once --url http://localhost:3210"
+
+done_this_session:
+  - task: "Added resources + resourceHistory tables to Convex schema"
+    files: [convex/schema.ts]
+  - task: "Created full CRUD + queries for resources (upsert, pagination, search, stats, history, slug uniqueness, delete guard)"
+    files: [convex/resources.ts, convex/resourceHistory.ts]
+  - task: "Pipeline enforcement — required resourceIds on both completeStep and completeBranch"
+    files: [convex/pipeline.ts]
+  - task: "Updated all 18 pipeline agent SKILL.md files with resource registration instructions (3 patterns: creator, reviewer, branch)"
+    files:
+      - .claude/skills/content-writing-procedures/SKILL.md
+      - .claude/skills/content-review-procedures/SKILL.md
+      - .claude/skills/humanizer/SKILL.md
+      - .claude/skills/image-prompt-engineering/SKILL.md
+      - .claude/skills/image-generation-procedures/SKILL.md
+      - .claude/skills/video-script-guide/SKILL.md
+      - .claude/skills/ebook-procedures/SKILL.md
+      - .claude/skills/facebook-engagement-engine/SKILL.md
+      - .claude/skills/social-content/SKILL.md
+      - .claude/skills/email-sequence/SKILL.md
+      - .claude/skills/paid-ads/SKILL.md
+      - .claude/skills/page-cro/SKILL.md
+      - .claude/skills/audience-research-procedures/SKILL.md
+      - .claude/skills/audience-enrichment-procedures/SKILL.md
+      - .claude/skills/trend-research-procedures/SKILL.md
+  - task: "Created shared resource registration reference doc"
+    files: [.claude/skills/shared-references/resource-registration.md]
+  - task: "Built 6 dashboard components for resource browsing"
+    files:
+      - dashboard/components/ResourceTable.vue
+      - dashboard/components/ResourceTypeIcon.vue
+      - dashboard/components/ResourceStatsCards.vue
+      - dashboard/components/ResourceDetailPanel.vue
+      - dashboard/components/ResourceRelationshipTree.vue
+      - dashboard/components/ResourceHistoryTimeline.vue
+  - task: "Built markdown composable (frontmatter stripping, sanitized HTML rendering)"
+    files: [dashboard/composables/useMarkdown.ts]
+  - task: "Created resources list page (stats, filters by type/status, search, inline table)"
+    files: ["dashboard/pages/projects/[slug]/resources/index.vue"]
+  - task: "Created resource detail page (full panel with delete confirmation)"
+    files: ["dashboard/pages/projects/[slug]/resources/[id].vue"]
+  - task: "Added Resources tab to project layout"
+    files: ["dashboard/pages/projects/[slug].vue"]
+  - task: "Added ResourceStatsCards + ResourceTable to campaign detail page"
+    files: ["dashboard/pages/projects/[slug]/campaigns/[id].vue"]
+  - task: "Added ResourceStatsCards + ResourceTable to engagement batch detail page"
+    files: ["dashboard/pages/projects/[slug]/engagement/batches/[id].vue"]
+  - task: "Added ResourceStatsCards to engagement index page"
+    files: ["dashboard/pages/projects/[slug]/engagement/index.vue"]
+  - task: "Added resourceCount to project stats and Resources card to project overview"
+    files: ["convex/projects.ts", "dashboard/pages/projects/[slug]/index.vue"]
+  - task: "Created backfill script migrating documents + mediaAssets + reports to resources table"
+    files: [scripts/backfill-resources.sh, convex/mediaAssets.ts, convex/reports.ts]
+  - task: "Created sync and hash scripts for two-way file<->DB sync"
+    files: [scripts/sync-resources.sh, scripts/compute-content-hash.sh]
+  - task: "Enabled tsgo (TypeScript 7 native compiler) — build time 11s -> 2.5s"
+    files: [convex.json]
+
+blockers: []
+
+questions: []
+
+decisions:
+  - three_agent_patterns: "Creator agents (register new + completeStep), Reviewer agents (updateStatus + completeStep), Branch agents (register new + completeBranch)"
+  - agent_name_mapping: "Plan used hypothetical names (ad-copywriter) but real agents have different names (vibe-ad-writer) with different skillPaths — mapped all 19 from seed.ts"
+  - tsgo_compiler: "Enabled TypeScript 7 native preview via convex.json for 4.4x faster Convex builds"
+  - project_overview_resources: "Added 5th stat card (Resources) to project overview grid, changed from 4-col to 5-col"
+
+findings:
+  - agent_skill_mapping: "Critical: agents read SKILL.md based on their skillPath field in seed.ts, NOT their agent name. vibe-social-writer reads social-content/SKILL.md, vibe-ad-writer reads paid-ads/SKILL.md, etc."
+  - pipeline_enforcement_works: "completeStep and completeBranch now throw ConvexError if resourceIds is empty or contains invalid IDs"
+  - resources_stats_query: "resources:stats accepts optional projectId, campaignId, or contentBatchId — same component works at all 3 levels"
+
+worked:
+  - "Mapping all 19 agents from Convex seed.ts to their actual skillPaths to find missing resource registration"
+  - "Using ResourceStatsCards with different prop combos (projectId vs campaignId vs contentBatchId) for reuse across pages"
+  - "tsgo via convex.json — zero config change needed in existing code"
+
+failed:
+  - "Initially claimed 'nothing missing' after updating 12 skills — missed 7 agents that use different skill files than expected"
+
+next:
+  - "MOBILE RESPONSIVE DASHBOARD: Audit all dashboard pages and components for mobile responsiveness"
+  - "Key areas to fix: stat card grids (grid-cols-4/5 need responsive breakpoints), data tables (horizontal scroll or card layout on mobile), tab navigation (horizontal scroll or hamburger), modal sizes, form layouts"
+  - "Pages to audit: project layout [slug].vue (tab bar), project overview index.vue (5-col grid), campaign detail, engagement detail, batch detail, resources list, resource detail"
+  - "Components to audit: VDataTable, ResourceTable, ResourceStatsCards, ResourceDetailPanel, VModal, all form components (CampaignForm, ChannelForm, ContentBatchForm)"
+  - "Consider: responsive utility classes (sm:, md:, lg: breakpoints), touch-friendly tap targets (min 44px), readable font sizes, collapsible sections on mobile"
+
+files:
+  created:
+    - convex/resources.ts
+    - convex/resourceHistory.ts
+    - convex/mediaAssets.ts
+    - convex/reports.ts
+    - convex.json
+    - "dashboard/pages/projects/[slug]/resources/index.vue"
+    - "dashboard/pages/projects/[slug]/resources/[id].vue"
+    - dashboard/components/ResourceTable.vue
+    - dashboard/components/ResourceTypeIcon.vue
+    - dashboard/components/ResourceStatsCards.vue
+    - dashboard/components/ResourceDetailPanel.vue
+    - dashboard/components/ResourceRelationshipTree.vue
+    - dashboard/components/ResourceHistoryTimeline.vue
+    - dashboard/composables/useMarkdown.ts
+    - scripts/sync-resources.sh
+    - scripts/compute-content-hash.sh
+    - scripts/backfill-resources.sh
+    - .claude/skills/shared-references/resource-registration.md
+  modified:
+    - convex/schema.ts
+    - convex/pipeline.ts
+    - convex/projects.ts
+    - "dashboard/pages/projects/[slug].vue"
+    - "dashboard/pages/projects/[slug]/index.vue"
+    - "dashboard/pages/projects/[slug]/campaigns/[id].vue"
+    - "dashboard/pages/projects/[slug]/engagement/index.vue"
+    - "dashboard/pages/projects/[slug]/engagement/batches/[id].vue"
+    - .claude/skills/content-writing-procedures/SKILL.md
+    - .claude/skills/content-review-procedures/SKILL.md
+    - .claude/skills/humanizer/SKILL.md
+    - .claude/skills/image-prompt-engineering/SKILL.md
+    - .claude/skills/image-generation-procedures/SKILL.md
+    - .claude/skills/video-script-guide/SKILL.md
+    - .claude/skills/ebook-procedures/SKILL.md
+    - .claude/skills/facebook-engagement-engine/SKILL.md
+    - .claude/skills/social-content/SKILL.md
+    - .claude/skills/email-sequence/SKILL.md
+    - .claude/skills/paid-ads/SKILL.md
+    - .claude/skills/page-cro/SKILL.md
+    - .claude/skills/audience-research-procedures/SKILL.md
+    - .claude/skills/audience-enrichment-procedures/SKILL.md
+    - .claude/skills/trend-research-procedures/SKILL.md

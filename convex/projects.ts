@@ -164,6 +164,10 @@ export const getStats = query({
       .query("tasks")
       .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
+    const resources = await ctx.db
+      .query("resources")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
 
     return {
       productCount: products.length,
@@ -171,6 +175,7 @@ export const getStats = query({
       activeCampaignCount: campaigns.filter((c) => c.status === "active").length,
       taskCount: tasks.length,
       completedTaskCount: tasks.filter((t) => t.status === "completed").length,
+      resourceCount: resources.length,
     };
   },
 });

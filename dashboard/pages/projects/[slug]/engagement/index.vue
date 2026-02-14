@@ -130,6 +130,12 @@ const recentBatches = computed(() => {
       </div>
     </div>
 
+    <!-- Engagement Resources Summary -->
+    <div v-if="projectId && batches?.length">
+      <h2 class="text-lg font-semibold text-foreground mb-3">Resources</h2>
+      <ResourceStatsCards :project-id="projectId" />
+    </div>
+
     <!-- Recent Batches -->
     <div>
       <h2 class="text-lg font-semibold text-foreground mb-3">Recent Batches</h2>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Package, Megaphone, ListTodo, CheckCircle } from 'lucide-vue-next'
+import { Package, Megaphone, ListTodo, CheckCircle, FileStack } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { api } from '../../../../convex/_generated/api'
 
@@ -28,6 +28,7 @@ const stats = computed(() => liveStats.value || {
   campaignCount: 0,
   taskCount: 0,
   completedTaskCount: 0,
+  resourceCount: 0,
 })
 
 const statCards = computed(() => [
@@ -35,6 +36,7 @@ const statCards = computed(() => [
   { label: 'Campaigns', value: stats.value.campaignCount || 0, color: 'text-purple-600 bg-purple-50', icon: Megaphone },
   { label: 'Tasks', value: stats.value.taskCount || 0, color: 'text-amber-600 bg-amber-50', icon: ListTodo },
   { label: 'Completed', value: stats.value.completedTaskCount || 0, color: 'text-green-600 bg-green-50', icon: CheckCircle },
+  { label: 'Resources', value: stats.value.resourceCount || 0, color: 'text-indigo-600 bg-indigo-50', icon: FileStack },
 ])
 
 const recentCampaigns = computed(() => (campaigns.value || []).slice(0, 5))
@@ -77,7 +79,7 @@ function formatTime(ts: number) {
 <template>
   <div class="space-y-6">
     <!-- Stats Grid -->
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-5 gap-4">
       <div
         v-for="stat in statCards"
         :key="stat.label"

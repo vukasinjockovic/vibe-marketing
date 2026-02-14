@@ -13,6 +13,7 @@
     "cx": "bash scripts/cx.sh"
   },
   "dependencies": {
+    "@typescript/native-preview": "^7.0.0-dev.20260214.1",
     "bcryptjs": "^3.0.3",
     "convex": "^1.21.0"
   },
