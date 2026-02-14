@@ -7,5 +7,7 @@ dist/
 .convex/
 logs/
 .tldr/
-/claude/tsc-cache
+.claude/cache/*
+.claude/tsc-cache
 /projects/*
+.playwright-mcp

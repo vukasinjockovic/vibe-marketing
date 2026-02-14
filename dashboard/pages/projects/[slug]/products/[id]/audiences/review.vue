@@ -196,7 +196,7 @@ const backUrl = computed(() => {
 
     <!-- Summary Bar -->
     <div v-if="stagingSummary" class="mb-6 rounded-lg border bg-card shadow-sm p-4">
-      <div class="grid grid-cols-5 gap-4 text-center">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
         <div>
           <p class="text-2xl font-bold text-foreground">{{ stagingSummary.total }}</p>
           <p class="text-xs text-muted-foreground">Total</p>
@@ -263,8 +263,8 @@ const backUrl = computed(() => {
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-muted-foreground/70">{{ record.nickname || '' }}</span>
                   <span
@@ -315,7 +315,7 @@ const backUrl = computed(() => {
 
             <!-- Preview Expansion -->
             <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-muted/50 space-y-3 text-sm">
-              <div v-if="record.demographics" class="grid grid-cols-4 gap-2">
+              <div v-if="record.demographics" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div><span class="text-muted-foreground">Age:</span> {{ record.demographics.ageRange }}</div>
                 <div><span class="text-muted-foreground">Gender:</span> {{ record.demographics.gender }}</div>
                 <div><span class="text-muted-foreground">Income:</span> {{ record.demographics.income }}</div>
@@ -364,8 +364,8 @@ const backUrl = computed(() => {
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                     Match: {{ Math.round((record.matchConfidence || 0) * 100) }}%
@@ -438,8 +438,8 @@ const backUrl = computed(() => {
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
                     Similarity: {{ Math.round((record.matchConfidence || 0) * 100) }}%
@@ -451,7 +451,7 @@ const backUrl = computed(() => {
                     {{ record.reviewStatus.replace(/_/g, ' ') }}
                   </span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                   <button
                     v-if="record.reviewStatus === 'pending_review'"
                     class="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"

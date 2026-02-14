@@ -32,7 +32,7 @@ const { data: projects, loading } = useConvexQuery(api.projects.list, {})
       </NuxtLink>
     </VEmptyState>
 
-    <div v-else class="grid grid-cols-3 gap-6">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <NuxtLink
         v-for="project in projects"
         :key="project._id"

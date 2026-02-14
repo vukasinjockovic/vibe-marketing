@@ -79,7 +79,7 @@ function formatTime(ts: number) {
 <template>
   <div class="space-y-6">
     <!-- Stats Grid -->
-    <div class="grid grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       <div
         v-for="stat in statCards"
         :key="stat.label"
@@ -97,7 +97,7 @@ function formatTime(ts: number) {
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Recent Campaigns -->
       <div class="rounded-lg border bg-card shadow-sm">
         <div class="px-4 py-3 border-b flex items-center justify-between">

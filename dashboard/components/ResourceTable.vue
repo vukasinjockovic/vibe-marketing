@@ -81,7 +81,7 @@ function formatTime(ts: number) {
 </script>
 
 <template>
-  <div class="rounded-lg border bg-card shadow-sm">
+  <div class="rounded-lg border bg-card shadow-sm overflow-x-auto">
     <!-- Loading -->
     <div v-if="loading" class="p-8 text-center text-muted-foreground">
       Loading resources...
@@ -93,7 +93,7 @@ function formatTime(ts: number) {
     </div>
 
     <!-- Table -->
-    <table v-else class="w-full">
+    <table v-else class="w-full min-w-[600px]">
       <thead>
         <tr class="border-b text-left text-sm text-muted-foreground">
           <th class="px-4 py-3 font-medium">Resource</th>

@@ -70,7 +70,7 @@ function formatDate(ts: number) {
 
     <div v-else>
       <!-- Header -->
-      <div class="px-6 py-4 border-b">
+      <div class="px-4 sm:px-6 py-4 border-b">
         <div class="flex items-start gap-3">
           <ResourceTypeIcon :type="resource.resourceType" :size="24" />
           <div class="flex-1 min-w-0">
@@ -91,7 +91,7 @@ function formatDate(ts: number) {
         </div>
 
         <!-- Meta row -->
-        <div class="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-muted-foreground">
           <span class="flex items-center gap-1"><User :size="12" /> {{ resource.createdBy }}</span>
           <span class="flex items-center gap-1"><Clock :size="12" /> {{ formatDate(resource.createdAt) }}</span>
           <span v-if="resource.updatedAt" class="flex items-center gap-1">Updated: {{ formatDate(resource.updatedAt) }}</span>
@@ -100,11 +100,11 @@ function formatDate(ts: number) {
       </div>
 
       <!-- Tabs -->
-      <div class="flex border-b px-6">
+      <div class="flex border-b px-4 sm:px-6 overflow-x-auto scrollbar-hide">
         <button
           v-for="tab in tabs"
           :key="tab"
-          class="px-3 py-2 text-sm font-medium border-b-2 transition-colors capitalize -mb-px"
+          class="px-3 py-2 text-sm font-medium border-b-2 transition-colors capitalize -mb-px whitespace-nowrap"
           :class="activeTab === tab
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground'"
@@ -115,7 +115,7 @@ function formatDate(ts: number) {
       </div>
 
       <!-- Tab content -->
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <!-- Content tab -->
         <div v-if="activeTab === 'content'">
           <!-- Frontmatter cards -->

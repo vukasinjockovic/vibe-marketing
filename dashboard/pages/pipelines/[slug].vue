@@ -86,7 +86,7 @@ async function deletePipeline() {
       <!-- View mode -->
       <template v-else>
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <div class="flex items-center gap-3">
               <NuxtLink
@@ -95,7 +95,7 @@ async function deletePipeline() {
               >
                 <ArrowLeft :size="18" />
               </NuxtLink>
-              <h1 class="text-2xl font-bold text-foreground">{{ pipeline.name }}</h1>
+              <h1 class="text-xl sm:text-2xl font-bold text-foreground">{{ pipeline.name }}</h1>
               <span
                 class="text-xs font-medium px-2 py-0.5 rounded-full"
                 :class="pipeline.type === 'preset'
@@ -109,7 +109,7 @@ async function deletePipeline() {
               {{ pipeline.description }}
             </p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap shrink-0">
             <button
               v-if="pipeline.type === 'custom'"
               class="flex items-center gap-2 border px-3 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
@@ -157,7 +157,7 @@ async function deletePipeline() {
         </VModal>
 
         <!-- Summary cards -->
-        <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div class="rounded-lg border bg-card shadow-sm p-4">
             <h3 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Main Steps</h3>
             <p class="text-2xl font-bold text-foreground">{{ pipeline.mainSteps?.length || 0 }}</p>

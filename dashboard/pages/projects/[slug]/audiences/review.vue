@@ -231,7 +231,7 @@ const backUrl = computed(() => {
 
     <!-- Summary Bar -->
     <div v-if="stagingSummary" class="mb-6 rounded-lg border bg-card shadow-sm p-4">
-      <div class="grid grid-cols-5 gap-4 text-center">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
         <div>
           <p class="text-2xl font-bold text-foreground">{{ stagingSummary.total }}</p>
           <p class="text-xs text-muted-foreground">Total</p>
@@ -283,8 +283,8 @@ const backUrl = computed(() => {
             class="rounded-lg border bg-card shadow-sm overflow-hidden"
           >
             <div class="p-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="togglePreview(record._id)">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-medium text-foreground">{{ record.name }}</h4>
                   <span class="text-xs text-muted-foreground/70">{{ record.nickname || '' }}</span>
                   <span
@@ -294,7 +294,7 @@ const backUrl = computed(() => {
                     {{ record.reviewStatus.replace(/_/g, ' ') }}
                   </span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                   <span :class="completenessColor(record.completenessScore)" class="text-sm font-medium">
                     {{ record.completenessScore }}%
                   </span>
@@ -332,7 +332,7 @@ const backUrl = computed(() => {
 
             <!-- Preview Expansion -->
             <div v-if="isPreviewExpanded(record._id)" class="border-t p-4 bg-muted/50 space-y-3 text-sm">
-              <div v-if="record.demographics" class="grid grid-cols-4 gap-2">
+              <div v-if="record.demographics" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div><span class="text-muted-foreground">Age:</span> {{ record.demographics.ageRange }}</div>
                 <div><span class="text-muted-foreground">Gender:</span> {{ record.demographics.gender }}</div>
                 <div><span class="text-muted-foreground">Income:</span> {{ record.demographics.income }}</div>
@@ -445,7 +445,7 @@ const backUrl = computed(() => {
                   </div>
                 </template>
 
-                <div v-if="record.contentPreferences" class="grid grid-cols-3 gap-2">
+                <div v-if="record.contentPreferences" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div v-if="record.contentPreferences.attentionSpan">
                     <span class="text-xs text-muted-foreground">Attention Span:</span>
                     <p class="text-foreground">{{ record.contentPreferences.attentionSpan }}</p>
@@ -492,7 +492,7 @@ const backUrl = computed(() => {
                   </div>
                 </div>
 
-                <div v-if="record.communicationStyle" class="grid grid-cols-4 gap-2">
+                <div v-if="record.communicationStyle" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div v-if="record.communicationStyle.formalityLevel">
                     <span class="text-xs text-muted-foreground">Formality:</span>
                     <p class="text-foreground">{{ record.communicationStyle.formalityLevel }}</p>

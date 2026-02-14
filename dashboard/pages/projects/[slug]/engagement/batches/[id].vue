@@ -149,25 +149,25 @@ function formatTime(ts: number) {
 
     <template v-else>
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="min-w-0">
           <div class="flex items-center gap-3">
             <NuxtLink
               :to="`/projects/${$route.params.slug}/engagement`"
-              class="text-muted-foreground hover:text-foreground transition-colors"
+              class="text-muted-foreground hover:text-foreground transition-colors shrink-0"
             >
               <ArrowLeft :size="18" />
             </NuxtLink>
-            <h1 class="text-2xl font-bold text-foreground">{{ batch.name }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-foreground truncate">{{ batch.name }}</h1>
           </div>
-          <div class="flex items-center gap-2 mt-1 ml-9">
+          <div class="flex items-center gap-2 mt-1 ml-9 flex-wrap">
             <VStatusBadge :status="batch.status" />
             <span v-if="channel" class="text-sm text-muted-foreground capitalize">
               {{ channel.platform }} &middot; {{ channel.name }}
             </span>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap shrink-0">
           <button
             v-if="batch.status === 'planning'"
             class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"

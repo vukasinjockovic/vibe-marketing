@@ -24,7 +24,7 @@ function typeColor(type: string) {
     />
 
     <div v-else-if="!loading" class="rounded-lg border bg-card shadow-sm divide-y divide-border">
-      <div v-for="activity in activities" :key="activity._id" class="px-6 py-3 flex items-center gap-4">
+      <div v-for="activity in activities" :key="activity._id" class="px-4 sm:px-6 py-3 flex flex-wrap items-start gap-2 sm:items-center sm:gap-4">
         <span class="text-xs font-mono px-2 py-1 bg-muted rounded" :class="typeColor(activity.type)">
           {{ activity.type }}
         </span>

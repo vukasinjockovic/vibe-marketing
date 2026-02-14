@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+  <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-x-auto">
     <div v-if="loading" class="p-8 text-center text-muted-foreground">
       <LoaderCircle class="animate-spin h-5 w-5 mx-auto mb-2 text-muted-foreground" />
       Loading...
@@ -22,7 +22,7 @@ defineProps<{
     <div v-else-if="rows.length === 0" class="p-8 text-center text-muted-foreground">
       {{ emptyMessage || 'No data found.' }}
     </div>
-    <table v-else class="w-full">
+    <table v-else class="w-full min-w-[600px]">
       <thead class="border-b bg-muted/50">
         <tr>
           <th

@@ -104,7 +104,7 @@ async function submit() {
       />
     </VFormField>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <VFormField label="Username">
         <input
           v-model="form.username"
@@ -124,7 +124,7 @@ async function submit() {
       </VFormField>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <VFormField label="Posts per Day">
         <input
           v-model.number="form.postsPerDay"

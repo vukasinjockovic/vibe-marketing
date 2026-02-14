@@ -226,25 +226,25 @@ function formatTime(ts: number) {
 
     <template v-else>
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="min-w-0">
           <div class="flex items-center gap-3">
             <NuxtLink
               :to="`/projects/${$route.params.slug}/campaigns`"
-              class="text-muted-foreground hover:text-foreground transition-colors"
+              class="text-muted-foreground hover:text-foreground transition-colors shrink-0"
             >
               <ArrowLeft :size="18" />
             </NuxtLink>
-            <h1 class="text-2xl font-bold text-foreground">{{ campaign.name }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-foreground truncate">{{ campaign.name }}</h1>
           </div>
-          <div class="flex items-center gap-2 mt-1 ml-9">
+          <div class="flex items-center gap-2 mt-1 ml-9 flex-wrap">
             <VStatusBadge :status="campaign.status" />
             <p v-if="campaign.description" class="text-sm text-muted-foreground">
               {{ campaign.description }}
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap shrink-0">
           <button
             class="px-3 py-2 text-sm border border-border rounded-md text-muted-foreground hover:bg-muted transition-colors"
             @click="showEdit = true"

@@ -123,7 +123,7 @@ const recentActivities = computed(() => {
       </div>
 
       <!-- Stats Row -->
-      <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="rounded-lg border bg-card shadow-sm p-4 text-center">
           <p class="text-2xl font-bold">{{ agent.stats?.tasksCompleted || 0 }}</p>
           <p class="text-xs text-muted-foreground mt-1">Tasks Completed</p>

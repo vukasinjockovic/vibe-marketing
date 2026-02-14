@@ -43,7 +43,7 @@ function formatDate(ts: number) {
     </VPageHeader>
 
     <!-- Status filter tabs -->
-    <div class="flex gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
+    <div class="flex gap-1 mb-6 bg-muted rounded-lg p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
       <button
         v-for="tab in statusTabs"
         :key="tab"

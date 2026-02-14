@@ -297,7 +297,7 @@ const reviewUrl = computed(() => {
           <!-- Demographics -->
           <div v-if="fg.demographics">
             <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Demographics</h5>
-            <div class="grid grid-cols-4 gap-3 text-sm">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
               <div>
                 <span class="text-muted-foreground">Age:</span>
                 <span class="ml-1 text-foreground">{{ fg.demographics.ageRange }}</span>

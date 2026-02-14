@@ -33,7 +33,7 @@ function isActiveTab(tabPath: string) {
 
     <!-- Project header -->
     <div v-else-if="project" class="mb-6">
-      <div class="flex items-center gap-3 mb-4">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
         <div
           class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-semibold"
           :style="{ backgroundColor: project.appearance?.color || '#6366f1' }"
@@ -41,18 +41,18 @@ function isActiveTab(tabPath: string) {
           {{ project.appearance?.icon || project.name[0] }}
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-foreground">{{ project.name }}</h1>
+          <h1 class="text-xl sm:text-2xl font-bold text-foreground">{{ project.name }}</h1>
           <p v-if="project.description" class="text-sm text-muted-foreground">{{ project.description }}</p>
         </div>
       </div>
 
       <!-- Tab navigation -->
-      <nav class="flex gap-1 border-b border-border">
+      <nav class="flex gap-1 border-b border-border overflow-x-auto scrollbar-hide">
         <NuxtLink
           v-for="tab in tabs"
           :key="tab.path"
           :to="tab.path"
-          class="px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px"
+          class="px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap"
           :class="isActiveTab(tab.path)
             ? 'border-primary text-primary'
             : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'"

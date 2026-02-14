@@ -139,14 +139,14 @@ const backUrl = computed(() => {
 
     <template v-else>
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <div class="flex items-center gap-3">
-            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary text-lg font-bold">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary text-lg font-bold shrink-0">
               {{ fg.number || '#' }}
             </span>
             <div>
-              <h1 class="text-2xl font-bold text-foreground">{{ fg.name }}</h1>
+              <h1 class="text-xl sm:text-2xl font-bold text-foreground">{{ fg.name }}</h1>
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-sm text-muted-foreground">{{ fg.nickname }}</span>
                 <VStatusBadge :status="fg.category" size="sm" />
@@ -198,9 +198,9 @@ const backUrl = computed(() => {
       </div>
 
       <!-- Core Data -->
-      <div class="grid grid-cols-2 gap-6 mb-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Left Column: Basic Info -->
-        <div class="rounded-lg border bg-card shadow-sm p-6 space-y-4">
+        <div class="rounded-lg border bg-card shadow-sm p-4 sm:p-6 space-y-4">
           <h3 class="font-semibold text-foreground">Core Profile</h3>
 
           <div>
@@ -239,7 +239,7 @@ const backUrl = computed(() => {
         </div>
 
         <!-- Right Column: Marketing Data -->
-        <div class="rounded-lg border bg-card shadow-sm p-6 space-y-4">
+        <div class="rounded-lg border bg-card shadow-sm p-4 sm:p-6 space-y-4">
           <h3 class="font-semibold text-foreground">Marketing Intelligence</h3>
 
           <div v-if="fg.coreDesires?.length">
@@ -296,7 +296,7 @@ const backUrl = computed(() => {
       <!-- Enrichment Field Status -->
       <div class="rounded-lg border bg-card shadow-sm p-6 mb-6">
         <h3 class="font-semibold text-foreground mb-4">Enrichment Field Status</h3>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <EnrichmentFieldStatus
             v-for="field in enrichmentFields"
             :key="field.key"

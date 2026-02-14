@@ -136,15 +136,15 @@ function resolveSkillNames(ids: string[]): string[] {
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1 max-w-md">{{ agent.role }}</p>
               </div>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
               <!-- Model badge -->
               <span class="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">{{ agent.defaultModel }}</span>
               <!-- Tasks completed -->
-              <span class="text-xs text-muted-foreground" :title="`${agent.stats?.tasksCompleted || 0} tasks completed`">
+              <span class="text-xs text-muted-foreground hidden sm:inline" :title="`${agent.stats?.tasksCompleted || 0} tasks completed`">
                 {{ agent.stats?.tasksCompleted || 0 }} tasks
               </span>
               <!-- Last active -->
-              <span class="text-xs text-muted-foreground w-16 text-right">{{ timeAgo(agent.stats?.lastActive || 0) }}</span>
+              <span class="text-xs text-muted-foreground w-16 text-right hidden sm:inline">{{ timeAgo(agent.stats?.lastActive || 0) }}</span>
               <!-- Chevron -->
               <svg
                 class="w-4 h-4 text-muted-foreground/70 transition-transform"
@@ -166,7 +166,7 @@ function resolveSkillNames(ids: string[]): string[] {
           <!-- Info grid -->
           <div>
             <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Info</h5>
-            <div class="grid grid-cols-4 gap-3 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
               <div>
                 <span class="text-muted-foreground">Role:</span>
                 <span class="ml-1 text-foreground">{{ agent.role }}</span>
@@ -189,7 +189,7 @@ function resolveSkillNames(ids: string[]): string[] {
           <!-- Stats grid -->
           <div>
             <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Stats</h5>
-            <div class="grid grid-cols-3 gap-3 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
               <div>
                 <span class="text-muted-foreground">Tasks Completed:</span>
                 <span class="ml-1 text-foreground font-semibold">{{ agent.stats?.tasksCompleted || 0 }}</span>

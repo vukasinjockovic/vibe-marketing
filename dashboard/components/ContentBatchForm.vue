@@ -118,7 +118,7 @@ async function submit() {
       </p>
     </VFormField>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <VFormField label="Batch Name" required>
         <input
           v-model="form.name"
@@ -146,7 +146,7 @@ async function submit() {
       />
     </VFormField>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Batch size -->
       <VFormField label="Batch Size">
         <div class="flex gap-2">

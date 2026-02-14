@@ -69,7 +69,7 @@ function timeAgo(ts: number) {
       <div
         v-for="notif in notifications"
         :key="notif._id"
-        class="px-6 py-4 flex items-start gap-4"
+        class="px-4 sm:px-6 py-4 flex items-start gap-3 sm:gap-4"
       >
         <div class="flex-shrink-0 mt-0.5">
           <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">

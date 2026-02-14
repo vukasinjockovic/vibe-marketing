@@ -11,11 +11,19 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Menu,
+  X,
 } from 'lucide-vue-next'
 
 const { user, logout } = useAuth()
 const { open: openArtifacts } = useArtifactsBrowser()
 const route = useRoute()
+const mobileMenuOpen = ref(false)
+
+// Close mobile menu on route change
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false
+})
 
 // Artifacts button only visible on project-scoped pages
 const currentProjectSlug = computed(() => {
@@ -73,9 +81,24 @@ function isActive(path: string) {
 
 <template>
   <div class="min-h-screen bg-background">
+    <!-- Mobile backdrop -->
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      leave-active-class="transition-opacity duration-200"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="mobileMenuOpen"
+        class="fixed inset-0 z-20 bg-black/50 md:hidden"
+        @click="mobileMenuOpen = false"
+      />
+    </Transition>
+
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar text-sidebar-foreground border-r border-border/10 w-60"
+      class="fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar text-sidebar-foreground border-r border-border/10 w-60 transition-transform duration-200 md:translate-x-0"
+      :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <!-- Logo -->
       <div class="flex items-center gap-3 px-4 h-14 border-b border-white/10 shrink-0">
@@ -131,12 +154,20 @@ function isActive(path: string) {
 
     <!-- Main content -->
     <main
-      class="min-h-screen ml-60"
+      class="min-h-screen md:ml-60"
     >
       <!-- Topbar -->
-      <div class="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6">
-        <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-1 text-sm">
+      <div class="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4 md:px-6">
+        <!-- Mobile menu button + Breadcrumbs -->
+        <div class="flex items-center gap-2 min-w-0">
+          <button
+            class="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+          >
+            <Menu v-if="!mobileMenuOpen" :size="20" />
+            <X v-else :size="20" />
+          </button>
+        <nav class="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide">
           <template v-for="(crumb, i) in breadcrumbs" :key="crumb.path">
             <ChevronRight v-if="i > 0" :size="14" class="text-muted-foreground/40" />
             <NuxtLink
@@ -146,9 +177,10 @@ function isActive(path: string) {
             >
               {{ crumb.label }}
             </NuxtLink>
-            <span v-else class="text-foreground font-medium">{{ crumb.label }}</span>
+            <span v-else class="text-foreground font-medium whitespace-nowrap">{{ crumb.label }}</span>
           </template>
         </nav>
+        </div>
 
         <!-- Right side -->
         <div class="flex items-center gap-2">
@@ -164,7 +196,7 @@ function isActive(path: string) {
         </div>
       </div>
 
-      <div class="p-6 max-w-[1400px]">
+      <div class="p-4 md:p-6 max-w-[1400px]">
         <slot />
       </div>
     </main>

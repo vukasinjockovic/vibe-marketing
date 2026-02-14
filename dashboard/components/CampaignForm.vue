@@ -564,9 +564,9 @@ async function submit() {
 <template>
   <div>
     <!-- Step indicator -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-8 overflow-x-auto scrollbar-hide">
       <template v-for="s in totalSteps" :key="s">
-        <div class="flex flex-col items-center" style="min-width: 4.5rem;">
+        <div class="flex flex-col items-center min-w-[3rem] sm:min-w-[4.5rem]">
           <button
             type="button"
             class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
@@ -1057,7 +1057,7 @@ async function submit() {
       </VFormField>
 
       <VFormField label="Deliverables">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <label
             v-for="opt in deliverableOptions"
             :key="opt.key"
@@ -1083,7 +1083,7 @@ async function submit() {
     </div>
 
     <!-- Navigation buttons -->
-    <div class="flex justify-between mt-8 pt-4 border-t border-border">
+    <div class="flex flex-col-reverse sm:flex-row justify-between gap-3 mt-8 pt-4 border-t border-border">
       <button
         v-if="step > 1"
         class="px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors rounded-md"

@@ -109,7 +109,7 @@ async function submit() {
             />
           </VFormField>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <VFormField label="Color">
               <div class="flex gap-3">
                 <button
@@ -150,7 +150,7 @@ async function submit() {
         <h3 class="font-semibold text-foreground mb-1">Brand Voice</h3>
         <p class="text-xs text-muted-foreground mb-4">Applies to all products. Can be overridden per product.</p>
         <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <VFormField label="Tone">
               <textarea
                 v-model="form.tone"

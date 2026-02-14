@@ -47,9 +47,9 @@ async function confirmArchive() {
 
     <template v-else-if="product">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 flex-wrap">
             <h2 class="text-xl font-bold text-foreground">{{ product.name }}</h2>
             <VStatusBadge :status="product.status" />
           </div>
@@ -163,7 +163,7 @@ async function confirmArchive() {
           <h3 class="font-semibold text-foreground mb-1">Brand Voice <span class="text-xs font-normal text-primary/70">(product override)</span></h3>
           <p class="text-xs text-muted-foreground mb-4">This overrides the project-level brand voice for this product.</p>
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tone</p>
                 <p class="text-sm text-foreground mt-1">{{ product.brandVoiceOverride.tone }}</p>
@@ -220,7 +220,7 @@ async function confirmArchive() {
           title="No audiences"
           description="Add focus groups to define your target audiences."
         />
-        <div v-else class="grid grid-cols-2 gap-4">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <NuxtLink
             v-for="fg in focusGroups"
             :key="fg._id"

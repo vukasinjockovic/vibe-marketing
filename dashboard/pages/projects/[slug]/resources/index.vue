@@ -88,45 +88,47 @@ function handleSelect(resource: any) {
     <ResourceStatsCards v-if="projectId" :project-id="projectId" />
 
     <!-- Filters bar -->
-    <div class="flex items-center gap-3 flex-wrap">
-      <div class="flex items-center gap-2 text-sm text-muted-foreground">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
         <Filter :size="14" />
         Filters:
       </div>
 
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search by title..."
-        class="h-8 px-3 text-sm rounded-md border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-      />
+      <div class="flex flex-wrap items-center gap-3 flex-1">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search by title..."
+          class="h-9 px-3 text-sm rounded-md border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto sm:min-w-[180px]"
+        />
 
-      <select
-        v-model="selectedType"
-        class="h-8 px-2 text-sm rounded-md border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-      >
-        <option v-for="t in resourceTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
-      </select>
+        <select
+          v-model="selectedType"
+          class="h-9 px-2 text-sm rounded-md border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option v-for="t in resourceTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+        </select>
 
-      <select
-        v-model="selectedStatus"
-        class="h-8 px-2 text-sm rounded-md border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-      >
-        <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
-      </select>
+        <select
+          v-model="selectedStatus"
+          class="h-9 px-2 text-sm rounded-md border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
+        </select>
+      </div>
 
-      <span class="text-xs text-muted-foreground ml-auto">
+      <span class="text-xs text-muted-foreground sm:ml-auto shrink-0">
         {{ resources.length }} resource{{ resources.length !== 1 ? 's' : '' }}
       </span>
     </div>
 
     <!-- Resource table (inline since we have custom data source) -->
-    <div class="rounded-lg border bg-card shadow-sm">
+    <div class="rounded-lg border bg-card shadow-sm overflow-x-auto">
       <div v-if="resources.length === 0" class="p-8 text-center text-muted-foreground">
         No resources found
       </div>
 
-      <table v-else class="w-full">
+      <table v-else class="w-full min-w-[600px]">
         <thead>
           <tr class="border-b text-left text-sm text-muted-foreground">
             <th class="px-4 py-3 font-medium">Resource</th>

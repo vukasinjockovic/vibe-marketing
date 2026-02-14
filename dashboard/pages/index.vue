@@ -40,7 +40,7 @@ const statIcons: Record<string, Component> = {
   <div>
     <VPageHeader :title="`Welcome, ${user?.name || 'User'}`" />
 
-    <div class="grid grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
       <div
         v-for="(value, key) in stats"
         :key="key"
