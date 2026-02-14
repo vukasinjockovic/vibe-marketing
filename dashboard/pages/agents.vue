@@ -79,7 +79,7 @@ function resolveSkillNames(ids: string[]): string[] {
         <input
           v-model="searchQuery"
           placeholder="Search agents..."
-          class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-48"
+          class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full sm:w-48"
         />
         <select v-model="statusFilter" class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
           <option v-for="s in statusOptions" :key="s" :value="s">
@@ -114,16 +114,16 @@ function resolveSkillNames(ids: string[]): string[] {
           class="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
           @click="toggleExpand(agent._id)"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-3 min-w-0">
               <!-- Status dot -->
               <span
-                class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                class="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5"
                 :class="statusColor(agent.status)"
                 :title="agent.status"
               />
-              <div>
-                <div class="flex items-center gap-2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <NuxtLink
                     :to="`/agents/${agent.name}`"
                     class="font-medium text-foreground hover:text-primary"
@@ -131,14 +131,13 @@ function resolveSkillNames(ids: string[]): string[] {
                   >
                     {{ agent.displayName }}
                   </NuxtLink>
-                  <span class="text-xs text-muted-foreground font-mono">{{ agent.name }}</span>
+                  <span class="text-xs text-muted-foreground font-mono hidden sm:inline">{{ agent.name }}</span>
+                  <span class="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">{{ agent.defaultModel }}</span>
                 </div>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1 max-w-md">{{ agent.role }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{{ agent.role }}</p>
               </div>
             </div>
-            <div class="flex items-center gap-2 sm:gap-4">
-              <!-- Model badge -->
-              <span class="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">{{ agent.defaultModel }}</span>
+            <div class="flex items-center gap-3 shrink-0">
               <!-- Tasks completed -->
               <span class="text-xs text-muted-foreground hidden sm:inline" :title="`${agent.stats?.tasksCompleted || 0} tasks completed`">
                 {{ agent.stats?.tasksCompleted || 0 }} tasks

@@ -165,7 +165,7 @@ function onSkillSaved() {
     </VPageHeader>
 
     <!-- Sync status bar -->
-    <div v-if="lastSyncResult" class="mb-4 rounded-lg border bg-card px-4 py-2 text-sm text-muted-foreground flex items-center gap-4">
+    <div v-if="lastSyncResult" class="mb-4 rounded-lg border bg-card px-4 py-2 text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
       <span>{{ lastSyncResult.synced }} synced</span>
       <span>{{ lastSyncResult.unchanged }} unchanged</span>
       <span>{{ lastSyncResult.skipped }} excluded</span>
@@ -219,10 +219,10 @@ function onSkillSaved() {
     <!-- Skills grouped by category -->
     <div v-else class="space-y-8">
       <div v-for="group in filteredGroups" :key="group.category.key">
-        <div class="flex items-center gap-2 mb-3">
+        <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3">
           <h2 class="text-lg font-semibold text-foreground">{{ group.category.displayName }}</h2>
-          <span class="text-sm text-muted-foreground">{{ group.category.description }}</span>
-          <span class="ml-auto text-xs text-muted-foreground">{{ group.skills.length }} skill{{ group.skills.length !== 1 ? 's' : '' }}</span>
+          <span class="text-xs text-muted-foreground">({{ group.skills.length }})</span>
+          <span class="text-sm text-muted-foreground hidden sm:inline">{{ group.category.description }}</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

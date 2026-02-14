@@ -16,6 +16,7 @@ import type * as auth from "../auth.js";
 import type * as campaigns from "../campaigns.js";
 import type * as channels from "../channels.js";
 import type * as contentBatches from "../contentBatches.js";
+import type * as dashboard from "../dashboard.js";
 import type * as documents from "../documents.js";
 import type * as focusGroupStaging from "../focusGroupStaging.js";
 import type * as focusGroups from "../focusGroups.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   campaigns: typeof campaigns;
   channels: typeof channels;
   contentBatches: typeof contentBatches;
+  dashboard: typeof dashboard;
   documents: typeof documents;
   focusGroupStaging: typeof focusGroupStaging;
   focusGroups: typeof focusGroups;

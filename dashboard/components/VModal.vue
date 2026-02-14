@@ -58,11 +58,11 @@ onUnmounted(() => {
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80 overflow-y-auto" @click="onBackdrop">
-        <div class="bg-background rounded-t-lg sm:rounded-lg shadow-xl w-full sm:my-auto border max-h-[90vh] sm:max-h-[calc(100vh-2rem)] flex flex-col" :class="sizeClass" @click.stop>
-          <div class="flex items-center justify-between px-6 py-4 border-b shrink-0">
-            <h2 class="text-lg font-semibold text-foreground">{{ title }}</h2>
-            <button class="text-muted-foreground hover:text-foreground transition-colors rounded-sm opacity-70 hover:opacity-100" @click="close">
+      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 overflow-y-auto" @click="onBackdrop">
+        <div class="bg-background rounded-lg shadow-xl w-full my-auto border max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col" :class="sizeClass" @click.stop>
+          <div class="relative px-6 pr-12 py-4 border-b shrink-0 overflow-hidden">
+            <h2 class="text-lg font-semibold text-foreground truncate">{{ title }}</h2>
+            <button class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" @click="close">
               <X :size="18" />
             </button>
           </div>

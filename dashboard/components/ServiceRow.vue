@@ -24,46 +24,44 @@ const typeBadge = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-3 px-4 py-2.5 group">
+  <div class="flex items-start gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 group">
     <!-- Drag handle -->
     <GripVertical
       v-if="draggable"
-      class="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0"
+      class="h-4 w-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 mt-0.5"
     />
     <div v-else class="w-4 shrink-0" />
 
     <!-- Rank -->
-    <span v-if="rank" class="text-xs text-muted-foreground w-5 text-right shrink-0">{{ rank }}.</span>
+    <span v-if="rank" class="text-xs text-muted-foreground w-5 text-right shrink-0 mt-0.5">{{ rank }}.</span>
 
-    <!-- Name (clickable) -->
-    <button
-      class="font-medium text-sm text-foreground hover:text-primary truncate text-left"
-      @click="emit('configure', service)"
-    >
-      {{ service.displayName }}
-    </button>
+    <!-- Content: name + metadata -->
+    <div class="flex-1 min-w-0">
+      <!-- Row 1: Name -->
+      <button
+        class="font-medium text-sm text-foreground hover:text-primary truncate text-left block max-w-full"
+        @click="emit('configure', service)"
+      >
+        {{ service.displayName }}
+      </button>
+      <!-- Row 2: Badges + cost (visible on mobile below name) -->
+      <div class="flex flex-wrap items-center gap-1.5 mt-1">
+        <span class="px-1.5 py-0.5 text-xs rounded-full font-medium shrink-0" :class="typeBadge.class">
+          {{ typeBadge.label }}
+        </span>
+        <span v-if="service.freeTier" class="px-1.5 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-700 font-medium shrink-0">
+          Free
+        </span>
+        <ServiceHealthDot :status="service.lastHealthStatus" />
+        <span v-if="service.costInfo" class="text-xs text-muted-foreground md:shrink-0">{{ service.costInfo }}</span>
+      </div>
+    </div>
 
-    <!-- Type badge -->
-    <span class="px-1.5 py-0.5 text-xs rounded-full font-medium shrink-0" :class="typeBadge.class">
-      {{ typeBadge.label }}
-    </span>
-
-    <!-- Free tier badge -->
-    <span v-if="service.freeTier" class="px-1.5 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-700 font-medium shrink-0">
-      Free
-    </span>
-
-    <!-- Cost -->
-    <span class="text-xs text-muted-foreground ml-auto shrink-0">{{ service.costInfo }}</span>
-
-    <!-- Health dot -->
-    <ServiceHealthDot :status="service.lastHealthStatus" />
-
-    <!-- Toggle -->
+    <!-- Toggle (always right-aligned) -->
     <button
       role="switch"
       :aria-checked="service.isActive"
-      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mt-0.5"
       :class="service.isActive ? 'bg-primary' : 'bg-input'"
       @click="emit('toggle', service)"
     >

@@ -270,36 +270,37 @@ const reviewUrl = computed(() => {
           class="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
           @click="toggleExpand(fg._id)"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
-                {{ fg.number || '#' }}
-              </span>
-              <div class="flex-1">
-                <div class="flex items-center gap-2">
-                  <NuxtLink
-                    :to="`/projects/${project?.slug}/audiences/${fg._id}`"
-                    class="font-medium text-foreground hover:text-primary"
-                    @click.stop
-                  >
-                    {{ fg.name }}
-                  </NuxtLink>
-                  <span class="text-xs text-muted-foreground/70">{{ fg.nickname }}</span>
-                </div>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <VStatusBadge :status="fg.category" size="sm" />
-                  <span class="text-xs text-muted-foreground">{{ fg.source }}</span>
+          <!-- Top row: number + name + chevron -->
+          <div class="flex items-start gap-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold shrink-0">
+              {{ fg.number || '#' }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <!-- Name + nickname -->
+              <div class="flex items-center gap-2 min-w-0">
+                <NuxtLink
+                  :to="`/projects/${project?.slug}/audiences/${fg._id}`"
+                  class="font-medium text-foreground hover:text-primary truncate"
+                  @click.stop
+                >
+                  {{ fg.name }}
+                </NuxtLink>
+                <span class="text-xs text-muted-foreground/70 hidden sm:inline shrink-0">{{ fg.nickname }}</span>
+              </div>
+              <!-- Category + source + enrichment bar (wraps on mobile) -->
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                <VStatusBadge :status="fg.category" size="sm" />
+                <span class="text-xs text-muted-foreground">{{ fg.source }}</span>
+                <div class="w-16 sm:w-20">
+                  <EnrichmentProgressBar :score="getFgEnrichmentScore(fg)" :show-percentage="false" />
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <!-- Enrichment mini-bar -->
-              <div class="w-20">
-                <EnrichmentProgressBar :score="getFgEnrichmentScore(fg)" :show-percentage="false" />
-              </div>
+            <!-- Actions + chevron -->
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               <button
                 v-if="fg.enrichments?.length"
-                class="p-1 text-muted-foreground/70 hover:text-foreground transition-colors"
+                class="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors hidden sm:block"
                 title="Audit Trail"
                 @click.stop="openAuditTrail(fg)"
               >
@@ -308,7 +309,7 @@ const reviewUrl = computed(() => {
                 </svg>
               </button>
               <button
-                class="p-1 text-red-400 hover:text-red-600 transition-colors"
+                class="p-1.5 text-red-400 hover:text-red-600 transition-colors hidden sm:block"
                 title="Delete"
                 @click.stop="promptDelete(fg._id)"
               >
@@ -317,7 +318,7 @@ const reviewUrl = computed(() => {
                 </svg>
               </button>
               <svg
-                class="w-4 h-4 text-muted-foreground/70 transition-transform"
+                class="w-4 h-4 text-muted-foreground/70 transition-transform shrink-0"
                 :class="{ 'rotate-180': isExpanded(fg._id) }"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -329,7 +330,30 @@ const reviewUrl = computed(() => {
               </svg>
             </div>
           </div>
-          <p class="text-sm text-muted-foreground mt-2 line-clamp-2">{{ fg.overview }}</p>
+          <!-- Overview text -->
+          <p class="text-sm text-muted-foreground mt-2 line-clamp-2 pl-11">{{ fg.overview }}</p>
+          <!-- Mobile-only action buttons -->
+          <div class="flex items-center gap-2 mt-2 pl-11 sm:hidden">
+            <button
+              v-if="fg.enrichments?.length"
+              class="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors rounded hover:bg-muted"
+              title="Audit Trail"
+              @click.stop="openAuditTrail(fg)"
+            >
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </button>
+            <button
+              class="p-1.5 text-red-400 hover:text-red-600 transition-colors rounded hover:bg-red-50"
+              title="Delete"
+              @click.stop="promptDelete(fg._id)"
+            >
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Expanded Details -->
@@ -389,7 +413,7 @@ const reviewUrl = computed(() => {
           </div>
 
           <!-- Core Desires & Pain Points -->
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div v-if="fg.coreDesires?.length">
               <h5 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Core Desires</h5>
               <div class="flex flex-wrap gap-1">

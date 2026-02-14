@@ -59,21 +59,19 @@ function copyEnvVar() {
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="open && service" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="emit('close')">
-        <div class="bg-card rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+      <div v-if="open && service" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50" @click.self="emit('close')">
+        <div class="bg-card rounded-lg shadow-xl w-full max-w-lg max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col">
           <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b">
-            <div>
-              <h3 class="font-semibold text-lg text-foreground">{{ service.displayName }}</h3>
-              <p class="text-sm text-muted-foreground">{{ service.description }}</p>
-            </div>
-            <button class="p-1 rounded hover:bg-muted" @click="emit('close')">
+          <div class="relative px-4 sm:px-6 pr-12 py-4 border-b shrink-0 overflow-hidden">
+            <h3 class="font-semibold text-lg text-foreground truncate">{{ service.displayName }}</h3>
+            <p class="text-sm text-muted-foreground truncate mt-0.5">{{ service.description }}</p>
+            <button class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors" @click="emit('close')">
               <X class="h-5 w-5" />
             </button>
           </div>
 
           <!-- Body -->
-          <div class="px-6 py-4 space-y-4">
+          <div class="px-4 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1">
             <!-- Info row -->
             <div class="flex flex-wrap gap-2 text-sm">
               <span class="px-2 py-1 rounded bg-muted text-muted-foreground">{{ service.integrationType || 'script' }}</span>
@@ -134,7 +132,7 @@ function copyEnvVar() {
           </div>
 
           <!-- Footer -->
-          <div class="flex justify-end gap-2 px-6 py-4 border-t">
+          <div class="flex justify-end gap-2 px-4 sm:px-6 py-4 border-t shrink-0">
             <button class="px-4 py-2 text-sm rounded-md hover:bg-muted" @click="emit('close')">Cancel</button>
             <button
               class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"

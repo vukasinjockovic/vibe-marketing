@@ -246,7 +246,7 @@ function canProceed(): boolean {
           <div class="flex items-center gap-2 min-w-0">
             <FileText :size="14" class="text-muted-foreground shrink-0" />
             <span class="text-sm text-foreground truncate">{{ file.name }}</span>
-            <span class="text-xs text-muted-foreground shrink-0">{{ formatSize(file.size) }}</span>
+            <span class="text-xs text-muted-foreground md:shrink-0">{{ formatSize(file.size) }}</span>
           </div>
           <button class="text-muted-foreground hover:text-destructive" @click="removeFile(i)">
             <X :size="14" />

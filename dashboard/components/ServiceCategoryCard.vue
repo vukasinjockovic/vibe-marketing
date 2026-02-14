@@ -52,10 +52,12 @@ async function onDragEnd() {
       @click="expanded = !expanded"
     >
       <component :is="expanded ? ChevronDown : ChevronRight" class="h-4 w-4 text-muted-foreground shrink-0" />
-      <span class="text-lg">{{ category.icon }}</span>
-      <h3 class="font-semibold text-foreground text-sm">{{ category.displayName }}</h3>
-      <span class="text-xs text-muted-foreground ml-1">{{ category.description }}</span>
-      <span class="ml-auto text-xs text-muted-foreground shrink-0">
+      <span class="text-lg shrink-0">{{ category.icon }}</span>
+      <div class="flex-1 min-w-0 text-left">
+        <h3 class="font-semibold text-foreground text-sm truncate">{{ category.displayName }}</h3>
+        <p class="text-xs text-muted-foreground truncate hidden sm:block">{{ category.description }}</p>
+      </div>
+      <span class="text-xs text-muted-foreground md:shrink-0 whitespace-nowrap">
         {{ activeServices.length }} active
       </span>
     </button>
