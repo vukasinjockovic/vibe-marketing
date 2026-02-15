@@ -575,6 +575,103 @@ export const listRelated = query({
 });
 
 // ═══════════════════════════════════════════
+// listByTaskAndType — Resources for a task filtered by type
+// ═══════════════════════════════════════════
+
+export const listByTaskAndType = query({
+  args: {
+    taskId: v.id("tasks"),
+    resourceType: resourceTypeValidator,
+  },
+  handler: async (ctx, args) => {
+    const all = await ctx.db
+      .query("resources")
+      .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
+      .collect();
+    return all.filter((r) => r.resourceType === args.resourceType);
+  },
+});
+
+// ═══════════════════════════════════════════
+// listTree — Hierarchical resource tree for campaign/batch/task
+// ═══════════════════════════════════════════
+
+export const listTree = query({
+  args: {
+    campaignId: v.optional(v.id("campaigns")),
+    contentBatchId: v.optional(v.id("contentBatches")),
+    taskId: v.optional(v.id("tasks")),
+  },
+  handler: async (ctx, args) => {
+    let resources: any[] = [];
+
+    if (args.taskId) {
+      resources = await ctx.db
+        .query("resources")
+        .withIndex("by_task", (q) => q.eq("taskId", args.taskId!))
+        .collect();
+    } else if (args.campaignId) {
+      resources = await ctx.db
+        .query("resources")
+        .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId!))
+        .collect();
+    } else if (args.contentBatchId) {
+      resources = await ctx.db
+        .query("resources")
+        .withIndex("by_content_batch", (q) => q.eq("contentBatchId", args.contentBatchId!))
+        .collect();
+    }
+
+    // Build tree: roots (no parentResourceId) with nested children
+    const byParent: Record<string, any[]> = {};
+    const roots: any[] = [];
+
+    for (const r of resources) {
+      if (r.parentResourceId) {
+        const key = r.parentResourceId;
+        if (!byParent[key]) byParent[key] = [];
+        byParent[key].push(r);
+      } else {
+        roots.push(r);
+      }
+    }
+
+    // Attach children to each root (single level deep for performance)
+    return roots.map((root) => ({
+      ...root,
+      children: byParent[root._id] || [],
+    }));
+  },
+});
+
+// ═══════════════════════════════════════════
+// campaignProgress — Aggregate resource counts by type and status
+// ═══════════════════════════════════════════
+
+export const campaignProgress = query({
+  args: { campaignId: v.id("campaigns") },
+  handler: async (ctx, args) => {
+    const resources = await ctx.db
+      .query("resources")
+      .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+      .collect();
+
+    const progress: Record<string, { total: number; draft: number; reviewed: number; published: number }> = {};
+    for (const r of resources) {
+      if (!progress[r.resourceType]) {
+        progress[r.resourceType] = { total: 0, draft: 0, reviewed: 0, published: 0 };
+      }
+      progress[r.resourceType].total++;
+      const status = r.status ?? "draft";
+      if (status in progress[r.resourceType]) {
+        (progress[r.resourceType] as any)[status]++;
+      }
+    }
+    return progress;
+  },
+});
+
+// ═══════════════════════════════════════════
 // syncFromFile — Update content + hash from filesystem
 // ═══════════════════════════════════════════
 

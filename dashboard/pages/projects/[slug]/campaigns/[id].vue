@@ -459,8 +459,18 @@ function formatTime(ts: number) {
       <!-- Resources -->
       <div class="mb-6">
         <h2 class="text-lg font-semibold text-foreground mb-3">Resources</h2>
-        <ResourceStatsCards :campaign-id="campaignId" />
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <div class="lg:col-span-2">
+            <ResourceStatsCards :campaign-id="campaignId" />
+          </div>
+          <CampaignProgress :campaign-id="campaignId" />
+        </div>
+        <div class="mb-4">
+          <h3 class="text-sm font-medium text-foreground mb-2">Resource Tree</h3>
+          <ResourceTree :campaign-id="campaignId" @select="(r) => $router.push(`/projects/${$route.params.slug}/resources/${r._id}`)" />
+        </div>
         <div class="mt-3">
+          <h3 class="text-sm font-medium text-foreground mb-2">All Resources</h3>
           <ResourceTable :campaign-id="campaignId" @select="(r) => $router.push(`/projects/${$route.params.slug}/resources/${r._id}`)" />
         </div>
       </div>

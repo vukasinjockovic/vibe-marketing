@@ -88,6 +88,20 @@ export const heartbeat = mutation({
   },
 });
 
+// Rename an agent
+export const rename = mutation({
+  args: {
+    id: v.id("agents"),
+    name: v.string(),
+    displayName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const patch: Record<string, any> = { name: args.name };
+    if (args.displayName !== undefined) patch.displayName = args.displayName;
+    await ctx.db.patch(args.id, patch);
+  },
+});
+
 // Update agent default model
 export const updateModel = mutation({
   args: {

@@ -26,10 +26,9 @@
     },
 
     "crawl4ai": {
-      "command": "pip3",
-      "args": ["run", "crawl4ai-mcp-server"],
-      "env": { "CRAWL4AI_API_URL": "http://localhost:11235" },
-      "disabled": true
+      "command": "uvx",
+      "args": ["--from", "crawl4ai-mcp", "crawl-mcp"],
+      "env": { "CRAWL4AI_API_URL": "http://localhost:11235" }
     },
 
     "dataforseo": {

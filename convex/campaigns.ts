@@ -126,6 +126,34 @@ export const create = mutation({
       categoryId: v.optional(v.string()),
     })),
     targetArticleCount: v.optional(v.number()),
+    productionManifest: v.optional(v.object({
+      articles: v.object({
+        count: v.number(),
+        perArticle: v.object({
+          heroImage: v.optional(v.boolean()),
+          socialPosts: v.optional(v.object({
+            facebook: v.optional(v.number()),
+            instagram: v.optional(v.number()),
+            x: v.optional(v.number()),
+            linkedin: v.optional(v.number()),
+            tiktok: v.optional(v.number()),
+            pinterest: v.optional(v.number()),
+            vk: v.optional(v.number()),
+          })),
+          emailExcerpt: v.optional(v.boolean()),
+          videoScript: v.optional(v.boolean()),
+          redditVersion: v.optional(v.boolean()),
+        }),
+      }),
+      standalone: v.optional(v.object({
+        emailSequence: v.optional(v.number()),
+        landingPage: v.optional(v.number()),
+        leadMagnet: v.optional(v.number()),
+        adCopySet: v.optional(v.number()),
+        pressRelease: v.optional(v.number()),
+        ebookFull: v.optional(v.number()),
+      })),
+    })),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -194,6 +222,34 @@ export const update = mutation({
       siteUrl: v.optional(v.string()),
       authorName: v.optional(v.string()),
       categoryId: v.optional(v.string()),
+    })),
+    productionManifest: v.optional(v.object({
+      articles: v.object({
+        count: v.number(),
+        perArticle: v.object({
+          heroImage: v.optional(v.boolean()),
+          socialPosts: v.optional(v.object({
+            facebook: v.optional(v.number()),
+            instagram: v.optional(v.number()),
+            x: v.optional(v.number()),
+            linkedin: v.optional(v.number()),
+            tiktok: v.optional(v.number()),
+            pinterest: v.optional(v.number()),
+            vk: v.optional(v.number()),
+          })),
+          emailExcerpt: v.optional(v.boolean()),
+          videoScript: v.optional(v.boolean()),
+          redditVersion: v.optional(v.boolean()),
+        }),
+      }),
+      standalone: v.optional(v.object({
+        emailSequence: v.optional(v.number()),
+        landingPage: v.optional(v.number()),
+        leadMagnet: v.optional(v.number()),
+        adCopySet: v.optional(v.number()),
+        pressRelease: v.optional(v.number()),
+        ebookFull: v.optional(v.number()),
+      })),
     })),
   },
   handler: async (ctx, args) => {

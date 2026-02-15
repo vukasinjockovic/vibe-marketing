@@ -75,6 +75,18 @@ run_cat '{
 }'
 echo "  ✓ Category: L5_quality"
 
+run_cat '{
+  "key": "research",
+  "displayName": "Research Tools",
+  "description": "Platform-specific research scripts for audience mining, keyword discovery, and competitive intelligence.",
+  "sortOrder": 60,
+  "scope": "research",
+  "selectionMode": "multiple",
+  "allowNone": true,
+  "pipelineAgentNames": ["vibe-audience-researcher", "vibe-keyword-researcher", "vibe-serp-analyzer"]
+}'
+echo "  ✓ Category: research"
+
 echo ""
 echo "Seeding skills into Convex ($CONVEX_URL)..."
 
@@ -294,5 +306,111 @@ run '{
 }'
 echo "  ✓ L5: Writing Clearly & Concisely"
 
+# ═══ Research Tools (custom type) ═══
+run '{
+  "slug": "google-trends-research",
+  "name": "google-trends-research",
+  "displayName": "Google Trends Research",
+  "description": "Pull trending keyword data, seasonal patterns, related queries, and regional interest via pytrends.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/google-trends-research/SKILL.md",
+  "tagline": "Seasonal trends and keyword interest",
+  "dashboardDescription": "Google Trends data extraction for content calendar planning and keyword research."
+}'
+echo "  ✓ Research: Google Trends"
+
+run '{
+  "slug": "google-suggest-research",
+  "name": "google-suggest-research",
+  "displayName": "Google Suggest Research",
+  "description": "Discover what people actually type into Google by querying the Autocomplete API. Free, no API key.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/google-suggest-research/SKILL.md",
+  "tagline": "Real search queries from autocomplete",
+  "dashboardDescription": "Google Autocomplete keyword expansion for content ideation and SEO planning."
+}'
+echo "  ✓ Research: Google Suggest"
+
+run '{
+  "slug": "youtube-research",
+  "name": "youtube-research",
+  "displayName": "YouTube Research",
+  "description": "Search YouTube, extract video transcripts and comments for audience voice mining via yt-dlp.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/youtube-research/SKILL.md",
+  "tagline": "Video content and comment mining",
+  "dashboardDescription": "YouTube search, metadata, transcript, and comment extraction for content research."
+}'
+echo "  ✓ Research: YouTube"
+
+run '{
+  "slug": "amazon-reviews-research",
+  "name": "amazon-reviews-research",
+  "displayName": "Amazon Reviews Research",
+  "description": "Extract customer voice data from Amazon product reviews via Playwright browser automation.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/amazon-reviews-research/SKILL.md",
+  "tagline": "Customer voice from product reviews",
+  "dashboardDescription": "Amazon review scraping for voice-of-customer mining, product gaps, and copy inspiration."
+}'
+echo "  ✓ Research: Amazon Reviews"
+
+run '{
+  "slug": "pinterest-research",
+  "name": "pinterest-research",
+  "displayName": "Pinterest Research",
+  "description": "Search Pinterest for trending pins, boards, and visual content ideas. Free Playwright-based scraping.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/pinterest-research/SKILL.md",
+  "tagline": "Visual content trends and audience boards",
+  "dashboardDescription": "Pinterest pin search, board analysis, and trends extraction for content planning."
+}'
+echo "  ✓ Research: Pinterest"
+
+run '{
+  "slug": "etsy-research",
+  "name": "etsy-research",
+  "displayName": "Etsy Research",
+  "description": "Search Etsy for product listings, reviews, shop analytics, and autocomplete suggestions.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/etsy-research/SKILL.md",
+  "tagline": "Product research and voice mining from Etsy",
+  "dashboardDescription": "Etsy listing search, review voice mining, shop analysis, and keyword suggestions."
+}'
+echo "  ✓ Research: Etsy"
+
+run '{
+  "slug": "quora-research",
+  "name": "quora-research",
+  "displayName": "Quora Research",
+  "description": "Find and extract questions, answers, and audience voice data from Quora.",
+  "category": "research",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/quora-research/SKILL.md",
+  "tagline": "Audience voice mining from Q&A platforms",
+  "dashboardDescription": "Quora question discovery, answer extraction, and deep voice-of-customer mining."
+}'
+echo "  ✓ Research: Quora"
+
 echo ""
-echo "Done! Seeded 5 categories + 13 skills (3 auto-active + 10 selectable)"
+echo "Done! Seeded 5 categories + 13 mbook/quality skills + 7 research skills (20 total)"

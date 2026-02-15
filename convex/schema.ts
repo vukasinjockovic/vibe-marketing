@@ -565,6 +565,34 @@ export default defineSchema({
     pausedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
     targetArticleCount: v.optional(v.number()),
+    productionManifest: v.optional(v.object({
+      articles: v.object({
+        count: v.number(),
+        perArticle: v.object({
+          heroImage: v.optional(v.boolean()),
+          socialPosts: v.optional(v.object({
+            facebook: v.optional(v.number()),
+            instagram: v.optional(v.number()),
+            x: v.optional(v.number()),
+            linkedin: v.optional(v.number()),
+            tiktok: v.optional(v.number()),
+            pinterest: v.optional(v.number()),
+            vk: v.optional(v.number()),
+          })),
+          emailExcerpt: v.optional(v.boolean()),
+          videoScript: v.optional(v.boolean()),
+          redditVersion: v.optional(v.boolean()),
+        }),
+      }),
+      standalone: v.optional(v.object({
+        emailSequence: v.optional(v.number()),
+        landingPage: v.optional(v.number()),
+        leadMagnet: v.optional(v.number()),
+        adCopySet: v.optional(v.number()),
+        pressRelease: v.optional(v.number()),
+        ebookFull: v.optional(v.number()),
+      })),
+    })),
   }).index("by_slug", ["slug"])
     .index("by_project", ["projectId"])
     .index("by_status", ["status"]),
@@ -638,6 +666,34 @@ export default defineSchema({
     publishedUrl: v.optional(v.string()),
     subscriberNames: v.array(v.string()),
     pendingBranches: v.optional(v.array(v.string())),
+    stepRetryCount: v.optional(v.number()),
+    resourceProgress: v.optional(v.object({
+      expectedCounts: v.optional(v.object({
+        article: v.optional(v.number()),
+        social_post: v.optional(v.number()),
+        image_prompt: v.optional(v.number()),
+        image: v.optional(v.number()),
+        email_excerpt: v.optional(v.number()),
+        video_script: v.optional(v.number()),
+        email_sequence: v.optional(v.number()),
+        landing_page: v.optional(v.number()),
+        lead_magnet: v.optional(v.number()),
+        ad_copy: v.optional(v.number()),
+      })),
+      completedCounts: v.optional(v.object({
+        article: v.optional(v.number()),
+        social_post: v.optional(v.number()),
+        image_prompt: v.optional(v.number()),
+        image: v.optional(v.number()),
+        email_excerpt: v.optional(v.number()),
+        video_script: v.optional(v.number()),
+        email_sequence: v.optional(v.number()),
+        landing_page: v.optional(v.number()),
+        lead_magnet: v.optional(v.number()),
+        ad_copy: v.optional(v.number()),
+      })),
+      lastUpdated: v.optional(v.number()),
+    })),
     metadata: v.optional(v.any()),
   }).index("by_status", ["status"])
     .index("by_campaign", ["campaignId"])

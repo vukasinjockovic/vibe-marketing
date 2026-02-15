@@ -47,17 +47,30 @@ const form = reactive({
   competitorUrls: [] as string[],
   notes: '',
   targetArticleCount: 5,
-  deliverableConfig: {
+  // Per-article deliverables
+  perArticle: {
     heroImage: true,
-    socialX: true,
-    socialLinkedIn: true,
+    socialPosts: {
+      facebook: 0,
+      instagram: 0,
+      x: 1,
+      linkedin: 1,
+      tiktok: 0,
+      pinterest: 0,
+      vk: 0,
+    },
     emailExcerpt: false,
     videoScript: false,
-    landingPage: false,
-    emailSequence: false,
-    leadMagnet: false,
-    adCopySet: false,
-    pressRelease: false,
+    redditVersion: false,
+  },
+  // Standalone deliverables (not per-article)
+  standalone: {
+    emailSequence: 0,
+    landingPage: 0,
+    leadMagnet: 0,
+    adCopySet: 0,
+    pressRelease: 0,
+    ebookFull: 0,
   },
   // Skill config (new generic format)
   skillSelections: [] as SkillSelectionEntry[],
@@ -314,9 +327,41 @@ if (props.campaign) {
   form.seedKeywords = c.seedKeywords || []
   form.competitorUrls = c.competitorUrls || []
   form.notes = c.notes || ''
-  form.targetArticleCount = c.targetArticleCount || 5
-  if (c.deliverableConfig) {
-    Object.assign(form.deliverableConfig, c.deliverableConfig)
+  // Load from productionManifest (new) or deliverableConfig (legacy)
+  if (c.productionManifest) {
+    const m = c.productionManifest
+    form.targetArticleCount = m.articles?.count || 5
+    if (m.articles?.perArticle) {
+      const pa = m.articles.perArticle
+      form.perArticle.heroImage = pa.heroImage ?? false
+      form.perArticle.emailExcerpt = pa.emailExcerpt ?? false
+      form.perArticle.videoScript = pa.videoScript ?? false
+      form.perArticle.redditVersion = pa.redditVersion ?? false
+      if (pa.socialPosts) Object.assign(form.perArticle.socialPosts, pa.socialPosts)
+    }
+    if (m.standalone) Object.assign(form.standalone, m.standalone)
+  } else {
+    form.targetArticleCount = c.targetArticleCount || 5
+    if (c.deliverableConfig) {
+      const dc = c.deliverableConfig
+      form.perArticle.heroImage = dc.heroImage ?? false
+      form.perArticle.emailExcerpt = dc.emailExcerpt ?? false
+      form.perArticle.videoScript = dc.videoScript ?? false
+      form.perArticle.redditVersion = dc.redditVersion ?? false
+      if (dc.socialX) form.perArticle.socialPosts.x = 1
+      if (dc.socialLinkedIn) form.perArticle.socialPosts.linkedin = 1
+      if (dc.socialInstagram) form.perArticle.socialPosts.instagram = 1
+      if (dc.socialFacebook) form.perArticle.socialPosts.facebook = 1
+      if (dc.socialTikTok) form.perArticle.socialPosts.tiktok = 1
+      if (dc.socialPinterest) form.perArticle.socialPosts.pinterest = 1
+      if (dc.socialVK) form.perArticle.socialPosts.vk = 1
+      if (dc.emailSequence) form.standalone.emailSequence = 1
+      if (dc.landingPage) form.standalone.landingPage = 1
+      if (dc.leadMagnet) form.standalone.leadMagnet = 1
+      if (dc.adCopySet) form.standalone.adCopySet = 1
+      if (dc.pressRelease) form.standalone.pressRelease = 1
+      if (dc.ebookFull) form.standalone.ebookFull = 1
+    }
   }
   if (c.skillConfig) {
     const sc = c.skillConfig
@@ -384,17 +429,30 @@ const stepValid = computed(() => {
   }
 })
 
-const deliverableOptions = [
+const perArticleToggles = [
   { key: 'heroImage', label: 'Hero Image' },
-  { key: 'socialX', label: 'X / Twitter Post' },
-  { key: 'socialLinkedIn', label: 'LinkedIn Post' },
   { key: 'emailExcerpt', label: 'Email Excerpt' },
   { key: 'videoScript', label: 'Video Script' },
-  { key: 'landingPage', label: 'Landing Page' },
+  { key: 'redditVersion', label: 'Reddit Version' },
+] as const
+
+const socialPlatforms = [
+  { key: 'x', label: 'X / Twitter' },
+  { key: 'linkedin', label: 'LinkedIn' },
+  { key: 'facebook', label: 'Facebook' },
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'tiktok', label: 'TikTok' },
+  { key: 'pinterest', label: 'Pinterest' },
+  { key: 'vk', label: 'VK' },
+] as const
+
+const standaloneOptions = [
   { key: 'emailSequence', label: 'Email Sequence' },
+  { key: 'landingPage', label: 'Landing Page' },
   { key: 'leadMagnet', label: 'Lead Magnet' },
   { key: 'adCopySet', label: 'Ad Copy Set' },
   { key: 'pressRelease', label: 'Press Release' },
+  { key: 'ebookFull', label: 'Full eBook' },
 ] as const
 
 function toggleFocusGroup(id: string) {
@@ -512,11 +570,43 @@ function buildSkillConfig() {
   return Object.keys(config).length > 0 ? config : undefined
 }
 
+function buildProductionManifest() {
+  // Build socialPosts object (only non-zero values)
+  const sp = form.perArticle.socialPosts
+  const socialPosts: Record<string, number> = {}
+  let hasSocial = false
+  for (const [k, v] of Object.entries(sp)) {
+    if (v > 0) { socialPosts[k] = v; hasSocial = true }
+  }
+
+  // Build standalone object (only non-zero values)
+  const standalone: Record<string, number> = {}
+  let hasStandalone = false
+  for (const [k, v] of Object.entries(form.standalone)) {
+    if (v > 0) { standalone[k] = v; hasStandalone = true }
+  }
+
+  return {
+    articles: {
+      count: form.targetArticleCount,
+      perArticle: {
+        heroImage: form.perArticle.heroImage || undefined,
+        socialPosts: hasSocial ? socialPosts : undefined,
+        emailExcerpt: form.perArticle.emailExcerpt || undefined,
+        videoScript: form.perArticle.videoScript || undefined,
+        redditVersion: form.perArticle.redditVersion || undefined,
+      },
+    },
+    standalone: hasStandalone ? standalone : undefined,
+  }
+}
+
 async function submit() {
   if (!stepValid.value) return
   saving.value = true
   try {
     const skillConfig = buildSkillConfig()
+    const productionManifest = buildProductionManifest()
     if (isEdit.value) {
       await updateCampaign({
         id: props.campaign._id as any,
@@ -531,7 +621,7 @@ async function submit() {
         competitorUrls: form.competitorUrls,
         notes: form.notes || undefined,
         targetArticleCount: form.targetArticleCount,
-        deliverableConfig: form.deliverableConfig,
+        productionManifest,
         skillConfig,
       })
       toast.success('Campaign updated!')
@@ -550,7 +640,7 @@ async function submit() {
         competitorUrls: form.competitorUrls,
         notes: form.notes || undefined,
         targetArticleCount: form.targetArticleCount,
-        deliverableConfig: form.deliverableConfig,
+        productionManifest,
         skillConfig,
       })
       toast.success('Campaign created!')
@@ -1040,7 +1130,7 @@ async function submit() {
     </div>
 
     <!-- Step 6: Configuration -->
-    <div v-if="step === 6" class="space-y-4">
+    <div v-if="step === 6" class="space-y-6">
       <VFormField label="Number of Articles" hint="How many content pieces to generate for this campaign.">
         <input
           v-model.number="form.targetArticleCount"
@@ -1059,19 +1149,63 @@ async function submit() {
         <VChipInput v-model="form.competitorUrls" placeholder="Add competitor URLs..." />
       </VFormField>
 
-      <VFormField label="Deliverables">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <label
-            v-for="opt in deliverableOptions"
+      <!-- Per-Article Deliverables -->
+      <VFormField label="Per-Article Deliverables" hint="These are produced for each article.">
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label
+              v-for="opt in perArticleToggles"
+              :key="opt.key"
+              class="flex items-center gap-2 text-sm cursor-pointer"
+            >
+              <input
+                v-model="(form.perArticle as any)[opt.key]"
+                type="checkbox"
+              />
+              {{ opt.label }}
+            </label>
+          </div>
+
+          <!-- Social Posts per platform -->
+          <div class="mt-3">
+            <h5 class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Social Posts per Article</h5>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div
+                v-for="platform in socialPlatforms"
+                :key="platform.key"
+                class="flex items-center gap-2"
+              >
+                <input
+                  v-model.number="(form.perArticle.socialPosts as any)[platform.key]"
+                  type="number"
+                  min="0"
+                  max="10"
+                  class="w-16 border border-input rounded-md px-2 py-1 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                />
+                <span class="text-sm text-foreground">{{ platform.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </VFormField>
+
+      <!-- Standalone Deliverables -->
+      <VFormField label="Standalone Deliverables" hint="Produced once for the entire campaign, not per article.">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div
+            v-for="opt in standaloneOptions"
             :key="opt.key"
-            class="flex items-center gap-2 text-sm cursor-pointer"
+            class="flex items-center gap-2"
           >
             <input
-              v-model="(form.deliverableConfig as any)[opt.key]"
-              type="checkbox"
+              v-model.number="(form.standalone as any)[opt.key]"
+              type="number"
+              min="0"
+              max="20"
+              class="w-16 border border-input rounded-md px-2 py-1 text-sm bg-background ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
-            {{ opt.label }}
-          </label>
+            <span class="text-sm text-foreground">{{ opt.label }}</span>
+          </div>
         </div>
       </VFormField>
 

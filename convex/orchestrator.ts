@@ -53,45 +53,75 @@ export const generateTasksForCampaign = internalMutation({
     const campaign = await ctx.db.get(args.campaignId);
     if (!campaign) throw new Error("Campaign not found");
 
-    const articleCount = campaign.targetArticleCount || 5;
+    const manifest = campaign.productionManifest as any;
+    const articleCount = manifest?.articles?.count ?? campaign.targetArticleCount ?? 5;
     const snapshot = campaign.pipelineSnapshot as any;
     if (!snapshot?.mainSteps?.length) {
       throw new Error("Campaign has no pipeline snapshot with steps");
     }
 
-    const taskIds: string[] = [];
+    // Build pipeline steps from snapshot
+    const pipeline = snapshot.mainSteps.map((s: any, idx: number) => ({
+      step: s.order ?? idx,
+      status: "pending",
+      agent: s.agent,
+      model: s.model,
+      description: s.label || s.description || `Step ${idx + 1}`,
+      outputDir: s.outputDir,
+    }));
 
-    for (let i = 0; i < articleCount; i++) {
-      const pipeline = snapshot.mainSteps.map((s: any, idx: number) => ({
-        step: s.order ?? idx,
-        status: "pending",
-        agent: s.agent,
-        model: s.model,
-        description: s.label || s.description || `Step ${idx + 1}`,
-        outputDir: s.outputDir,
-      }));
-
-      // All steps start as pending — dispatchNextTask handles advancing past agentless steps
-
-      const taskId = await ctx.db.insert("tasks", {
-        projectId: campaign.projectId,
-        title: `${campaign.name} — Article ${i + 1}`,
-        description: `Auto-generated task for campaign "${campaign.name}", article ${i + 1} of ${articleCount}.`,
-        campaignId: args.campaignId,
-        pipeline,
-        pipelineStep: 0,
-        status: i === 0 ? "backlog" : "backlog",
-        priority: "medium",
-        createdBy: "orchestrator",
-        assigneeNames: [],
-        subscriberNames: [],
-        focusGroupIds: campaign.targetFocusGroupIds,
-        deliverables: campaign.deliverableConfig as any,
-        targetKeywords: campaign.seedKeywords,
-      });
-
-      taskIds.push(taskId);
+    // Build description with campaign context for agents
+    const enabledDeliverables: string[] = [];
+    if (manifest?.articles?.perArticle) {
+      const pa = manifest.articles.perArticle;
+      if (pa.heroImage) enabledDeliverables.push("Hero Image");
+      if (pa.socialPosts) {
+        const platforms = Object.entries(pa.socialPosts)
+          .filter(([, v]) => v && (v as number) > 0)
+          .map(([k, v]) => `${k}: ${v}`);
+        if (platforms.length) enabledDeliverables.push(`Social Posts (${platforms.join(", ")})`);
+      }
+      if (pa.emailExcerpt) enabledDeliverables.push("Email Excerpt");
+      if (pa.videoScript) enabledDeliverables.push("Video Script");
+      if (pa.redditVersion) enabledDeliverables.push("Reddit Version");
+    } else if (campaign.deliverableConfig) {
+      const dc = campaign.deliverableConfig as any;
+      for (const [key, val] of Object.entries(dc)) {
+        if (val) enabledDeliverables.push(key);
+      }
     }
+    if (manifest?.standalone) {
+      for (const [key, val] of Object.entries(manifest.standalone)) {
+        if (val && (val as number) > 0) enabledDeliverables.push(`${key}: ${val}`);
+      }
+    }
+
+    const description = [
+      `Campaign "${campaign.name}" — Produce ${articleCount} articles in a single pipeline run.`,
+      enabledDeliverables.length ? `Enabled deliverables: ${enabledDeliverables.join(", ")}` : null,
+      campaign.seedKeywords?.length ? `Seed keywords: ${campaign.seedKeywords.join(", ")}` : null,
+      campaign.targetFocusGroupIds?.length ? `Focus group IDs: ${campaign.targetFocusGroupIds.join(", ")}` : null,
+      `Each agent processes ALL ${articleCount} articles in one pass.`,
+      `Register each article as an individual resource.`,
+    ].filter(Boolean).join("\n");
+
+    // ONE task for the entire campaign — agents produce all articles in a single run
+    const taskId = await ctx.db.insert("tasks", {
+      projectId: campaign.projectId,
+      title: `${campaign.name} — ${articleCount} Articles`,
+      description,
+      campaignId: args.campaignId,
+      pipeline,
+      pipelineStep: 0,
+      status: "backlog",
+      priority: "medium",
+      createdBy: "orchestrator",
+      assigneeNames: [],
+      subscriberNames: [],
+      focusGroupIds: campaign.targetFocusGroupIds,
+      deliverables: campaign.deliverableConfig as any,
+      targetKeywords: campaign.seedKeywords,
+    });
 
     // Log activity + notify
     await ctx.db.insert("activities", {
@@ -99,11 +129,11 @@ export const generateTasksForCampaign = internalMutation({
       type: "info",
       agentName: "vibe-orchestrator",
       campaignId: args.campaignId,
-      message: `Generated ${taskIds.length} tasks for campaign "${campaign.name}"`,
+      message: `Created campaign task for "${campaign.name}" — ${articleCount} articles in single pipeline`,
     });
 
     // TODO:NOTIFICATION_PREFERENCES — Campaign activation notification
-    const activateMsg = `Campaign "${campaign.name}" activated — ${taskIds.length} tasks created`;
+    const activateMsg = `Campaign "${campaign.name}" activated — 1 task for ${articleCount} articles`;
     await ctx.db.insert("notifications", {
       mentionedAgent: "@human",
       fromAgent: "vibe-orchestrator",
@@ -114,7 +144,7 @@ export const generateTasksForCampaign = internalMutation({
       message: `🚀 ${activateMsg}`,
     });
 
-    return taskIds;
+    return [taskId];
   },
 });
 

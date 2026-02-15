@@ -750,3 +750,64 @@ npx convex run pipeline:completeStep '{
 - **Which skills to load** — decided by campaign `skillConfig` and agent `dynamicSkillIds`
 - **Fact-checking** — that's `vibe-fact-checker`'s job in the pipeline after you
 - **Social post copy for promoting the video** — that's `vibe-social-writer`'s job
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run" and video scripts are an enabled deliverable:
+
+### 1. Parse article count
+Extract N from the task description. Also note which video formats are enabled.
+
+### 2. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Check existing video scripts (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"video_script"
+}' --url http://localhost:3210)
+```
+
+Skip articles that already have associated video scripts.
+
+### 4. Create video scripts for EACH article
+For each article resource:
+- Read the article content from the resource's `filePath`
+- Write a video script adapted from that article's content
+- Register each video script as a CHILD resource with `parentResourceId` pointing to its article:
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "video_script",
+  "title": "Video Script: <format> -- Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<ARTICLE_RESOURCE_ID>",
+  "filePath": "<path to script file>",
+  "status": "draft",
+  "createdBy": "vibe-video-scripter"
+}' --url http://localhost:3210
+```
+
+### 5. Call completeBranch ONCE
+Pass ALL video script resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "video-script",
+  "agentName": "vibe-video-scripter",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.

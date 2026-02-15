@@ -342,6 +342,72 @@ npx convex run pipeline:completeBranch '{
 
 ---
 
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run" and email excerpts are an enabled deliverable:
+
+### 1. Parse article count
+Extract N from the task description. Note that you produce email excerpts (one per article), NOT standalone email sequences.
+
+### 2. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Check existing email excerpts (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"email_excerpt"
+}' --url http://localhost:3210)
+```
+
+Skip articles that already have associated email excerpts.
+
+### 4. Create email excerpts for EACH article
+For each article resource:
+- Read the article content from the resource's `filePath`
+- Create an email excerpt (newsletter teaser, promotional email) for that article
+- Register each email excerpt as a CHILD resource with `parentResourceId` pointing to its article:
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "email_excerpt",
+  "title": "Email excerpt for Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<ARTICLE_RESOURCE_ID>",
+  "filePath": "<path to email excerpt file>",
+  "status": "draft",
+  "createdBy": "vibe-email-writer",
+  "metadata": {"sourceArticleSlug": "<slug>", "excerptType": "newsletter", "wordCount": <count>}
+}' --url http://localhost:3210
+```
+
+For efficiency with many excerpts, use `resources:batchCreate`.
+
+### 5. Call completeBranch ONCE
+Pass ALL email excerpt resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "email-excerpt",
+  "agentName": "vibe-email-writer",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
+
 ## Related Skills
 
 - **onboarding-cro**: For in-app onboarding (email supports this)

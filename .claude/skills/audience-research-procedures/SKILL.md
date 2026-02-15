@@ -576,6 +576,24 @@ memory/daily/YYYY-MM-DD.md
 
 ---
 
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+The audience researcher produces **1 shared research resource** that covers ALL N articles -- NOT one research resource per article. Research is campaign-level, not article-level.
+
+### Behavior in multi-article mode
+1. Parse article count and seed keywords from the task description
+2. Conduct research that covers ALL seed keywords and angles (broader scope than single-article)
+3. Register **one** `research_material` resource with no `parentResourceId` (campaign-level)
+4. Call `pipeline:completeStep` ONCE with the single resource ID
+
+The research output should include keyword analysis, audience insights, and competitive intelligence for all N planned articles, organized so downstream agents (brief writer, copywriter) can extract per-article guidance.
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
+
 ## Anti-Patterns (What NOT To Do)
 
 1. **DO NOT invent language patterns.** If you cannot find real quotes, note "insufficient research data" and flag `needsEnrichment: true`.

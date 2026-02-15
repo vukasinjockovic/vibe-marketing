@@ -313,6 +313,72 @@ npx convex run pipeline:completeBranch '{
 
 ---
 
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run" and social posts are an enabled deliverable:
+
+### 1. Parse article count and platform config
+Extract N from the task description. Also parse the enabled platforms and post counts (e.g., "facebook: 2, instagram: 1").
+
+### 2. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Check existing social posts (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"social_post"
+}' --url http://localhost:3210)
+```
+
+Skip articles that already have the expected number of social posts.
+
+### 4. Create social posts for EACH article
+For each article resource and each enabled platform:
+- Read the article content from the resource's `filePath`
+- Create platform-specific social posts (adapt format, length, hashtags per platform)
+- Register each social post as a CHILD resource with `parentResourceId` pointing to its article:
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "social_post",
+  "title": "Social Posts: <platform> -- Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<ARTICLE_RESOURCE_ID>",
+  "filePath": "<path to social post file>",
+  "status": "draft",
+  "createdBy": "vibe-social-writer",
+  "metadata": {"platform": "<platform>", "characterCount": <count>, "postType": "<type>"}
+}' --url http://localhost:3210
+```
+
+For efficiency with many posts across platforms, use `resources:batchCreate`.
+
+### 5. Call completeBranch ONCE
+Pass ALL social post resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "social-posts",
+  "agentName": "vibe-social-writer",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
+
 ## Related Skills
 
 - **copywriting**: For longer-form content that feeds social

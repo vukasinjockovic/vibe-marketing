@@ -400,3 +400,57 @@ Track `revisionCount` in the review metadata. Each review after the first should
 - **Humanizer pass** — that's `vibe-humanizer` (runs AFTER review approval)
 - **SEO technical audit** — that's `vibe-seo-auditor`
 - **Image quality review** — images are reviewed by humans in dashboard
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+### 1. Parse article count
+Extract N from the task description.
+
+### 2. Check existing article resources
+Load all article resources registered for this task:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Review ALL N articles in a single pass
+Do NOT exit after reviewing 1 article. For each article resource:
+- Read the article file from the resource's `filePath`
+- Run the full review protocol (Steps 1-7) for each article
+- Score each article individually
+- Write a separate review file per article: `projects/{project}/campaigns/{campaign}/reviewed/{taskId}-review-{i}.md`
+
+### 4. Update each article resource status
+For each article resource, call `resources:updateStatus`:
+
+```bash
+npx convex run resources:updateStatus '{
+  "id": "<ARTICLE_RESOURCE_ID>",
+  "status": "reviewed",
+  "updatedBy": "vibe-content-reviewer",
+  "qualityScore": <score>,
+  "note": "<approve|approve_with_notes|revision_required>"
+}' --url http://localhost:3210
+```
+
+If ANY article scores below 7, request revision for that specific article. The overall decision follows the lowest-scoring article.
+
+### 5. Call completeStep ONCE
+Pass ALL article resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-content-reviewer",
+  "qualityScore": <average across all articles>,
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.

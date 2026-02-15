@@ -3,6 +3,7 @@ import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
+const MAX_AUTO_RETRIES = 2;
 
 /**
  * Map a pipeline step's outputDir to the corresponding task status.
@@ -175,10 +176,29 @@ export const completeStep = mutation({
       status: newStatus,
       lockedBy: undefined,
       lockedAt: undefined,
+      stepRetryCount: 0, // Reset retry count on successful step completion
     };
 
     if (args.qualityScore !== undefined) {
       patch.qualityScore = args.qualityScore;
+    }
+
+    // Update resourceProgress.completedCounts from actual resources
+    if (task.campaignId || task.contentBatchId) {
+      const taskResources = await ctx.db
+        .query("resources")
+        .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
+        .collect();
+      const completedCounts: Record<string, number> = {};
+      for (const r of taskResources) {
+        completedCounts[r.resourceType] = (completedCounts[r.resourceType] || 0) + 1;
+      }
+      const existing = task.resourceProgress ?? {};
+      patch.resourceProgress = {
+        ...existing,
+        completedCounts,
+        lastUpdated: Date.now(),
+      };
     }
 
     await ctx.db.patch(args.taskId, patch);
@@ -518,6 +538,82 @@ export const requestRevision = mutation({
     });
 
     return { revised: true };
+  },
+});
+
+// ═══════════════════════════════════════════
+// retryStep — Re-attempt current pipeline step with retry count safeguard
+// ═══════════════════════════════════════════
+
+export const retryStep = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    agentName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new ConvexError("Task not found");
+
+    const retryCount = (task.stepRetryCount ?? 0) + 1;
+
+    if (retryCount > MAX_AUTO_RETRIES) {
+      // Stop retrying — leave task blocked, notify human
+      await ctx.db.patch(args.taskId, {
+        status: "blocked",
+        stepRetryCount: retryCount,
+        rejectionNotes: `Auto-retry limit reached (${MAX_AUTO_RETRIES} retries). Manual intervention required.`,
+        lockedBy: undefined,
+        lockedAt: undefined,
+      });
+
+      const blockMsg = `Task "${task.title}" blocked after ${MAX_AUTO_RETRIES} auto-retries at step ${task.pipelineStep}`;
+      await ctx.db.insert("notifications", {
+        mentionedAgent: "@human",
+        fromAgent: args.agentName,
+        taskId: args.taskId,
+        content: blockMsg,
+        delivered: false,
+      });
+      await ctx.scheduler.runAfter(0, internal.orchestrator.sendTelegram, {
+        message: `🚫 ${blockMsg}`,
+      });
+
+      return { retried: false, reason: "max_retries_exceeded", retryCount };
+    }
+
+    // Reset current step to pending and unlock
+    const pipeline = [...task.pipeline];
+    pipeline[task.pipelineStep] = {
+      ...pipeline[task.pipelineStep],
+      status: "in_progress",
+    };
+
+    await ctx.db.patch(args.taskId, {
+      pipeline,
+      stepRetryCount: retryCount,
+      lockedBy: undefined,
+      lockedAt: undefined,
+    });
+
+    // Re-dispatch the agent for the current step
+    const currentAgent = pipeline[task.pipelineStep].agent;
+    if (currentAgent) {
+      await ctx.scheduler.runAfter(0, internal.orchestrator.requestDispatch, {
+        taskId: args.taskId,
+        agentName: currentAgent,
+      });
+    }
+
+    await ctx.db.insert("activities", {
+      projectId: task.projectId,
+      type: "retry",
+      agentName: args.agentName,
+      taskId: args.taskId,
+      campaignId: task.campaignId,
+      message: `Auto-retry #${retryCount} for step ${task.pipelineStep}`,
+    });
+
+    return { retried: true, retryCount };
   },
 });
 

@@ -491,6 +491,56 @@ npx convex run pipeline:completeStep '{
 
 ---
 
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+### 1. Parse article count
+Extract N from the task description.
+
+### 2. Load all article resources for this task
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream reviewer has not completed -- set task to `blocked`.
+
+### 3. Humanize ALL N articles in a single pass
+Do NOT exit after humanizing 1 article. For each article resource:
+- Read the article content from the resource's `filePath`
+- Run the full humanizer protocol on each article
+- Write the humanized version back to the same file (or a new file in the final/ directory)
+
+### 4. Update each article resource status
+For each article resource, call `resources:updateStatus`:
+
+```bash
+npx convex run resources:updateStatus '{
+  "id": "<ARTICLE_RESOURCE_ID>",
+  "status": "humanized",
+  "updatedBy": "vibe-humanizer",
+  "note": "Humanizer pass complete -- removed N AI patterns"
+}' --url http://localhost:3210
+```
+
+### 5. Call completeStep ONCE
+Pass ALL article resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-humanizer",
+  "qualityScore": <1-10>,
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
+
 ## Reference
 
 This skill is based on [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.

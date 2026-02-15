@@ -842,3 +842,31 @@ npx convex run pipeline:completeStep '{
 ```
 
 > See `.claude/skills/shared-references/resource-registration.md` for full protocol.
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run" and Facebook posts are an enabled deliverable:
+
+### 1. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+### 2. Check existing social posts (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"social_post"
+}' --url http://localhost:3210)
+```
+
+### 3. Create Facebook posts for EACH article
+For each article resource, generate the specified number of Facebook engagement posts. Register each as a CHILD resource with `parentResourceId` pointing to its article. Use `resources:batchCreate` for efficiency.
+
+### 4. Call completeBranch ONCE
+Pass ALL social post resource IDs in a single call to `pipeline:completeBranch`.
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.

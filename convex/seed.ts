@@ -785,7 +785,7 @@ export const seedMissing = internalMutation({
       description: "Trend research → generate → review → humanize. All posts produced in a single pipeline run with trend-driven content.",
       mainSteps: [
         { order: 0, label: "Created", description: "Task created", outputDir: "" },
-        { order: 1, agent: "vibe-trend-researcher", model: "sonnet", label: "Trend Research", description: "Scrape trends from Reddit/web, cross-reference with focus groups", outputDir: "research" },
+        { order: 1, agent: "vibe-engagement-trend-researcher", model: "sonnet", label: "Trend Research", description: "Scrape trends from Reddit/web, cross-reference with focus groups", outputDir: "research" },
         { order: 2, agent: "vibe-facebook-engine", model: "opus", label: "Generate Posts", description: "Generate all trend-driven engagement posts for the batch", outputDir: "drafts" },
         { order: 3, agent: "vibe-content-reviewer", model: "sonnet", label: "Review Posts", description: "Review all posts for quality and engagement potential", outputDir: "reviewed" },
         { order: 4, agent: "vibe-humanizer", model: "opus", label: "Humanize", description: "Remove AI patterns, add authentic voice to all posts", outputDir: "final" },
@@ -812,12 +812,12 @@ export const seedMissing = internalMutation({
     // ── Trend Researcher Agent ──
     const existingTrendResearcher = await ctx.db
       .query("agents")
-      .withIndex("by_name", (q) => q.eq("name", "vibe-trend-researcher"))
+      .withIndex("by_name", (q) => q.eq("name", "vibe-engagement-trend-researcher"))
       .unique();
     if (!existingTrendResearcher) {
       await ctx.db.insert("agents", {
-        name: "vibe-trend-researcher",
-        displayName: "Trend Researcher",
+        name: "vibe-engagement-trend-researcher",
+        displayName: "Engagement Trend Researcher",
         role: "Scrapes configured subreddits and web sources, cross-references with focus group data, scores trends using STEPPS framework, and outputs trend briefs per post.",
         status: "idle" as const,
         lastHeartbeat: Date.now(),
@@ -830,9 +830,9 @@ export const seedMissing = internalMutation({
         dynamicSkillIds: [] as any[],
         agentFilePath: ".claude/skills/trend-research-procedures/SKILL.md",
       });
-      results.push("Seeded vibe-trend-researcher agent");
+      results.push("Seeded vibe-engagement-trend-researcher agent");
     } else {
-      results.push("vibe-trend-researcher agent already exists");
+      results.push("vibe-engagement-trend-researcher agent already exists");
     }
 
     // ── Trend Research Skill ──
@@ -845,7 +845,7 @@ export const seedMissing = internalMutation({
         name: "trend-research-procedures",
         slug: "trend-research-procedures",
         displayName: "Trend Research Procedures",
-        description: "SOP for vibe-trend-researcher agent. Scrapes Reddit and web for trending topics, scores them with STEPPS virality framework, matches to focus group psychographics, and outputs trend briefs for engagement post generation.",
+        description: "SOP for vibe-engagement-trend-researcher agent. Scrapes Reddit and web for trending topics, scores them with STEPPS virality framework, matches to focus group psychographics, and outputs trend briefs for engagement post generation.",
         category: "research",
         type: "procedure" as const,
         isAutoActive: false,

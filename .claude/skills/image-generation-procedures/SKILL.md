@@ -352,3 +352,56 @@ npx convex run pipeline:completeBranch '{
 - **Video generation** — that's `vibe-video-generator` with separate procedures
 - **Service setup/configuration** — handled by `scripts/setup.sh` and dashboard Settings
 - **Brand asset management** — campaign config, not this agent's concern
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+### 1. Load all image prompt resources
+The image director has already created prompt specs as child resources of each article:
+
+```bash
+PROMPTS=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"image_prompt"
+}' --url http://localhost:3210)
+```
+
+### 2. Check existing images (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"image"
+}' --url http://localhost:3210)
+```
+
+Skip prompts that already have generated images.
+
+### 3. Generate images for ALL prompts
+Process all prompt specs in a single pass. Each generated image is a CHILD resource of its prompt (which is itself a child of the article):
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "image",
+  "title": "Image: hero for Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<IMAGE_PROMPT_RESOURCE_ID>",
+  "filePath": "<path to generated image>",
+  "status": "draft",
+  "createdBy": "vibe-image-creator"
+}' --url http://localhost:3210
+```
+
+### 4. Call completeBranch ONCE
+Pass ALL image resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "image-generation",
+  "agentName": "vibe-image-creator",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.

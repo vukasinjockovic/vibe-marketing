@@ -350,6 +350,72 @@ npx convex run pipeline:completeBranch '{
 
 ---
 
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run" and ad copy is an enabled deliverable:
+
+### 1. Parse article count
+Extract N from the task description. Also note which ad platforms are enabled.
+
+### 2. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Check existing ad copy (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"ad_copy"
+}' --url http://localhost:3210)
+```
+
+Skip articles that already have associated ad copy.
+
+### 4. Create ad copy for EACH article
+For each article resource:
+- Read the article content from the resource's `filePath`
+- Create platform-specific ad copy sets (headline, description, CTA variations)
+- Register each ad copy set as a CHILD resource with `parentResourceId` pointing to its article:
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "ad_copy",
+  "title": "Ad Copy: <platform> -- Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<ARTICLE_RESOURCE_ID>",
+  "filePath": "<path to ad copy file>",
+  "status": "draft",
+  "createdBy": "vibe-ad-writer",
+  "metadata": {"platform": "<platform>", "adType": "<type>", "headline": "<headline>", "cta": "<cta>"}
+}' --url http://localhost:3210
+```
+
+For efficiency with many ad sets, use `resources:batchCreate`.
+
+### 5. Call completeBranch ONCE
+Pass ALL ad copy resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "ad-copy",
+  "agentName": "vibe-ad-writer",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
+
 ## Related Skills
 
 - **copywriting**: For landing page copy that converts ad traffic

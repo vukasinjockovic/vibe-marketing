@@ -1,6 +1,6 @@
 # Trend Research Procedures
 
-> SOP for `vibe-trend-researcher` agent. Scrapes Reddit/web for trending topics, scores them with STEPPS virality framework, matches to focus group psychographics, and outputs trend briefs for engagement post generation.
+> SOP for `vibe-engagement-trend-researcher` agent. Scrapes Reddit/web for trending topics, scores them with STEPPS virality framework, matches to focus group psychographics, and outputs trend briefs for engagement post generation.
 
 ## When This Runs
 
@@ -117,7 +117,7 @@ RESOURCE_ID=$(npx convex run resources:create '{
   "contentHash": "'$HASH'",
   "status": "draft",
   "pipelineStage": "research",
-  "createdBy": "vibe-trend-researcher",
+  "createdBy": "vibe-engagement-trend-researcher",
   "metadata": {"topics": [...], "steppsScore": <avg>, "trendCount": N}
 }' --url http://localhost:3210)
 ```
@@ -129,6 +129,25 @@ RESOURCE_ID=$(npx convex run resources:create '{
 Call `pipeline:completeStep` with:
 - `qualityScore`: average STEPPS score of selected trends (normalized to 1-10 scale)
 - `resourceIds`: array of resource IDs from the registration step above
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+The trend researcher produces **1 shared research resource** that covers ALL N articles -- NOT one research resource per article. Research is campaign-level, not article-level.
+
+### Behavior in multi-article mode
+1. Parse article count and seed keywords from the task description
+2. Conduct trend research across ALL seed keywords and topics (broader scope)
+3. Score and rank enough trends to cover N articles (aim for 2x N candidates)
+4. Register **one** `research_material` resource with no `parentResourceId` (campaign-level)
+5. Call `pipeline:completeStep` ONCE with the single resource ID
+
+The research output should organize trend briefs so the brief writer and copywriter can assign individual trends to specific articles.
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
+
+---
 
 ## Error Handling
 

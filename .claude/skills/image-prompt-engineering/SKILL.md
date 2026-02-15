@@ -304,3 +304,66 @@ npx convex run pipeline:completeBranch '{
 - **Video thumbnails with text** — use this skill for the base image, text overlay is a design tool concern
 - **Brand identity creation** — this skill applies existing brand, doesn't create new visual identity
 - **Stock photo selection** — this skill creates prompts for AI generation, not stock photo searches
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+### 1. Parse article count
+Extract N from the task description. Also note which image deliverables are enabled (hero image, social image, etc.).
+
+### 2. Load parent article resources
+Find all article resources for this task -- these are your parent resources:
+
+```bash
+ARTICLES=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+```
+
+If no articles exist, the upstream writer has not completed -- set task to `blocked`.
+
+### 3. Check existing image prompts (skip-already-done)
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"image_prompt"
+}' --url http://localhost:3210)
+```
+
+Skip articles that already have associated image prompts.
+
+### 4. Create image prompts for EACH article
+For each article resource:
+- Read the article content from the resource's `filePath`
+- Run the full prompt engineering protocol (Steps 1-10) for that article
+- Register each image prompt as a CHILD resource with `parentResourceId` pointing to its article:
+
+```bash
+npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "image_prompt",
+  "title": "Hero image prompt for Article <i>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "parentResourceId": "<ARTICLE_RESOURCE_ID>",
+  "filePath": "<path to prompt JSON>",
+  "status": "draft",
+  "createdBy": "vibe-image-director"
+}' --url http://localhost:3210
+```
+
+For efficiency with many prompts, use `resources:batchCreate`.
+
+### 5. Call completeBranch ONCE
+Pass ALL image prompt resource IDs in a single call:
+
+```bash
+npx convex run pipeline:completeBranch '{
+  "taskId": "<TASK_ID>",
+  "branchLabel": "image-prompt",
+  "agentName": "vibe-image-director",
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.

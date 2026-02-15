@@ -271,3 +271,60 @@ npx convex run pipeline:completeBranch '{
 - **Image generation** — that's vibe-image-director's job, not yours
 - **Publishing** — that happens after human approval, not during writing
 - **Fact-checking** — that's vibe-fact-checker's job in the pipeline after you
+
+## Multi-Article Campaign Mode
+
+When the task description contains "Produce N articles in a single pipeline run":
+
+### 1. Parse article count
+Extract N from the task description. Also extract seed keywords, enabled deliverables, and any per-article angle instructions.
+
+### 2. Check existing resources (skip-already-done)
+Before producing anything, check what already exists for retry safety:
+
+```bash
+EXISTING=$(npx convex run resources:listByTaskAndType '{
+  "taskId":"<TASK_ID>","resourceType":"article"
+}' --url http://localhost:3210)
+EXISTING_COUNT=$(echo "$EXISTING" | jq 'length')
+```
+
+If `EXISTING_COUNT >= N`, all articles are already registered -- skip to completeStep. If `EXISTING_COUNT > 0` but `< N`, resume from article `EXISTING_COUNT + 1`.
+
+### 3. Produce ALL N articles in a single pass
+Do NOT exit after 1 article. For each article:
+- Use a unique keyword targeting and angle (distribute seed keywords across articles)
+- Follow the full writing protocol (Steps 1-9) for each article
+- Write each to a separate file: `{outputDir}/article-{i}_{taskId}.md`
+
+### 4. Register each article as a separate resource
+Each article is a ROOT resource (no `parentResourceId`):
+
+```bash
+RESOURCE_ID=$(npx convex run resources:create '{
+  "projectId": "<PROJECT_ID>",
+  "resourceType": "article",
+  "title": "Article <i>: <title from brief>",
+  "campaignId": "<CAMPAIGN_ID>",
+  "taskId": "<TASK_ID>",
+  "filePath": "<path to article file>",
+  "status": "draft",
+  "pipelineStage": "drafts",
+  "createdBy": "vibe-content-writer",
+  "metadata": {"wordCount": <count>, "targetKeyword": "<keyword>", "articleIndex": <i>}
+}' --url http://localhost:3210)
+```
+
+### 5. Call completeStep ONCE
+After ALL N articles are produced and registered, pass every resource ID in a single call:
+
+```bash
+npx convex run pipeline:completeStep '{
+  "taskId": "<TASK_ID>",
+  "agentName": "vibe-content-writer",
+  "qualityScore": <1-10>,
+  "resourceIds": ["id1","id2","id3"]
+}' --url http://localhost:3210
+```
+
+> See `.claude/skills/shared-references/resource-registration.md` for the full multi-article protocol and resource tree shape.
