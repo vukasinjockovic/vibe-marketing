@@ -108,7 +108,7 @@ export const run = internalMutation({
         { slug: "email-sequence", name: "email-sequence", displayName: "Email Sequence", description: "Create or optimize email sequences, drip campaigns, automated email flows, or lifecycle email programs. Covers welcome sequences, nurture sequences, and re-engagement.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/email-sequence/SKILL.md" },
         { slug: "social-content", name: "social-content", displayName: "Social Content", description: "Create, schedule, or optimize social media content for LinkedIn, Twitter/X, Instagram, TikTok, Facebook. Covers content creation, repurposing, and platform-specific strategies.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/social-content/SKILL.md" },
         { slug: "facebook-engagement-engine", name: "facebook-engagement-engine", displayName: "Facebook Engagement Engine", description: "Generate maximum-engagement Facebook posts using embedded STEPPS virality, Voss tactical empathy, FB Monetization mechanics, and hook craft. Pure engagement — no selling. Outputs text copy + image briefs + STEPPS scores.", category: "content", type: "custom" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/facebook-engagement-engine/SKILL.md", tagline: "Engineer every post for maximum engagement", dashboardDescription: "Facebook-specific engagement engine. Generates batches of 24/36/48 posts with STEPPS scoring, Voss techniques, and hook craft. Pure engagement, zero sales." },
-        { slug: "video-script-guide", name: "video-script-guide", displayName: "Video Script Guide", description: "Multi-format video script creation skill for vibe-script-writer agent. Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/video-script-guide/SKILL.md" },
+        { slug: "video-script-sales", name: "video-script-sales", displayName: "Video Script — Sales", description: "Multi-format video script creation skill for vibe-script-writer agent (sales pipeline). Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions.", category: "content", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/video-script-sales/SKILL.md" },
         // Media
         { slug: "image-generation-procedures", name: "image-generation-procedures", displayName: "Image Generation Procedures", description: "SOP for vibe-image-generator agent. Receives prompt specs from vibe-image-director, resolves which image service to call (FLUX.2 Pro/Turbo, GPT Image, Ideogram, Imagen, etc.) via service registry priority, handles aspect ratios, retries on failure, saves generated images to campaign assets.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-generation-procedures/SKILL.md" },
         { slug: "image-director-sales", name: "image-director-sales", displayName: "Image Director — Sales", description: "SOP for vibe-image-director agent (sales pipeline). Reads content (articles, landing pages, ebooks, ads), extracts visual concepts, and produces detailed image generation prompts with style/mood/composition directives and negative prompts. Does NOT call image APIs — outputs structured prompt JSON for vibe-image-generator.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-director-sales/SKILL.md" },
@@ -538,12 +538,12 @@ export const run = internalMutation({
           lastHeartbeat: Date.now(),
           heartbeatCron: "0 */6 * * *",
           defaultModel: "sonnet",
-          skillPath: ".claude/skills/video-script-guide",
+          skillPath: ".claude/skills/video-script-sales",
           level: "specialist" as const,
           stats: { tasksCompleted: 0, lastActive: Date.now() },
           staticSkillIds: [] as any[],
           dynamicSkillIds: [] as any[],
-          agentFilePath: ".claude/skills/video-script-guide/SKILL.md",
+          agentFilePath: ".claude/skills/video-script-sales/SKILL.md",
         },
         {
           name: "vibe-ebook-writer",
@@ -604,7 +604,7 @@ export const run = internalMutation({
       "vibe-serp-analyzer": ["content-writing-procedures"],
       "vibe-image-director": ["image-director-sales", "image-director-engagement"],
       "vibe-image-generator": ["image-generation-procedures"],
-      "vibe-script-writer": ["video-script-guide", "video-script-engagement"],
+      "vibe-script-writer": ["video-script-sales", "video-script-engagement"],
       "vibe-ebook-writer": ["ebook-procedures"],
     };
     const allAgents = await ctx.db.query("agents").collect();

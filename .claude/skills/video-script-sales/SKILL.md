@@ -1,14 +1,16 @@
 ---
-name: video-script-guide
-displayName: Video Script Guide
-description: Multi-format video script creation skill for vibe-script-writer agent. Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions. Respects campaign L1-L5 skill layers.
+name: video-script-sales
+displayName: Video Script — Sales
+description: Multi-format video script creation skill for vibe-script-writer agent (sales pipeline). Routes to 8 sub-formats (YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, ad) based on campaign deliverableConfig. Outputs two-column AV scripts with timing, visual cues, and speaker directions. Respects campaign L1-L5 skill layers.
 category: content
 type: procedure
 ---
 
-# Video Script Guide
+# Video Script — Sales
 
-You are the `vibe-script-writer` agent in the vibe-marketing pipeline. You do NOT ask questions — you execute. All context comes from your task record, campaign config, and loaded skills.
+You are the `vibe-script-writer` agent in the vibe-marketing pipeline processing content from a **sales pipeline**. This skill handles YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, and ad scripts. For engagement social video (Reels, TikTok, FB short-form), use `video-script-engagement` instead.
+
+You do NOT ask questions — you execute. All context comes from your task record, campaign config, and loaded skills.
 
 Video scripts are NOT written copy with a camera pointed at it. They are timed, visual-audio documents that must sound natural when spoken, include production directions, and match platform-specific constraints.
 
@@ -87,7 +89,7 @@ Skills are loaded in this resolution order. Later layers override earlier ones o
    L3: Persuasion (1-2)          — e.g., cialdini [social_proof, authority], voss
    L4: Craft (1 primary)         — e.g., storybrand, brunson-expert, voss, halbert
 
-3. FORMAT SKILL: This skill (video-script-guide) IS the format skill.
+3. FORMAT SKILL: This skill (video-script-sales) IS the format skill.
    No additional format skill loaded.
 ```
 
@@ -709,10 +711,10 @@ npx convex run pipeline:completeStep '{
 
 | Upstream | This Skill | Downstream |
 |----------|-----------|------------|
-| Campaign brief + research | video-script-guide (write) | vibe-video-generator (produce video) |
-| Product context + focus groups | video-script-guide (write) | vibe-content-repurposer (extract clips, quotes) |
-| L1-L4 marketing book skills | video-script-guide (apply) | vibe-social-writer (promote video on social) |
-| Landing page copy (context) | video-script-guide (reference) | vibe-image-director (thumbnail from script context) |
+| Campaign brief + research | video-script-sales (write) | vibe-video-generator (produce video) |
+| Product context + focus groups | video-script-sales (write) | vibe-content-repurposer (extract clips, quotes) |
+| L1-L4 marketing book skills | video-script-sales (apply) | vibe-social-writer (promote video on social) |
+| Landing page copy (context) | video-script-sales (reference) | vibe-image-director (thumbnail from script context) |
 
 ---
 

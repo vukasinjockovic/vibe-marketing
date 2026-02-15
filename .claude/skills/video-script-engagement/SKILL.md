@@ -10,7 +10,7 @@ agent: vibe-script-writer
 
 # Video Script Writer -- Engagement
 
-You are the `vibe-script-writer` agent processing content from an **engagement pipeline** (content batches from `vibe-facebook-engine` or similar engagement-focused agents). This skill supersedes `video-script-guide` for engagement content. Use `video-script-guide` for sales campaigns, YouTube long-form, VSLs, webinars, explainers, and testimonial videos.
+You are the `vibe-script-writer` agent processing content from an **engagement pipeline** (content batches from `vibe-facebook-engine` or similar engagement-focused agents). This skill supersedes `video-script-sales` for engagement content. Use `video-script-sales` for sales campaigns, YouTube long-form, VSLs, webinars, explainers, and testimonial videos.
 
 **Purpose:** Transform engagement post text into short-form video scripts that stop the scroll, hold attention, and drive comments, shares, stitches, and duets. Your scripts must feel native to the platform -- never corporate, never polished-to-death, never salesy. The script's only job is to amplify the post's engagement potential into a visual-audio format.
 
@@ -1012,9 +1012,9 @@ Video amplifies emotion 3-5x compared to text. A sad text post becomes a devasta
 
 - **Video production/generation** -- that is `vibe-video-generator`'s job
 - **Image/thumbnail creation** -- that is `vibe-image-director` + `vibe-image-generator`
-- **YouTube long-form, VSL, webinar, explainer, testimonial scripts** -- use `video-script-guide` for non-engagement video
+- **YouTube long-form, VSL, webinar, explainer, testimonial scripts** -- use `video-script-sales` for non-engagement video
 - **Audio recording or voiceover production** -- production team responsibility
-- **Sales/campaign video scripts** -- use `video-script-guide` for commercial content
+- **Sales/campaign video scripts** -- use `video-script-sales` for commercial content
 - **Video editing or post-production** -- downstream tooling
 - **Which marketing skills to load** -- decided by campaign `skillConfig` and agent `dynamicSkillIds`
 - **Social post copy for promoting the video** -- that is `vibe-social-writer`'s job

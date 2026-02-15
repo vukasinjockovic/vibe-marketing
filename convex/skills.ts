@@ -52,6 +52,27 @@ export const listSelectableByCategories = query({
   },
 });
 
+export const create = mutation({
+  args: {
+    name: v.string(),
+    slug: v.string(),
+    displayName: v.string(),
+    description: v.string(),
+    category: v.string(),
+    type: v.union(v.literal("mbook"), v.literal("procedure"), v.literal("community"), v.literal("custom")),
+    isAutoActive: v.boolean(),
+    isCampaignSelectable: v.boolean(),
+    filePath: v.string(),
+    tagline: v.optional(v.string()),
+    dashboardDescription: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.query("skills").withIndex("by_slug", (q) => q.eq("slug", args.slug)).first();
+    if (existing) throw new Error(`Skill with slug "${args.slug}" already exists`);
+    return await ctx.db.insert("skills", { ...args, lastSyncedAt: Date.now(), syncStatus: "synced" as const });
+  },
+});
+
 export const update = mutation({
   args: {
     id: v.id("skills"),

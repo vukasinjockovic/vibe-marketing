@@ -23,7 +23,7 @@ declare -A AGENT_SKILLS=(
   ["vibe-engagement-trend-researcher"]="google-trends-research google-suggest-research youtube-research quora-research pinterest-research"
   ["vibe-image-director"]="image-director-sales image-director-engagement"
   ["vibe-image-generator"]="image-generation-procedures"
-  ["vibe-script-writer"]="video-script-guide"
+  ["vibe-script-writer"]="video-script-sales video-script-engagement"
   ["vibe-ebook-writer"]="ebook-procedures"
 )
 
