@@ -412,5 +412,36 @@ run '{
 }'
 echo "  ✓ Research: Quora"
 
+# ═══ Media Skills (custom type) ═══
+run '{
+  "slug": "image-director-engagement",
+  "name": "image-director-engagement",
+  "displayName": "Image Director — Engagement",
+  "description": "Specialized image prompt engineering for engagement social posts. Produces scroll-stopping visuals using STEPPS virality scoring, platform-specific formats (TOBI, meme, grid, quote card, nostalgic photo), and engagement psychology. Reads post content to infer visual intent when no explicit imageIntent is provided.",
+  "category": "media",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/image-director-engagement/SKILL.md",
+  "tagline": "Scroll-stopping visuals for engagement posts",
+  "dashboardDescription": "Engagement-specific image prompt engineering. Infers visual intent from post content, generates STEPPS-scored prompts for TOBI, meme, grid, quote card, nostalgic, and emotional photo formats."
+}'
+echo "  ✓ Media: Image Director Engagement"
+
+run '{
+  "slug": "video-script-engagement",
+  "name": "video-script-engagement",
+  "displayName": "Video Script Writer — Engagement",
+  "description": "Specialized short-form video script writing for engagement social content. Produces scroll-stopping Reels, TikTok, and FB video scripts using STEPPS virality scoring, platform-specific formats (hook-story-CTA, POV, trending audio, duet-bait, green screen), and engagement psychology. Reads post content to infer video format when no explicit videoIntent is provided.",
+  "category": "media",
+  "type": "custom",
+  "isAutoActive": false,
+  "isCampaignSelectable": false,
+  "filePath": ".claude/skills/video-script-engagement/SKILL.md",
+  "tagline": "Scroll-stopping video scripts for engagement posts",
+  "dashboardDescription": "Engagement-specific video script writing. Infers video intent from post content, generates STEPPS-scored scripts for story reels, talking heads, listicles, comedy skits, nostalgia montages, and more."
+}'
+echo "  ✓ Media: Video Script Engagement"
+
 echo ""
-echo "Done! Seeded 5 categories + 13 mbook/quality skills + 7 research skills (20 total)"
+echo "Done! Seeded 5 categories + 13 mbook/quality skills + 7 research skills + 2 media skills (22 total)"

@@ -112,6 +112,8 @@ export const run = internalMutation({
         // Media
         { slug: "image-generation-procedures", name: "image-generation-procedures", displayName: "Image Generation Procedures", description: "SOP for vibe-image-generator agent. Receives prompt specs from vibe-image-director, resolves which image service to call (FLUX.2 Pro/Turbo, GPT Image, Ideogram, Imagen, etc.) via service registry priority, handles aspect ratios, retries on failure, saves generated images to campaign assets.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-generation-procedures/SKILL.md" },
         { slug: "image-prompt-engineering", name: "image-prompt-engineering", displayName: "Image Prompt Engineering", description: "SOP for vibe-image-director agent. Reads content (articles, landing pages, ebooks, social posts), extracts visual concepts, and produces detailed image generation prompts with style/mood/composition directives and negative prompts. Does NOT call image APIs — outputs structured prompt JSON for vibe-image-generator.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-prompt-engineering/SKILL.md" },
+        { slug: "image-director-engagement", name: "image-director-engagement", displayName: "Image Director — Engagement", description: "Specialized image prompt engineering for engagement social posts. Produces scroll-stopping visuals using STEPPS virality scoring, platform-specific formats (TOBI, meme, grid, quote card, nostalgic photo), and engagement psychology. Reads post content to infer visual intent when no explicit imageIntent is provided.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/image-director-engagement/SKILL.md" },
+        { slug: "video-script-engagement", name: "video-script-engagement", displayName: "Video Script Writer — Engagement", description: "Specialized short-form video script writing for engagement social content. Produces scroll-stopping Reels, TikTok, and FB video scripts using STEPPS virality scoring, platform-specific formats (hook-story-CTA, POV, trending audio, duet-bait, green screen), and engagement psychology. Reads post content to infer video format when no explicit videoIntent is provided.", category: "media", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/video-script-engagement/SKILL.md" },
         // Quality
         { slug: "content-review-procedures", name: "content-review-procedures", displayName: "Content Review Procedures", description: "SOP for vibe-content-reviewer agent. Quality rubric for evaluating all content types — awareness match, CTA clarity, proof density, SEO, readability, voice consistency, AI pattern detection. Scores 1-10, auto-approves at 7+, requests revision with actionable notes at <7.", category: "quality", type: "procedure" as const, isAutoActive: false, isCampaignSelectable: true, filePath: ".claude/skills/content-review-procedures/SKILL.md" },
         // Utility
@@ -600,9 +602,9 @@ export const run = internalMutation({
       "vibe-audience-enricher": ["audience-enrichment-procedures"],
       "vibe-keyword-researcher": ["content-writing-procedures"],
       "vibe-serp-analyzer": ["content-writing-procedures"],
-      "vibe-image-director": ["image-prompt-engineering"],
+      "vibe-image-director": ["image-prompt-engineering", "image-director-engagement"],
       "vibe-image-generator": ["image-generation-procedures"],
-      "vibe-script-writer": ["video-script-guide"],
+      "vibe-script-writer": ["video-script-guide", "video-script-engagement"],
       "vibe-ebook-writer": ["ebook-procedures"],
     };
     const allAgents = await ctx.db.query("agents").collect();

@@ -437,8 +437,15 @@ For EVERY post generated, output this structure:
 ### Copy
 [The actual post text]
 
-### Image Brief
-[2-3 sentence description of what the accompanying image should convey -- mood, elements, composition. NOT a prompt -- a brief for the image director agent. Skip for text-only posts.]
+### Image Intent
+**Format:** [TOBI_BOLD / TOBI_MINIMAL / PHOTO_TEXT_OVERLAY / MEME / CHOOSE_GRID / QUOTE_CARD / NOSTALGIC_PHOTO / EMOTIONAL_PHOTO / NONE]
+**Hook text for image** (if applicable): [The specific text to render on the image -- usually the hook line or a condensed version. Skip for EMOTIONAL_PHOTO and NOSTALGIC_PHOTO.]
+**Visual concept:** [1 sentence -- what the image shows. The image-director-engagement skill handles the rest.]
+
+### Video Intent
+**Format:** [STORY_REEL / TALKING_HEAD / LISTICLE_REEL / QUESTION_HOOK / INTERACTIVE_POLL / NOSTALGIA_MONTAGE / EMOTIONAL_NARRATIVE / COMEDY_SKIT / TEXT_REVEAL / RELATABLE_MONTAGE / NONE]
+**Hook line for video:** [The specific hook text/action for the first 3 seconds. Skip for NONE.]
+**Tone direction:** [1 sentence -- the emotional quality of the video.]
 
 ### Why This Works
 [1-2 sentences explaining which engagement principles drive this post]
