@@ -1,12 +1,12 @@
 ---
-name: image-prompt-engineering
-displayName: Image Prompt Engineering
-description: SOP for vibe-image-director agent. Reads content (articles, landing pages, ebooks, social posts), extracts visual concepts, and produces detailed image generation prompts with style/mood/composition directives and negative prompts. Does NOT call image APIs — outputs structured prompt JSON for vibe-image-generator.
+name: image-director-sales
+displayName: Image Director — Sales
+description: SOP for vibe-image-director agent (sales pipeline). Reads content (articles, landing pages, ebooks, ads), extracts visual concepts, and produces detailed image generation prompts with style/mood/composition directives and negative prompts. Does NOT call image APIs — outputs structured prompt JSON for vibe-image-generator.
 category: media
 type: procedure
 ---
 
-# Image Prompt Engineering
+# Image Director — Sales
 
 You are the `vibe-image-director` agent in the vibe-marketing pipeline. You do NOT generate images. You produce creative briefs — structured prompt JSON files that `vibe-image-generator` consumes to call the appropriate image service.
 
@@ -230,9 +230,9 @@ Include a quality checklist in every prompt spec:
 
 | Upstream | This Skill | Downstream |
 |----------|-----------|------------|
-| Written content (any agent) | image-prompt-engineering (analyze + prompt) | vibe-image-generator (generate image) |
-| cover-spec.json (ebook-procedures) | image-prompt-engineering (translate) | vibe-image-generator (generate cover) |
-| Campaign brand config | image-prompt-engineering (apply brand) | Dashboard (display generated images) |
+| Written content (any agent) | image-director-sales (analyze + prompt) | vibe-image-generator (generate image) |
+| cover-spec.json (ebook-procedures) | image-director-sales (translate) | vibe-image-generator (generate cover) |
+| Campaign brand config | image-director-sales (apply brand) | Dashboard (display generated images) |
 
 ---
 

@@ -1,0 +1,116 @@
+---
+session: general
+date: 2026-02-15
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Single-task campaigns, resource tree management, engagement-specialized image/video skills, resource detail page
+now: Wire advanced-image-prompt-engineering.md into sales image director skill. Test full engagement pipeline end-to-end with a real content batch. Consider removing legacy deliverableConfig/targetArticleCount from schema.
+
+test: "npx convex dev --once --url http://localhost:3210 && cd dashboard && npm run build"
+
+done_this_session:
+  - task: "Phase 1: Rewrote generateTasksForCampaign from N-task loop to single-task pattern (matching content batch model). 1 task per campaign regardless of article count."
+    files: [convex/orchestrator.ts]
+  - task: "Phase 2: Added productionManifest schema to campaigns — structured per-article deliverables with per-platform social post quantities + standalone deliverables. Updated CampaignForm.vue Step 6 as manifest builder."
+    files: [convex/schema.ts, convex/campaigns.ts, dashboard/components/CampaignForm.vue]
+  - task: "Phase 3: Added resource tree queries (listByTaskAndType, listTree, campaignProgress), stepRetryCount + MAX_AUTO_RETRIES=2 retry safeguards, resource-registration.md multi-article protocol, 12 agent SKILL.md files updated with multi-article mode"
+    files: [convex/resources.ts, convex/pipeline.ts, convex/schema.ts, .claude/skills/shared-references/resource-registration.md]
+  - task: "Phase 4: Added resourceProgress field (expectedCounts + completedCounts by type) to tasks schema. completeStep now updates resource progress and resets stepRetryCount."
+    files: [convex/schema.ts, convex/pipeline.ts]
+  - task: "Phase 5: Created CampaignProgress.vue (progress bars by type) and ResourceTree.vue (expandable tree with status badges), integrated into campaign detail page"
+    files: ["dashboard/components/CampaignProgress.vue", "dashboard/components/ResourceTree.vue", "dashboard/pages/projects/[slug]/campaigns/[id].vue"]
+  - task: "Built comprehensive resource detail page — multi-format content rendering (markdown, images, video, PDF, Office docs, audio), relationship browser (parent/children/siblings/related), download button, 66 passing tests"
+    files: ["dashboard/pages/projects/[slug]/resources/[id].vue", "dashboard/composables/useResourceContent.ts", "dashboard/tests/unit/ResourceDetailPage.spec.ts", "dashboard/tests/unit/useResourceContent.spec.ts"]
+  - task: "Built image-director-engagement skill (860 lines) — 8 visual formats (TOBI bold/minimal, photo+text overlay, meme, choose grid, quote card, nostalgic photo, emotional photo), STEPPS visual scoring, intent detection from post content, engagement-specific negative prompts, service recommendations"
+    files: [.claude/skills/image-director-engagement/SKILL.md]
+  - task: "Built video-script-engagement skill (1020 lines) — 10 video formats (story_reel, talking_head, listicle, question_hook, interactive_poll, nostalgia_montage, emotional_narrative, comedy_skit, text_reveal, relatable_montage), 3-second rule, platform-specific rules (FB/IG/TikTok), STEPPS video scoring"
+    files: [.claude/skills/video-script-engagement/SKILL.md]
+  - task: "Updated facebook-engagement-engine to output imageIntent + videoIntent in post template instead of vague 2-3 sentence image briefs. Clean handoff to specialized skills."
+    files: [.claude/skills/facebook-engagement-engine/SKILL.md]
+  - task: "Wired both new skills into seed.ts (skills array + agentSkillMap) and seed-skills.sh"
+    files: [convex/seed.ts, scripts/seed-skills.sh]
+  - task: "Fixed crawl4ai MCP: pip3 run → uvx --from crawl4ai-mcp crawl-mcp, removed disabled flag"
+    files: [.mcp.json]
+  - task: "Fixed SSH keys (copied root's id_rsa to /home/vuk/.ssh/) and file ownership (chown -R vuk:vuk /var/www/vibe-marketing/)"
+    files: []
+
+blockers: []
+
+questions:
+  - "Should legacy deliverableConfig + targetArticleCount be removed from schema now or after a migration period?"
+  - "knowledge/image-gen/advanced-image-prompt-engineering.md (Karlo/Ecomtalent) — wire into sales image director as reference, or extract key techniques into the skill directly?"
+  - "Should image-prompt-engineering be renamed to image-director-sales for naming consistency?"
+  - "End-to-end test: run a real engagement content batch through the full pipeline to verify handoff chain (engine → image-director-engagement → video-script-engagement)"
+
+decisions:
+  - single_task_campaigns: "1 task per campaign (matching content batch pattern). Agents process ALL articles in one pass. 60-70% reduction in redundant work."
+  - engagement_skill_split: "Split image-director and video-script into engagement-specific skills rather than one generic skill. Engagement visuals need different psychology (STEPPS, scroll-stopping) than sales visuals (conversion, product focus)."
+  - imageIntent_handoff: "facebook-engagement-engine outputs lightweight imageIntent enum + hook text instead of full image briefs. image-director-engagement can also INFER intent from post content when no explicit intent is provided."
+  - keep_engine_name: "facebook-engagement-engine keeps its name despite no longer handling images. It's the strategic brain (content mix, STEPPS scoring, audience targeting, creative direction), not just a writer."
+  - karlo_doc_for_sales_only: "advanced-image-prompt-engineering.md pushes toward polished/cinematic aesthetics — harmful for engagement (kills organic feel), helpful for sales. Don't reference in engagement skills."
+  - backward_compat_kept: "deliverableConfig + targetArticleCount kept in schema (not removed). orchestrator.ts falls back to them if no productionManifest exists. Old campaigns are test data."
+
+findings:
+  - engagement_images_differ: "Engagement images (TOBI, memes, grids, nostalgic photos) require fundamentally different prompt engineering than sales images (product shots, hero images, ad creatives). Generic image-director produced stock-photo-looking outputs that kill organic reach."
+  - fb_engine_image_briefs_weak: "The facebook-engagement-engine's 2-3 sentence Image Brief was too vague for good image generation. Missing text overlay specs, TOBI formats, grid layouts. Splitting into specialized skill + lightweight intent handoff solved this."
+  - mediaConfig_already_works: "Content batch form already has mediaConfig toggles (imagePrompt, videoScript) that filter parallel branches from pipeline snapshot. No changes needed for toggle functionality."
+  - two_engagement_pipelines: "Quick (no research: engine→review→humanize) and Full (trend-research→engine→review→humanize). Both have image+video as parallel branches."
+
+worked:
+  - "Background kraken agents for large implementations — 5-phase resource management plan completed autonomously"
+  - "Scout agent for auditing plan vs implementation gaps — caught 5+ missing agent SKILL.md updates"
+  - "Splitting mega-skills into focused specialists with intent-based handoff between them"
+  - "Reading existing skills thoroughly before designing new ones — ensured consistency and avoided duplication"
+
+failed:
+  - "First kraken agent only completed ~60% of the plan (missed agent SKILL.md updates). Needed a second agent to finish."
+  - "git objects owned by root caused permission errors — fixed with chown but was unexpected friction"
+
+next:
+  - "END-TO-END TEST: Run a real engagement content batch through the full pipeline (quick or full) to verify the chain: engine → image-director-engagement → video-script-engagement"
+  - "WIRE SALES REFERENCE: Add advanced-image-prompt-engineering.md as reference in image-prompt-engineering (sales) skill"
+  - "RENAME CONSIDERATION: Rename image-prompt-engineering to image-director-sales for consistency"
+  - "REMOVE LEGACY: Consider removing deliverableConfig + targetArticleCount from schema"
+  - "SEED PIPELINES: Run seed script to update pipelines in Convex with new skill assignments"
+  - "DASHBOARD TESTING: Test resource detail page with real resources (markdown rendering, relationship browser)"
+  - "RESEARCH SKILLS: Pinterest, Etsy, and Quora research skills still pending from previous session"
+
+files:
+  created:
+    - ".claude/skills/image-director-engagement/SKILL.md"
+    - ".claude/skills/video-script-engagement/SKILL.md"
+    - "dashboard/components/CampaignProgress.vue"
+    - "dashboard/components/ResourceTree.vue"
+    - "dashboard/composables/useResourceContent.ts"
+    - "dashboard/tests/unit/ResourceDetailPage.spec.ts"
+    - "dashboard/tests/unit/useResourceContent.spec.ts"
+  modified:
+    - "convex/orchestrator.ts"
+    - "convex/schema.ts"
+    - "convex/campaigns.ts"
+    - "convex/resources.ts"
+    - "convex/pipeline.ts"
+    - "convex/seed.ts"
+    - "convex/agents.ts"
+    - "dashboard/components/CampaignForm.vue"
+    - "dashboard/pages/projects/slug/campaigns/id.vue"
+    - "dashboard/pages/projects/slug/resources/id.vue"
+    - ".claude/skills/facebook-engagement-engine/SKILL.md"
+    - ".claude/skills/shared-references/resource-registration.md"
+    - ".claude/skills/content-writing-procedures/SKILL.md"
+    - ".claude/skills/content-review-procedures/SKILL.md"
+    - ".claude/skills/image-prompt-engineering/SKILL.md"
+    - ".claude/skills/image-generation-procedures/SKILL.md"
+    - ".claude/skills/audience-research-procedures/SKILL.md"
+    - ".claude/skills/trend-research-procedures/SKILL.md"
+    - ".claude/skills/humanizer/SKILL.md"
+    - ".claude/skills/social-content/SKILL.md"
+    - ".claude/skills/facebook-engagement-engine/SKILL.md"
+    - ".claude/skills/email-sequence/SKILL.md"
+    - ".claude/skills/paid-ads/SKILL.md"
+    - ".claude/skills/video-script-guide/SKILL.md"
+    - ".mcp.json"
+    - "scripts/seed-skills.sh"
+    - "scripts/seed-agent-skills.sh"

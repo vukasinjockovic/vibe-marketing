@@ -271,7 +271,7 @@ Log costs to Convex `agentActivity` for campaign cost dashboards.
 
 | Upstream | This Skill | Downstream |
 |----------|-----------|------------|
-| prompt-*.json (image-prompt-engineering) | image-generation-procedures (generate) | Campaign assets folder |
+| prompt-*.json (image-director-sales/engagement) | image-generation-procedures (generate) | Campaign assets folder |
 | Service registry (resolve_service.py) | image-generation-procedures (resolve) | Cost tracking (Convex) |
 | cover-spec.json (ebook-procedures) | image-generation-procedures (generate cover) | markdown-to-epub-converter |
 
@@ -346,7 +346,7 @@ npx convex run pipeline:completeBranch '{
 
 ## What This Skill Does NOT Cover
 
-- **Prompt creation** — that's `vibe-image-director` with `image-prompt-engineering`
+- **Prompt creation** — that's `vibe-image-director` with `image-director-sales` or `image-director-engagement`
 - **Image editing/retouching** — downstream tooling (future agent)
 - **Text overlay on generated images** — downstream design tooling
 - **Video generation** — that's `vibe-video-generator` with separate procedures

@@ -189,7 +189,8 @@ vibe-marketing/
 │   ├── content-writing-procedures/      # vibe-content-writer agent
 │   ├── content-review-procedures/       # vibe-content-reviewer agent
 │   ├── image-generation-procedures/     # vibe-image-generator agent
-│   ├── image-prompt-engineering/        # vibe-image-director agent
+│   ├── image-director-sales/           # vibe-image-director agent (sales)
+│   ├── image-director-engagement/     # vibe-image-director agent (engagement)
 │   ├── mbook-*/               # 14 marketing book skills (L1-L5 layer model)
 │   └── ...                    # + community skills (vue, nuxt, convex, etc.)
 ├── scripts/

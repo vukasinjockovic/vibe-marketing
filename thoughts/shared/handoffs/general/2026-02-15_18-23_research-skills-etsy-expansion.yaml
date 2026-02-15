@@ -1,0 +1,102 @@
+---
+session: general
+date: 2026-02-15
+status: complete
+outcome: PARTIAL_PLUS
+---
+
+goal: Built 4 research skill scripts (Google Trends, Google Suggest, YouTube, Amazon Reviews) + expanded Etsy product research for both pages + designed Pinterest/Etsy/Quora skill architecture
+now: Build Pinterest, Etsy, and Quora research skills (3 more skills), then wire all 7 research skills to vibe-audience-researcher and vibe-keyword-researcher agents via seed-agent-skills.sh
+
+test: "ls -la .claude/skills/google-trends-research/scripts/google_trends.py .claude/skills/google-suggest-research/scripts/google_suggest.py .claude/skills/youtube-research/scripts/youtube_research.py .claude/skills/amazon-reviews-research/scripts/amazon_reviews.py projects/our-forever-stories/etsy-baby-kids-family-research.md projects/grandparents-are-gold/etsy-digital-products-research.md knowledge/market-data/publishers/all_publishers.csv"
+
+done_this_session:
+  - task: "Built google-trends-research skill — pytrends library, seasonal peaks, related queries, regional interest. Tested with 'grandparent gift' (peaks Oct-Dec) and 'wedding planner' (peaks Jan-Mar + May-Aug)"
+    files: [".claude/skills/google-trends-research/scripts/google_trends.py", ".claude/skills/google-trends-research/SKILL.md"]
+  - task: "Built google-suggest-research skill — Google Autocomplete API, alphabet/question/preposition expansion. Zero deps (stdlib only). Tested: 41 suggestions for 'grandparent gift', 70 for 'wedding planner'"
+    files: [".claude/skills/google-suggest-research/scripts/google_suggest.py", ".claude/skills/google-suggest-research/SKILL.md"]
+  - task: "Built youtube-research skill — yt-dlp for search/metadata/transcripts/comments, 10 theme categories, emotional phrase detection. Note: transcript/comment download needs browser cookies on headless servers"
+    files: [".claude/skills/youtube-research/scripts/youtube_research.py", ".claude/skills/youtube-research/SKILL.md"]
+  - task: "Built amazon-reviews-research skill — Playwright browser automation for Amazon review scraping. Amazon blocked initial attempts; fixed by visiting homepage first for session cookies. Agent still finishing final testing at session end"
+    files: [".claude/skills/amazon-reviews-research/scripts/amazon_reviews.py", ".claude/skills/amazon-reviews-research/SKILL.md"]
+  - task: "Ran Etsy baby/kids/family research agent for OFS post-wedding funnel — 602 lines, 12 categories, 60+ product ideas, pricing strategy, funnel integration map"
+    files: ["projects/our-forever-stories/etsy-baby-kids-family-research.md"]
+  - task: "Ran Etsy senior/grandparent research agent for GAG — 531 lines, 12 categories, legacy letters identified as biggest opportunity, 'Nonna Chic' 2026 trend"
+    files: ["projects/grandparents-are-gold/etsy-digital-products-research.md"]
+  - task: "Moved publisher data from /tmp to knowledge/market-data/publishers/ — mediavine_sellers.json (1.5M), raptive_sellers.json (1.9M), all_publishers.csv (1.6M, 20,726 publishers), publisher-analysis.md"
+    files: ["knowledge/market-data/publishers/mediavine_sellers.json", "knowledge/market-data/publishers/raptive_sellers.json", "knowledge/market-data/publishers/all_publishers.csv", "knowledge/market-data/publishers/publisher-analysis.md"]
+  - task: "All 4 skills seeded to Convex via skills:upsertBySlug with type 'custom' (schema only accepts: mbook, procedure, community, custom)"
+    files: []
+  - task: "Designed full architecture for Pinterest, Etsy, and Quora research skills with flow-aware routing (engagement/sales/audience flows get different scripts from same skill)"
+    files: []
+
+blockers:
+  - "Amazon reviews skill may need further anti-bot refinement (homepage cookie warm-up fixed search but review pages not verified yet)"
+  - "YouTube transcript/comment download blocked by bot detection on headless servers without browser cookies"
+
+questions:
+  - "Should research skills be wired to seed-agent-skills.sh automatically, or wait for user to decide which agents use which skills?"
+  - "For Pinterest/Etsy/Quora skills — should each have a --flow argument (engagement|sales|audience) or should the SKILL.md just document which scripts to run per flow?"
+  - "Amazon reviews needs residential proxy or browser cookies to work reliably at scale — acceptable or find alternative?"
+  - "Should we enable Crawl4AI in .mcp.json (it's self-hosted, free, already in docker-compose) as alternative to Playwright for some scraping?"
+
+decisions:
+  - research_skill_pattern: "Each skill has SKILL.md + scripts/ dir with Python CLI tools. Scripts use argparse, return JSON to stdout, progress to stderr. Seeded to Convex as type 'custom'"
+  - flow_aware_routing: "Same platform yields different data per flow. SKILL.md documents which scripts to run for engagement vs sales vs audience flows. Agent reads SKILL.md and picks right combination based on task context"
+  - free_tools_first: "Prioritize free tools: pytrends (no key), Google Autocomplete (no key), yt-dlp (free), Playwright (free). DataForSEO stays disabled until paid tools needed"
+  - publisher_data_in_knowledge: "Raw publisher JSON + CSV moved to knowledge/market-data/publishers/ (was in /tmp, would have been lost)"
+  - convex_skill_type_custom: "Convex skills table type field only accepts mbook/procedure/community/custom. Research tools registered as 'custom'"
+
+findings:
+  - amazon_needs_cookie_warmup: "Amazon blocks direct search requests from headless Playwright. Visiting amazon.com homepage first establishes session cookies, then search works (found 81 products). Script updated with this warm-up step"
+  - youtube_bot_detection: "yt-dlp search + metadata works on headless servers, but transcript/comment download is blocked by YouTube bot detection. Needs --cookies-from-browser or cookies.txt file for full functionality"
+  - google_suggest_zero_deps: "Google Autocomplete API works with just urllib (stdlib). No API key, no external deps. 0.3s delay between requests avoids rate limiting"
+  - pytrends_rate_limiting: "pytrends needs 2-second delays between API calls. related_topics sometimes returns empty (IndexError) — handled gracefully"
+  - etsy_baby_products_trending: "'Baby gift' Etsy searches up 422% in Q1 2025 per eRank. Sellers report better sales at $15-25 than $5-10 (higher prices signal quality)"
+  - gag_legacy_letters_opportunity: "Legacy letters/ethical wills most underserved category on Etsy relative to demand. Low competition, high emotional resonance, aligns with 'You are not forgotten' positioning"
+  - nonna_chic_2026: "2026 Etsy mega-trend: 'Nonna Chic' / Modern Nostalgia. Warm gold/cream/sage palettes, watercolor elements, hand-lettered fonts. GAG entire product line should adopt this aesthetic"
+  - senior_design_requirement: "All products targeting seniors directly MUST use 16-18pt font minimum, high contrast, generous spacing. Products for adult children buyers can use standard sizing"
+
+worked:
+  - "4 parallel kraken agents building skills simultaneously — all completed independently without conflicts"
+  - "Homepage cookie warm-up trick fixed Amazon bot detection for Playwright scraping"
+  - "Google Autocomplete API is incredibly reliable and fast — zero deps, instant keyword expansion"
+  - "pytrends seasonal peak computation works well for content calendar planning"
+  - "Parallel oracle agents for Etsy research (OFS + GAG) completed ~600 lines each in ~8 minutes"
+
+failed:
+  - "Amazon direct search without homepage visit returns 'Sorry! Something went wrong!' error page every time"
+  - "YouTube transcript download via yt-dlp blocked on headless servers without browser cookies"
+  - "Initial amazon_reviews.py stealth headers (Sec-Ch-Ua, navigator.webdriver override) were NOT sufficient — Amazon uses server-side session validation, not just JS detection"
+
+next:
+  - "VERIFY AMAZON SKILL: Agent a5394a0 was still running at session end. Check if it completed, verify amazon_reviews.py works with homepage warm-up, run full test with review extraction"
+  - "BUILD PINTEREST SKILL: pinterest_trends.py (Web Fetch), pinterest_search.py (Playwright), pinterest_boards.py (Playwright). Flow-aware routing in SKILL.md"
+  - "BUILD ETSY SKILL: etsy_search.py, etsy_reviews.py, etsy_shop.py, etsy_suggest.py (all Playwright except suggest). Flow-aware routing"
+  - "BUILD QUORA SKILL: quora_questions.py (Brave + Web Fetch), quora_answers.py (Web Fetch + Playwright), quora_voice_mine.py (Playwright)"
+  - "WIRE SKILLS TO AGENTS: Update seed-agent-skills.sh to assign research skills to vibe-audience-researcher, vibe-keyword-researcher, vibe-serp-analyzer"
+  - "UPDATE SEED-SKILLS.SH: Add the 4 new research skills (+ future 3) to the seed script for reproducibility"
+  - "ENABLE CRAWL4AI: Consider enabling crawl4ai in .mcp.json — it's self-hosted, free, already in docker-compose.services.yml"
+  - "BUILD PRINTABLE PDFs: Still pending from previous session — create lead magnet PDFs using HTML/CSS pipeline"
+  - "EMAIL SEQUENCES: Design post-lead-magnet email nurture sequences for both pages"
+
+files:
+  created:
+    - ".claude/skills/google-trends-research/scripts/google_trends.py"
+    - ".claude/skills/google-trends-research/SKILL.md"
+    - ".claude/skills/google-suggest-research/scripts/google_suggest.py"
+    - ".claude/skills/google-suggest-research/SKILL.md"
+    - ".claude/skills/youtube-research/scripts/youtube_research.py"
+    - ".claude/skills/youtube-research/SKILL.md"
+    - ".claude/skills/amazon-reviews-research/scripts/amazon_reviews.py"
+    - ".claude/skills/amazon-reviews-research/SKILL.md"
+    - "projects/our-forever-stories/etsy-baby-kids-family-research.md"
+    - "projects/grandparents-are-gold/etsy-digital-products-research.md"
+    - "knowledge/market-data/publishers/mediavine_sellers.json"
+    - "knowledge/market-data/publishers/raptive_sellers.json"
+    - "knowledge/market-data/publishers/all_publishers.csv"
+    - "knowledge/market-data/publishers/publisher-analysis.md"
+    - ".claude/cache/agents/oracle/output-baby-kids-family-etsy-research-2026-02-15.md"
+    - ".claude/cache/agents/oracle/output-2026-02-15-etsy-grandparent-products.md"
+    - ".claude/cache/agents/kraken/output-20260215-171300.md"
+  modified: []

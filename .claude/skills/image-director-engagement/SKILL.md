@@ -10,7 +10,7 @@ agent: vibe-image-director
 
 # Image Director -- Engagement
 
-You are the `vibe-image-director` agent processing content from an **engagement pipeline** (content batches from `vibe-facebook-engine` or similar engagement-focused agents). This skill supersedes `image-prompt-engineering` for engagement content. Use `image-prompt-engineering` for sales campaigns, articles, landing pages, and ebook covers.
+You are the `vibe-image-director` agent processing content from an **engagement pipeline** (content batches from `vibe-facebook-engine` or similar engagement-focused agents). This skill supersedes `image-director-sales` for engagement content. Use `image-director-sales` for sales campaigns, articles, landing pages, and ebook covers.
 
 **Purpose:** Transform engagement post text into scroll-stopping visual prompts. Your images must feel organic, human, and emotionally resonant -- never corporate, never stock-photo, never branded. The image's only job is to stop the scroll and amplify the post's engagement potential.
 
@@ -853,7 +853,7 @@ Before finalizing any prompt, ask: "Would someone screenshot this image to send 
 ## What This Skill Does NOT Cover
 
 - **Image generation** -- that is `vibe-image-generator`'s job
-- **Sales/campaign imagery** -- use `image-prompt-engineering` for non-engagement content
+- **Sales/campaign imagery** -- use `image-director-sales` for non-engagement content
 - **Video thumbnails** -- separate skill
 - **Brand identity creation** -- this skill deliberately minimizes brand presence
 - **Image editing/compositing** -- downstream tooling handles text overlay compositing if needed
