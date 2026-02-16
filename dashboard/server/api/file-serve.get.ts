@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery, createError, setResponseHeader } from 'h3'
 import { readFile, stat } from 'fs/promises'
-import { extname } from 'path'
+import { extname, basename } from 'path'
 import { sanitizePath, isAllowedPath } from '../utils/pathSanitizer'
 
 const BINARY_MIME_MAP: Record<string, string> = {
@@ -72,9 +72,17 @@ export default defineEventHandler(async (event) => {
 
     const content = await readFile(resolvedPath)
 
+    const filename = basename(resolvedPath)
+    const isDownload = query.download === '1'
+
     setResponseHeader(event, 'Content-Type', mimeType)
     setResponseHeader(event, 'Content-Length', fileStat.size.toString())
     setResponseHeader(event, 'Cache-Control', 'public, max-age=3600')
+    setResponseHeader(
+      event,
+      'Content-Disposition',
+      `${isDownload ? 'attachment' : 'inline'}; filename="${filename}"`,
+    )
 
     return content
   } catch (err: any) {

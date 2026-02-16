@@ -460,7 +460,7 @@ function downloadItem() {
     return
   }
   const node = contextMenu.value.node
-  const url = serveUrl(node.path, node.modified)
+  const url = serveUrl(node.path, node.modified) + '&download=1'
   const a = document.createElement('a')
   a.href = url
   a.download = node.name
