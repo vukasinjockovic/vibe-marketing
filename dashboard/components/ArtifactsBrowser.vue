@@ -241,7 +241,7 @@ async function selectFile(entry: FileEntry) {
     fileLoading.value = true
     try {
       const data = await $fetch<{ content: string }>('/api/file-content', {
-        query: { path: entry.path },
+        query: { path: entry.path, ...(entry.modified ? { v: new Date(entry.modified).getTime() } : {}) },
       })
       fileContent.value = data.content
     } catch (err) {
@@ -250,14 +250,11 @@ async function selectFile(entry: FileEntry) {
     }
     fileLoading.value = false
   } else if (fileType === 'epub') {
-    const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
-    openEpub(url)
+    openEpub(serveUrl(entry.path, entry.modified))
   } else if (fileType === 'docx') {
-    const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
-    openDocx(url)
+    openDocx(serveUrl(entry.path, entry.modified))
   } else if (fileType === 'spreadsheet') {
-    const url = `/api/file-serve?path=${encodeURIComponent(entry.path)}`
-    openSpreadsheet(url)
+    openSpreadsheet(serveUrl(entry.path, entry.modified))
   }
 }
 
@@ -463,7 +460,7 @@ function downloadItem() {
     return
   }
   const node = contextMenu.value.node
-  const url = `/api/file-serve?path=${encodeURIComponent(node.path)}`
+  const url = serveUrl(node.path, node.modified)
   const a = document.createElement('a')
   a.href = url
   a.download = node.name
@@ -573,9 +570,15 @@ const selectedFileLanguage = computed(() => {
   return getMonacoLanguage(selectedFile.value.name)
 })
 
+function serveUrl(path: string, modified?: string) {
+  let url = `/api/file-serve?path=${encodeURIComponent(path)}`
+  if (modified) url += `&v=${new Date(modified).getTime()}`
+  return url
+}
+
 const selectedFileServeUrl = computed(() => {
   if (!selectedFile.value) return ''
-  return `/api/file-serve?path=${encodeURIComponent(selectedFile.value.path)}`
+  return serveUrl(selectedFile.value.path, selectedFile.value.modified)
 })
 
 // --- DOCX viewer (mammoth.js) ---
