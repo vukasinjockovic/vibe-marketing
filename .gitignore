@@ -11,3 +11,5 @@ logs/
 .claude/tsc-cache
 /projects/*
 .playwright-mcp
+tests/unit
+.claude/cache
