@@ -69,6 +69,38 @@ const parsedMarkdown = computed(() => {
   return null
 })
 
+// Monaco language mapping for text content
+const monacoLanguage = computed(() => {
+  const ext = fileExt.value
+  const map: Record<string, string> = {
+    md: 'markdown',
+    json: 'json',
+    js: 'javascript',
+    ts: 'typescript',
+    py: 'python',
+    sh: 'shell',
+    yaml: 'yaml',
+    yml: 'yaml',
+    vue: 'html',
+    jsx: 'javascript',
+    tsx: 'typescript',
+    html: 'html',
+    htm: 'html',
+    css: 'css',
+    csv: 'plaintext',
+    txt: 'plaintext',
+    log: 'plaintext',
+  }
+  return map[ext] || 'markdown'
+})
+
+// Text content for Monaco (unified from DB or file)
+const monacoContent = computed(() => {
+  if (contentSource.value.source === 'db') return contentSource.value.value
+  if (fileContent.value) return fileContent.value
+  return ''
+})
+
 // --- File loading for disk-based text content ---
 const fileContent = ref<string | null>(null)
 const fileLoading = ref(false)
@@ -369,18 +401,16 @@ function downloadFile() {
               </button>
             </div>
 
-            <!-- Markdown content -->
+            <!-- Text content (markdown, plaintext, code) — Monaco Editor -->
             <div
-              v-else-if="displayMode === 'markdown' && parsedMarkdown?.html"
-              class="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-muted prose-pre:border prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground"
-              v-html="parsedMarkdown.html"
-            />
-
-            <!-- Plain text / CSV / Code -->
-            <div v-else-if="displayMode === 'plaintext' || displayMode === 'code'">
-              <pre
-                class="bg-muted rounded-lg border p-4 text-sm font-mono text-foreground overflow-x-auto max-h-[600px] overflow-y-auto whitespace-pre-wrap break-words"
-              >{{ contentSource.source === 'db' ? contentSource.value : fileContent || 'Loading...' }}</pre>
+              v-else-if="(displayMode === 'markdown' || displayMode === 'plaintext' || displayMode === 'code') && monacoContent"
+              class="rounded-lg border overflow-hidden h-[600px]"
+            >
+              <VMonacoEditor
+                :value="monacoContent"
+                :language="monacoLanguage"
+                :options="{ readOnly: true, domReadOnly: true }"
+              />
             </div>
 
             <!-- HTML content -->

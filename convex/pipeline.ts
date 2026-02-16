@@ -502,6 +502,34 @@ export const completeBranch = mutation({
   },
 });
 
+// Clear stuck pendingBranches and dispatch the gated step
+export const clearBranches = mutation({
+  args: {
+    taskId: v.id("tasks"),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new ConvexError("Task not found");
+    if (!task.pendingBranches?.length) return { cleared: 0 };
+
+    const cleared = task.pendingBranches.length;
+    await ctx.db.patch(args.taskId, { pendingBranches: [] });
+
+    // Dispatch the current gated step if it has an agent waiting
+    const pipeline = task.pipeline as any[];
+    const currentStep = pipeline[task.pipelineStep];
+    if (currentStep?.status === "in_progress" && currentStep.agent) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.orchestrator.requestDispatch,
+        { taskId: args.taskId, agentName: currentStep.agent }
+      );
+    }
+
+    return { cleared };
+  },
+});
+
 // ═══════════════════════════════════════════
 // requestRevision — Send task back to an earlier step
 // ═══════════════════════════════════════════

@@ -669,6 +669,8 @@ export default defineSchema({
     stepRetryCount: v.optional(v.number()),
     resourceProgress: v.optional(v.object({
       expectedCounts: v.optional(v.object({
+        research_material: v.optional(v.number()),
+        brief: v.optional(v.number()),
         article: v.optional(v.number()),
         social_post: v.optional(v.number()),
         image_prompt: v.optional(v.number()),
@@ -679,8 +681,12 @@ export default defineSchema({
         landing_page: v.optional(v.number()),
         lead_magnet: v.optional(v.number()),
         ad_copy: v.optional(v.number()),
+        report: v.optional(v.number()),
+        brand_asset: v.optional(v.number()),
       })),
       completedCounts: v.optional(v.object({
+        research_material: v.optional(v.number()),
+        brief: v.optional(v.number()),
         article: v.optional(v.number()),
         social_post: v.optional(v.number()),
         image_prompt: v.optional(v.number()),
@@ -691,6 +697,8 @@ export default defineSchema({
         landing_page: v.optional(v.number()),
         lead_magnet: v.optional(v.number()),
         ad_copy: v.optional(v.number()),
+        report: v.optional(v.number()),
+        brand_asset: v.optional(v.number()),
       })),
       lastUpdated: v.optional(v.number()),
     })),

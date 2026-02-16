@@ -1,39 +1,59 @@
 # vibe-humanizer -- Working Memory
 
 ## Last Run
-- Date: 2026-02-14
-- Task: mx739kp76s098skt591x945dhx8145w0
-- Batch: Batch 1, Post 6 of 12 (nd7cg3cpmysmm7fmp6w9b0egvs815a4d)
+- Date: 2026-02-16
+- Task: mx7fh6z0jynqnstj6ba0aqhrb9817ew7
+- Batch: Batch 2, 24 posts (nd7cnytme3435etavp5h3n2q9n817nbm)
 - Project: our-forever-stories
 - Content Type: engagement_post (Facebook Page)
 - Status: COMPLETED
 
-## Changes Made
+## Changes Made Across Batch
 
-### AI Pattern Fixes
-1. **US English spelling** — "Agonised" → "Agonized" (no locale set on project; defaulting to US English for Facebook audience).
-2. **Rule-of-three reduction** (Pattern #10) — Three consecutive "The thing you..." sentences reduced to one combined sentence: "The thing you barely thought about that ended up mattering more than everything you stressed over for months." Keeps the rhythm without the formulaic triple repetition.
-3. **Redundant double question removed** (Reviewer note #1) — Dropped "What's the one thing you didn't expect to matter so much on your wedding day?" and kept only "What was yours?" — punchier, trusts context, better for Facebook engagement where concise CTAs outperform.
+### Locale Normalization (US English)
+Applied consistently across all 24 posts:
+- "centrepieces" → "centerpieces" (Posts 2, 3)
+- "cancelled" → "canceled" (Post 7)
+- "grey" → "gray" (Post 8)
+- "hen do" → "bachelorette" (Post 13)
+- "labour" → "labor" (Post 13)
+- "personalised" → "personalized" (Post 22)
+- "favours" → "favors" (Post 23)
+- "pyjamas" → "pajamas" (Post 20)
+- "judgement" → "judgment" (Post 16)
+- "any more" → "anymore" (Post 12)
+- Various metadata spelling fixes (honour→honor, humour→humor, behaviour→behavior, normalisation→normalization, colours→colors)
 
-### Reviewer Notes Addressed
-1. **Double question** — Resolved by keeping the short form only.
-2. **Anniversary Milestone seed example** (Reviewer note #2) — Added: "A friend told me that ten years on, the only thing she remembers clearly is the look on her dad's face during the first dance." This widens engagement net to older couples and adds a fourth distinct seed type (long-term retrospective emotion).
-3. **Parallel structure restraint** (Reviewer note #3) — Preserved the two-instance "For some/For others" pattern. Did not add a third.
-4. **"Agonised" spelling** (Reviewer note #4) — Changed to US English.
+### CTA Tightening (Reviewer Notes)
+- Post 1: Removed duplicate question — kept "What was yours?" only
+- Post 4: Consolidated double question — single CTA
+- Post 5: Dropped trailing "We need to know we're not alone."
+- Post 7: Tightened CTA, specified emoji (😐 instead of vague "calmest emoji face")
+- Post 11: Dropped diffuse CTA closer
+- Post 13: Dropped trailing "What's yours?"
+- Post 17: Fixed awkward room key phrasing, trimmed triple adjective to "weird, ridiculous"
+- Post 18: Consolidated double CTA
+- Post 20: Rewrote parenthetical CTA to flow naturally
+- Post 23: Dropped trailing "We genuinely want to know."
+
+### Structural Changes
+- Post 14: Replaced em dash with comma in CTA
+- Post 16: Changed "hen do" to "bachelorette" for locale consistency; changed last item to "destination trip" to avoid repetition
 
 ### Soul Assessment
-- Post already had strong voice — fragments, colloquial phrasing, first-person "we", varied rhythm
-- No additional soul injection needed
-- The new anniversary seed adds warmth and a longer time horizon without disrupting tone
+- All 24 posts had strong existing voice — no soul injection needed
+- Writing quality consistently high (avg reviewer score 8.9/10)
+- Zero AI patterns flagged by reviewer across entire batch
 
 ## Output
-- File: projects/our-forever-stories/engagement/facebook-page/batches/batch-1/final/post-6.md
+- Files: projects/our-forever-stories/engagement/facebook-page/batches/batch-2/final/post-{01..24}.md
 - Quality Score: 9/10
-- AI Patterns fixed: 2 (rule-of-three, spelling)
-- Reviewer notes addressed: 4/4
-- Metadata section streamlined (removed per-dimension STEPPS breakdown from frontmatter, kept score)
+- AI Patterns fixed: 0 (none detected)
+- Locale fixes: 15+ across batch
+- CTA tightenings: 10 posts
+- Reviewer notes addressed: all
 
 ## Notes
-- "Our Forever Stories" project has no locale setting. Defaulted to US English. If future posts should use British English, set locale on the project.
-- Reviewer scored AI Pattern Detection at 9/10 with 0 flags — confirmed on humanizer pass. Copy was already very clean.
-- This is the first post finalized in Batch 1.
+- "Our Forever Stories" project still has no locale setting. Defaulted to US English per Batch 1 precedent.
+- Batch 2 writing was cleaner than Batch 1 — the facebook-engine appears to have improved.
+- Thematic overlap pairs flagged by reviewer (scheduling concern, not humanizer issue): Posts 6+10, Posts 11+20, Posts 3+19, Posts 13+16.

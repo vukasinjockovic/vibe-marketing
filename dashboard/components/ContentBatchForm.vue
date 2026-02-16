@@ -3,13 +3,16 @@ import { api } from '../../convex/_generated/api'
 
 const props = defineProps<{
   projectId: string
+  batch?: any
 }>()
 
 const emit = defineEmits<{
-  created: []
+  saved: []
 }>()
 
+const isEdit = computed(() => !!props.batch)
 const { mutate: createBatch } = useConvexMutation(api.contentBatches.create)
+const { mutate: updateBatch } = useConvexMutation(api.contentBatches.update)
 const toast = useToast()
 
 // Load channels and pipelines for selectors
@@ -45,9 +48,26 @@ const form = reactive({
   },
 })
 
-// Auto-generate slug from name
+// Pre-populate form in edit mode
+if (props.batch) {
+  form.channelId = props.batch.channelId || ''
+  form.name = props.batch.name || ''
+  form.slug = props.batch.slug || ''
+  form.description = props.batch.description || ''
+  form.batchSize = props.batch.batchSize || 12
+  form.pipelineId = props.batch.pipelineId || ''
+  form.targetFocusGroupIds = props.batch.targetFocusGroupIds ? [...props.batch.targetFocusGroupIds] : []
+  form.contentThemes = props.batch.contentThemes?.join(', ') || ''
+  form.trendSources = props.batch.trendSources?.join(', ') || ''
+  form.notes = props.batch.notes || ''
+  form.mediaConfig = props.batch.mediaConfig ? { ...props.batch.mediaConfig } : { imagePrompt: true, videoScript: true }
+}
+
+// Auto-generate slug from name (only in create mode)
 watch(() => form.name, (name) => {
-  form.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  if (!isEdit.value) {
+    form.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  }
 })
 
 // Auto-select first channel and pipeline
@@ -72,28 +92,41 @@ async function submit() {
   if (!form.name || !form.channelId || !form.pipelineId) return
   submitting.value = true
   try {
-    // Snapshot the pipeline
-    const pipeline = engagementPipelines.value?.find((p: any) => p._id === form.pipelineId)
-
-    await createBatch({
-      projectId: props.projectId as any,
-      channelId: form.channelId as any,
-      name: form.name,
-      slug: form.slug,
-      description: form.description || `Content batch: ${form.name}`,
-      batchSize: form.batchSize,
-      pipelineId: form.pipelineId as any,
-      pipelineSnapshot: pipeline || undefined,
-      targetFocusGroupIds: form.targetFocusGroupIds as any[],
-      contentThemes: form.contentThemes ? form.contentThemes.split(',').map(s => s.trim()).filter(Boolean) : undefined,
-      trendSources: form.trendSources ? form.trendSources.split(',').map(s => s.trim()).filter(Boolean) : undefined,
-      mediaConfig: form.mediaConfig,
-      notes: form.notes || undefined,
-    })
-    toast.success(`Batch "${form.name}" created!`)
-    emit('created')
+    if (isEdit.value) {
+      await updateBatch({
+        id: props.batch._id,
+        name: form.name,
+        description: form.description || `Content batch: ${form.name}`,
+        batchSize: form.batchSize,
+        pipelineId: form.pipelineId as any,
+        targetFocusGroupIds: form.targetFocusGroupIds as any[],
+        contentThemes: form.contentThemes ? form.contentThemes.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        trendSources: form.trendSources ? form.trendSources.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        notes: form.notes || undefined,
+      })
+      toast.success(`Batch "${form.name}" updated!`)
+    } else {
+      const pipeline = engagementPipelines.value?.find((p: any) => p._id === form.pipelineId)
+      await createBatch({
+        projectId: props.projectId as any,
+        channelId: form.channelId as any,
+        name: form.name,
+        slug: form.slug,
+        description: form.description || `Content batch: ${form.name}`,
+        batchSize: form.batchSize,
+        pipelineId: form.pipelineId as any,
+        pipelineSnapshot: pipeline || undefined,
+        targetFocusGroupIds: form.targetFocusGroupIds as any[],
+        contentThemes: form.contentThemes ? form.contentThemes.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        trendSources: form.trendSources ? form.trendSources.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        mediaConfig: form.mediaConfig,
+        notes: form.notes || undefined,
+      })
+      toast.success(`Batch "${form.name}" created!`)
+    }
+    emit('saved')
   } catch (e: any) {
-    toast.error(e.message || 'Failed to create batch')
+    toast.error(e.message || (isEdit.value ? 'Failed to update batch' : 'Failed to create batch'))
   } finally {
     submitting.value = false
   }
@@ -106,7 +139,8 @@ async function submit() {
     <VFormField label="Channel" required>
       <select
         v-model="form.channelId"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        :disabled="isEdit"
+        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <option value="" disabled>Select a channel...</option>
         <option v-for="ch in channels" :key="ch._id" :value="ch._id">
@@ -132,7 +166,8 @@ async function submit() {
         <input
           v-model="form.slug"
           type="text"
-          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground"
+          :disabled="isEdit"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground disabled:opacity-60 disabled:cursor-not-allowed"
         />
       </VFormField>
     </div>
@@ -234,16 +269,6 @@ async function submit() {
       />
     </VFormField>
 
-    <!-- Trend Sources -->
-    <VFormField label="Trend Sources" hint="Comma-separated subreddits or search queries">
-      <input
-        v-model="form.trendSources"
-        type="text"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        placeholder="r/weddingplanning, r/newparents, wedding photos trending"
-      />
-    </VFormField>
-
     <!-- Notes -->
     <VFormField label="Notes">
       <textarea
@@ -260,7 +285,7 @@ async function submit() {
         :disabled="submitting || !form.name || !form.channelId || !form.pipelineId"
         class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
       >
-        {{ submitting ? 'Creating...' : 'Create Batch' }}
+        {{ submitting ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save Changes' : 'Create Batch') }}
       </button>
     </div>
   </form>

@@ -135,6 +135,23 @@ export const assignTask = mutation({
   },
 });
 
+// Update agent paths (skillPath, agentFilePath)
+export const updatePaths = mutation({
+  args: {
+    id: v.id("agents"),
+    skillPath: v.optional(v.string()),
+    agentFilePath: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const agent = await ctx.db.get(args.id);
+    if (!agent) throw new Error("Agent not found");
+    const patch: Record<string, any> = {};
+    if (args.skillPath !== undefined) patch.skillPath = args.skillPath;
+    if (args.agentFilePath !== undefined) patch.agentFilePath = args.agentFilePath;
+    await ctx.db.patch(args.id, patch);
+  },
+});
+
 // Update agent skill assignments
 export const updateSkills = mutation({
   args: {

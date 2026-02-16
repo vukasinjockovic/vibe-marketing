@@ -26,7 +26,14 @@ export function sanitizePath(inputPath: string | undefined | null): string {
     return DEFAULT_ROOT
   }
 
-  // If the path is relative (starts with /projects/ etc), resolve against base
+  // If already an absolute path within the allowed base, use it directly
+  if (inputPath.startsWith(ALLOWED_BASE + '/')) {
+    const resolved = resolve(inputPath)
+    if (!isAllowedPath(resolved)) return DEFAULT_ROOT
+    return resolved
+  }
+
+  // Otherwise resolve relative to the allowed base
   const resolved = resolve(ALLOWED_BASE, inputPath.replace(/^\//, ''))
 
   if (!isAllowedPath(resolved)) {

@@ -250,8 +250,7 @@ onMounted(async () => {
       folding: true,
       showFoldingControls: 'mouseover',
       lineNumbers: 'on',
-      // NOTE: we deliberately omit `automaticLayout: true` because we handle
-      // resize ourselves via ResizeObserver (more reliable in flex layouts).
+      automaticLayout: true,
     }
 
     // Deep merge: props.options wins for top-level keys
@@ -292,6 +291,13 @@ onMounted(async () => {
     setupResizeObserver()
 
     isLoading.value = false
+
+    // Force layout after v-show makes container visible (fixes Monaco in modals/tabs)
+    // Multiple passes: nextTick for v-show, then delayed for modal transition completion
+    nextTick(() => {
+      editorInstance.value?.layout()
+      setTimeout(() => { editorInstance.value?.layout() }, 250)
+    })
   } catch (err) {
     console.warn('Monaco editor failed to load:', err)
     loadFailed.value = true

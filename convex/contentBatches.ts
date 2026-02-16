@@ -141,6 +141,9 @@ export const update = mutation({
     const { id, ...fields } = args;
     const batch = await ctx.db.get(id);
     if (!batch) throw new Error("Content batch not found");
+    if (batch.status !== "planning") {
+      throw new Error("Cannot edit a batch that is no longer in planning status");
+    }
 
     const updates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(fields)) {

@@ -64,12 +64,26 @@ function batchesForChannel(channelId: string) {
   return batches.value.filter((b: any) => b.channelId === channelId)
 }
 
-const recentBatches = computed(() => {
+// Batch status filter + pagination
+const batchStatusFilter = ref('all')
+const batchStatusTabs = ['all', 'planning', 'active', 'paused', 'completed']
+
+const filteredBatches = computed(() => {
   if (!batches.value) return []
-  return [...batches.value]
-    .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
-    .slice(0, 6)
+  const sorted = [...batches.value].sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
+  if (batchStatusFilter.value === 'all') return sorted
+  return sorted.filter((b: any) => b.status === batchStatusFilter.value)
 })
+
+const batchPage = ref(1)
+const batchPerPage = 10
+const batchTotalPages = computed(() => Math.max(1, Math.ceil(filteredBatches.value.length / batchPerPage)))
+const paginatedBatches = computed(() => {
+  const start = (batchPage.value - 1) * batchPerPage
+  return filteredBatches.value.slice(start, start + batchPerPage)
+})
+
+watch(batchStatusFilter, () => { batchPage.value = 1 })
 </script>
 
 <template>
@@ -151,24 +165,53 @@ const recentBatches = computed(() => {
     </div>
 
     <!-- Engagement Resources Summary -->
-    <div v-if="projectId && batches?.length">
+    <div v-if="projectId && batches?.length" class="mb-8">
       <h2 class="text-lg font-semibold text-foreground mb-3">Resources</h2>
       <ResourceStatsCards :project-id="projectId" />
     </div>
 
-    <!-- Recent Batches -->
-    <div>
-      <h2 class="text-lg font-semibold text-foreground mb-3">Recent Batches</h2>
+    <!-- Batches -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-foreground mb-3">Batches</h2>
+
+      <!-- Status filter tabs -->
+      <div class="flex gap-1 mb-4 bg-muted rounded-lg p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
+        <button
+          v-for="tab in batchStatusTabs"
+          :key="tab"
+          class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors capitalize"
+          :class="batchStatusFilter === tab
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'"
+          @click="batchStatusFilter = tab"
+        >
+          {{ tab }}
+          <span
+            v-if="tab !== 'all' && batches"
+            class="ml-1 text-xs"
+          >
+            ({{ batches.filter((b: any) => b.status === tab).length }})
+          </span>
+          <span
+            v-if="tab === 'all' && batches"
+            class="ml-1 text-xs"
+          >
+            ({{ batches.length }})
+          </span>
+        </button>
+      </div>
 
       <div v-if="loadingBatches" class="text-muted-foreground text-sm">Loading batches...</div>
 
       <VEmptyState
-        v-else-if="!recentBatches.length"
-        title="No content batches yet"
-        description="Create a batch to generate engagement posts for your channels."
+        v-else-if="!filteredBatches.length"
+        :title="batchStatusFilter === 'all' ? 'No content batches yet' : `No ${batchStatusFilter} batches`"
+        :description="batchStatusFilter === 'all'
+          ? 'Create a batch to generate engagement posts for your channels.'
+          : `No batches with status '${batchStatusFilter}'.`"
       >
         <button
-          v-if="channels?.length"
+          v-if="batchStatusFilter === 'all' && channels?.length"
           class="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
           @click="showCreateBatch = true"
         >
@@ -176,29 +219,57 @@ const recentBatches = computed(() => {
         </button>
       </VEmptyState>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <NuxtLink
-          v-for="batch in recentBatches"
-          :key="batch._id"
-          :to="`/projects/${$route.params.slug}/engagement/batches/${batch._id}`"
-          class="rounded-lg border bg-card text-card-foreground shadow-sm p-5 hover:shadow-md transition-shadow"
-        >
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold text-foreground truncate">{{ batch.name }}</h3>
-            <VStatusBadge :status="batch.status" size="sm" />
-          </div>
-          <p v-if="batch.description" class="text-sm text-muted-foreground mb-3 line-clamp-2">
-            {{ batch.description }}
-          </p>
-          <div class="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{{ batch.batchSize }} posts</span>
-            <span v-if="batch.contentThemes?.length">
-              {{ batch.contentThemes.slice(0, 2).join(', ') }}
+      <template v-else>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <NuxtLink
+            v-for="batch in paginatedBatches"
+            :key="batch._id"
+            :to="`/projects/${$route.params.slug}/engagement/batches/${batch._id}`"
+            class="rounded-lg border bg-card text-card-foreground shadow-sm p-5 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-foreground truncate">{{ batch.name }}</h3>
+              <VStatusBadge :status="batch.status" size="sm" />
+            </div>
+            <p v-if="batch.description" class="text-sm text-muted-foreground mb-3 line-clamp-2">
+              {{ batch.description }}
+            </p>
+            <div class="flex items-center gap-3 text-xs text-muted-foreground">
+              <span>{{ batch.batchSize }} posts</span>
+              <span v-if="batch.contentThemes?.length">
+                {{ batch.contentThemes.slice(0, 2).join(', ') }}
+              </span>
+              <span v-if="batch._creationTime">{{ formatDate(batch._creationTime) }}</span>
+            </div>
+          </NuxtLink>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="batchTotalPages > 1" class="mt-4 flex items-center justify-between">
+          <span class="text-xs text-muted-foreground">
+            {{ filteredBatches.length }} batch{{ filteredBatches.length !== 1 ? 'es' : '' }}
+          </span>
+          <div class="flex items-center gap-1">
+            <button
+              :disabled="batchPage <= 1"
+              class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              @click="batchPage--"
+            >
+              Prev
+            </button>
+            <span class="text-xs text-muted-foreground px-2">
+              {{ batchPage }} / {{ batchTotalPages }}
             </span>
-            <span v-if="batch._creationTime">{{ formatDate(batch._creationTime) }}</span>
+            <button
+              :disabled="batchPage >= batchTotalPages"
+              class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              @click="batchPage++"
+            >
+              Next
+            </button>
           </div>
-        </NuxtLink>
-      </div>
+        </div>
+      </template>
     </div>
 
     <!-- Create Channel Modal -->
@@ -225,7 +296,7 @@ const recentBatches = computed(() => {
       <ContentBatchForm
         v-if="projectId"
         :project-id="projectId"
-        @created="showCreateBatch = false"
+        @saved="showCreateBatch = false"
       />
     </VModal>
   </div>

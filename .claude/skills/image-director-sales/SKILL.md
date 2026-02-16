@@ -8,6 +8,26 @@ type: procedure
 
 # Image Director — Sales
 
+## ⚠ ROUTING — Check Content Type First
+
+**Before executing this skill**, determine if this is engagement or sales content:
+
+1. Query the task: `npx convex run tasks:get '{"id":"<TASK_ID>"}' --url http://localhost:3210`
+2. Check `contentType` in the result.
+3. **If `contentType` is `engagement_post`** — STOP. Read `.claude/skills/image-director-engagement/SKILL.md` instead and follow that skill entirely. That skill has the correct Convex queries for engagement batches (`resources:listByTaskAndType` with `social_post`), the STEPPS scoring system, and engagement-specific visual formats.
+4. **Also check**: if your branch label is "Image Prompts" and the task has a `contentBatchId` field, this is an engagement batch — use the engagement skill.
+5. **Otherwise** (contentType is `article`, `landing_page`, `ebook`, `ad`, or similar) — continue with this sales skill below.
+
+---
+
+> **STATUS: PENDING TOTAL REFACTORING** — This skill covers sales pipeline image prompting (articles, landing pages, ebooks, ads). Sales image direction is significantly more complex than engagement and requires a dedicated rework. Use as-is for now; a full rewrite is planned.
+
+## References
+
+- **Advanced Prompt Engineering Guide**: `knowledge/image-gen/advanced-image-prompt-engineering.md` — 19 techniques for AI image/video generation (specificity, composition, lighting, camera/lens, motion cues, negative prompting, storytelling, etc.). Read this before crafting any prompt.
+
+---
+
 You are the `vibe-image-director` agent in the vibe-marketing pipeline. You do NOT generate images. You produce creative briefs — structured prompt JSON files that `vibe-image-generator` consumes to call the appropriate image service.
 
 You read the content that needs imagery, understand the campaign context, and translate words into visual direction. Your output determines whether the campaign looks professional or amateurish.

@@ -1,0 +1,76 @@
+---
+session: general
+date: 2026-02-15
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Rename image/video skills to sales/engagement naming convention, align Convex DB with file changes
+now: Run a 12-post full engagement batch (with research) through the pipeline to E2E test the chain. Also wire advanced-image-prompt-engineering.md into image-director-sales.
+
+test: "npx convex dev --once --url http://localhost:3210 && cd dashboard && npm run build"
+
+done_this_session:
+  - task: "Renamed image-prompt-engineering → image-director-sales (directory, SKILL.md frontmatter, seed.ts skill entry + agent skillPath/agentFilePath + agentSkillMap, seed-agent-skills.sh, cross-refs in 4 other skills, README.md)"
+    files: [".claude/skills/image-director-sales/SKILL.md", "convex/seed.ts", "scripts/seed-agent-skills.sh", ".claude/skills/image-director-engagement/SKILL.md", ".claude/skills/image-generation-procedures/SKILL.md", ".claude/skills/pinterest-research/SKILL.md", "README.md"]
+  - task: "Renamed video-script-guide → video-script-sales (same scope: directory, SKILL.md, seed.ts, seed-agent-skills.sh, cross-refs in video-script-engagement)"
+    files: [".claude/skills/video-script-sales/SKILL.md", "convex/seed.ts", "scripts/seed-agent-skills.sh", ".claude/skills/video-script-engagement/SKILL.md"]
+  - task: "Added routing language to both sales skills: 'For engagement content, use X-engagement instead' — matching the pattern already in the engagement skills"
+    files: [".claude/skills/image-director-sales/SKILL.md", ".claude/skills/video-script-sales/SKILL.md"]
+  - task: "Aligned Convex DB: deleted ghost image-prompt-engineering skill, deleted ghost video-script-guide skill, created video-script-sales skill via new skills:create mutation"
+    files: ["convex/skills.ts"]
+  - task: "Updated agent-skill mappings in Convex DB: vibe-image-director → [image-director-sales, image-director-engagement], vibe-script-writer → [video-script-sales, video-script-engagement]"
+    files: []
+  - task: "Added skills:create mutation to convex/skills.ts (was missing — only had update/remove). Includes slug uniqueness check and auto-sets lastSyncedAt + syncStatus."
+    files: ["convex/skills.ts"]
+  - task: "Clarified architecture: pipelines reference agent names (not skills), agents load ALL assigned skills, prompt routing in the skills picks the right mode based on content type (social_post → engagement, article → sales)"
+    files: []
+
+blockers: []
+
+questions:
+  - "E2E test: run a 12-post full engagement batch (with research) through the pipeline to verify chain works end-to-end"
+  - "Should legacy deliverableConfig + targetArticleCount be removed from schema?"
+  - "Wire knowledge/image-gen/advanced-image-prompt-engineering.md into image-director-sales as reference"
+
+decisions:
+  - no_pipeline_skill_field: "Pipelines don't need a 'skill' field to route agents to the right skill. Agents load ALL assigned skills and the skills contain routing instructions ('if engagement content, follow this skill; if sales, follow that one'). Same pattern as vibe-humanizer loading both humanizer + writing-clearly-and-concisely."
+  - naming_convention: "All media skills now follow {role}-{pipeline} pattern: image-director-sales, image-director-engagement, video-script-sales, video-script-engagement, image-generation-procedures (no pipeline suffix — it's the shared executor)."
+  - skills_create_mutation: "Added skills:create to convex/skills.ts. Seeder only inserts when skills table is empty — needed a way to add individual skills without wiping the DB."
+
+findings:
+  - seeder_not_upsert: "Seed function (clearAndReseed) is NOT upsert-based — it checks if table is empty, inserts all if so, skips if not. Renaming skills requires manual DB updates (delete old, create new, update agent mappings)."
+  - agent_skill_mapping_stale: "After previous session's skill creation (image-director-engagement, video-script-engagement), the agent-skill mappings in DB were stale — agents still pointed to old skills only. Fixed by calling agents:updateSkills directly."
+  - ghost_skills: "Renaming a skill in seed.ts + files without re-running seeder leaves ghost records in DB (old slug, broken filePath). Must manually delete ghosts and create new records."
+
+worked:
+  - "Direct Convex CLI mutations (skills:remove, agents:updateSkills, skills:create) for surgical DB updates without running full seeder"
+  - "Systematic grep for all references before renaming — caught cross-refs in 6+ skill files"
+  - "Reading files before editing — avoids tool errors from unread file dependencies"
+
+failed:
+  - "Piping npx convex output to python3 -c for JSON processing — convex mixes stdout/stderr, breaking JSON parsing. Fixed by redirecting to temp file first."
+
+next:
+  - "E2E TEST: Run a 12-post full engagement batch (with research) through the full pipeline to verify: trend-research → facebook-engine → review → humanize, with parallel branches: image-director-engagement + video-script-engagement"
+  - "WIRE SALES REFERENCE: Add advanced-image-prompt-engineering.md (Karlo/Ecomtalent doc) as reference in image-director-sales skill"
+  - "REMOVE LEGACY: Consider removing deliverableConfig + targetArticleCount from schema"
+  - "DASHBOARD TESTING: Test resource detail page with real resources (markdown rendering, relationship browser)"
+  - "SEEDER IMPROVEMENT: Consider making seeder upsert-based (match by slug, update if exists, insert if not) to avoid ghost skill problem"
+
+files:
+  created:
+    - ".claude/skills/image-director-sales/SKILL.md"
+    - ".claude/skills/video-script-sales/SKILL.md"
+  modified:
+    - "convex/seed.ts"
+    - "convex/skills.ts"
+    - "scripts/seed-agent-skills.sh"
+    - ".claude/skills/image-director-engagement/SKILL.md"
+    - ".claude/skills/image-generation-procedures/SKILL.md"
+    - ".claude/skills/video-script-engagement/SKILL.md"
+    - ".claude/skills/pinterest-research/SKILL.md"
+    - "README.md"
+  deleted:
+    - ".claude/skills/image-prompt-engineering/SKILL.md"
+    - ".claude/skills/video-script-guide/SKILL.md"

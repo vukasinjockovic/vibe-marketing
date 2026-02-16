@@ -2,12 +2,15 @@
 import { api } from '../../convex/_generated/api'
 import { ChevronRight, AlertTriangle } from 'lucide-vue-next'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   projectId?: any
   campaignId?: any
   contentBatchId?: any
   resourceType?: string
-}>()
+  pageSize?: number
+}>(), {
+  pageSize: 25,
+})
 
 const emit = defineEmits<{
   select: [resource: any]
@@ -22,12 +25,14 @@ const queryFn = computed(() => {
   return null
 })
 
+const paginationOpts = { numItems: 200 }
+
 const queryArgs = computed(() => {
   if (!queryFn.value) return 'skip'
-  if (props.campaignId) return { campaignId: props.campaignId }
-  if (props.contentBatchId) return { contentBatchId: props.contentBatchId }
-  if (props.resourceType && props.projectId) return { projectId: props.projectId, resourceType: props.resourceType }
-  if (props.projectId) return { projectId: props.projectId }
+  if (props.campaignId) return { campaignId: props.campaignId, paginationOpts }
+  if (props.contentBatchId) return { contentBatchId: props.contentBatchId, paginationOpts }
+  if (props.resourceType && props.projectId) return { projectId: props.projectId, resourceType: props.resourceType, paginationOpts }
+  if (props.projectId) return { projectId: props.projectId, paginationOpts }
   return 'skip'
 })
 
@@ -36,7 +41,24 @@ const { data: result, loading } = useConvexQuery(
   queryArgs,
 )
 
-const resources = computed(() => result.value?.page || [])
+const rawResources = computed(() => result.value?.page || [])
+
+// Client-side type filter (for contentBatchId + resourceType combo)
+const allResources = computed(() => {
+  if (!props.resourceType || (props.resourceType && props.projectId)) return rawResources.value
+  return rawResources.value.filter((r: any) => r.resourceType === props.resourceType)
+})
+
+// Client-side pagination
+const currentPage = ref(1)
+const totalPages = computed(() => Math.max(1, Math.ceil(allResources.value.length / props.pageSize)))
+const resources = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize
+  return allResources.value.slice(start, start + props.pageSize)
+})
+
+// Reset page when query args change
+watch(queryArgs, () => { currentPage.value = 1 })
 
 const typeLabels: Record<string, string> = {
   research_material: 'Research',
@@ -142,5 +164,31 @@ function formatTime(ts: number) {
         </tr>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="px-4 py-3 border-t flex items-center justify-between">
+      <span class="text-xs text-muted-foreground">
+        {{ allResources.length }} resource{{ allResources.length !== 1 ? 's' : '' }}
+      </span>
+      <div class="flex items-center gap-1">
+        <button
+          :disabled="currentPage <= 1"
+          class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          @click="currentPage--"
+        >
+          Prev
+        </button>
+        <span class="text-xs text-muted-foreground px-2">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+        <button
+          :disabled="currentPage >= totalPages"
+          class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          @click="currentPage++"
+        >
+          Next
+        </button>
+      </div>
+    </div>
   </div>
 </template>

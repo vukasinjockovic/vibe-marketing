@@ -39,10 +39,21 @@ const toast = useToast()
 const showConfirmActivate = ref(false)
 const showConfirmPause = ref(false)
 const showConfirmComplete = ref(false)
+const showEditModal = ref(false)
 const selectedTaskId = ref<string | null>(null)
 const showTaskDetail = computed({
   get: () => !!selectedTaskId.value,
   set: (v: boolean) => { if (!v) selectedTaskId.value = null },
+})
+
+// Resource type filter (Part B)
+const selectedResourceType = ref<string | null>(null)
+
+// Resource detail modal (Part C)
+const selectedResourceId = ref<string | null>(null)
+const showResourceModal = computed({
+  get: () => !!selectedResourceId.value,
+  set: (v: boolean) => { if (!v) selectedResourceId.value = null },
 })
 
 async function activate() {
@@ -172,6 +183,13 @@ function formatTime(ts: number) {
           </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap shrink-0">
+          <button
+            v-if="batch.status === 'planning'"
+            class="border border-border text-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+            @click="showEditModal = true"
+          >
+            Edit
+          </button>
           <button
             v-if="batch.status === 'planning'"
             class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
@@ -377,9 +395,18 @@ function formatTime(ts: number) {
       <!-- Resources -->
       <div class="mb-6">
         <h2 class="text-lg font-semibold text-foreground mb-3">Resources</h2>
-        <ResourceStatsCards :content-batch-id="batchId" />
+        <ResourceStatsCards
+          :content-batch-id="batchId"
+          :active-type="selectedResourceType"
+          @select-type="selectedResourceType = $event"
+        />
         <div class="mt-3">
-          <ResourceTable :content-batch-id="batchId" @select="(r) => $router.push(`/projects/${$route.params.slug}/resources/${r._id}`)" />
+          <ResourceTable
+            :content-batch-id="batchId"
+            :resource-type="selectedResourceType || undefined"
+            :page-size="12"
+            @select="(r) => selectedResourceId = r._id"
+          />
         </div>
       </div>
 
@@ -484,6 +511,36 @@ function formatTime(ts: number) {
         v-model="showTaskDetail"
         :task-id="selectedTaskId"
       />
+
+      <!-- Edit batch modal (Part A) -->
+      <VModal v-model="showEditModal" title="Edit Batch" size="xl" persistent>
+        <ContentBatchForm
+          v-if="batch"
+          :project-id="batch.projectId"
+          :batch="batch"
+          @saved="showEditModal = false"
+        />
+      </VModal>
+
+      <!-- Resource detail modal (Part C) -->
+      <VModal v-model="showResourceModal" :title="'Resource Detail'" size="xl">
+        <div class="-mx-6 -my-4">
+          <ResourceDetailPanel
+            v-if="selectedResourceId"
+            :resource-id="selectedResourceId"
+            @navigate="selectedResourceId = $event"
+          />
+        </div>
+        <template #footer>
+          <NuxtLink
+            v-if="selectedResourceId"
+            :to="`/projects/${$route.params.slug}/resources/${selectedResourceId}`"
+            class="text-sm text-primary hover:text-primary/80 transition-colors"
+          >
+            Open Full Page
+          </NuxtLink>
+        </template>
+      </VModal>
     </template>
   </div>
 </template>

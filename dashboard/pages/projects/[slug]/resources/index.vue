@@ -8,9 +8,19 @@ const router = useRouter()
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
 
-// Filters
-const selectedType = ref('')
-const selectedStatus = ref('')
+// Filters synced with URL query
+const selectedType = computed({
+  get: () => (route.query.resources_type as string) || '',
+  set: (v: string) => {
+    router.replace({ query: { ...route.query, resources_type: v || undefined, resources_page: undefined } })
+  },
+})
+const selectedStatus = computed({
+  get: () => (route.query.resources_status as string) || '',
+  set: (v: string) => {
+    router.replace({ query: { ...route.query, resources_status: v || undefined, resources_page: undefined } })
+  },
+})
 
 const resourceTypes = [
   { value: '', label: 'All Types' },
@@ -53,6 +63,7 @@ const queryArgs = computed(() => {
       titleQuery: searchQuery.value || undefined,
       resourceType: selectedType.value || undefined,
       status: selectedStatus.value || undefined,
+      paginationOpts: { numItems: 200 },
     }
   }
   return { projectId: projectId.value }
@@ -69,16 +80,43 @@ const { data: searchResults } = useConvexQuery(
 
 const { data: listResults } = useConvexQuery(
   api.resources.listByProject,
-  computed(() => !useSearchMode.value && projectId.value ? { projectId: projectId.value } : 'skip'),
+  computed(() => !useSearchMode.value && projectId.value ? { projectId: projectId.value, paginationOpts: { numItems: 200 } } : 'skip'),
 )
 
-const resources = computed(() => {
+const allResources = computed(() => {
   if (useSearchMode.value) return searchResults.value?.page || []
   return listResults.value?.page || []
 })
 
+// Client-side pagination synced with URL query
+const perPage = 25
+const currentPage = computed({
+  get: () => {
+    const p = Number(route.query.resources_page)
+    return p > 0 ? p : 1
+  },
+  set: (v: number) => {
+    router.replace({ query: { ...route.query, resources_page: v > 1 ? String(v) : undefined } })
+  },
+})
+const totalPages = computed(() => Math.max(1, Math.ceil(allResources.value.length / perPage)))
+const resources = computed(() => {
+  const start = (currentPage.value - 1) * perPage
+  return allResources.value.slice(start, start + perPage)
+})
+
+// Reset page when search query changes (type/status setters already reset page)
+watch(searchQuery, () => { currentPage.value = 1 })
+
+// Resource detail modal
+const selectedResourceId = ref<string | null>(null)
+const showResourceModal = computed({
+  get: () => !!selectedResourceId.value,
+  set: (v: boolean) => { if (!v) selectedResourceId.value = null },
+})
+
 function handleSelect(resource: any) {
-  router.push(`/projects/${slug.value}/resources/${resource._id}`)
+  selectedResourceId.value = resource._id
 }
 </script>
 
@@ -118,7 +156,7 @@ function handleSelect(resource: any) {
       </div>
 
       <span class="text-xs text-muted-foreground sm:ml-auto shrink-0">
-        {{ resources.length }} resource{{ resources.length !== 1 ? 's' : '' }}
+        {{ allResources.length }} resource{{ allResources.length !== 1 ? 's' : '' }}
       </span>
     </div>
 
@@ -176,6 +214,60 @@ function handleSelect(resource: any) {
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="px-4 py-3 border-t flex items-center justify-between">
+        <span class="text-xs text-muted-foreground">
+          Showing {{ (currentPage - 1) * perPage + 1 }}–{{ Math.min(currentPage * perPage, allResources.length) }} of {{ allResources.length }}
+        </span>
+        <div class="flex items-center gap-1">
+          <button
+            :disabled="currentPage <= 1"
+            class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            @click="currentPage--"
+          >
+            Prev
+          </button>
+          <span class="text-xs text-muted-foreground px-2">
+            {{ currentPage }} / {{ totalPages }}
+          </span>
+          <button
+            :disabled="currentPage >= totalPages"
+            class="px-2 py-1 text-xs rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            @click="currentPage++"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
+
+    <!-- Resource detail modal -->
+    <VModal v-model="showResourceModal" title="Resource Detail" size="xl">
+      <div class="-mx-6 -my-4">
+        <ResourceDetailPanel
+          v-if="selectedResourceId"
+          :resource-id="selectedResourceId"
+          @navigate="(id: string) => { selectedResourceId = id }"
+        />
+      </div>
+      <template #footer>
+        <div class="flex items-center justify-between w-full">
+          <NuxtLink
+            v-if="selectedResourceId"
+            :to="`/projects/${slug}/resources/${selectedResourceId}`"
+            class="text-sm text-primary hover:underline"
+          >
+            Open Full Page
+          </NuxtLink>
+          <button
+            class="px-3 py-1.5 text-sm rounded-md border border-border text-muted-foreground hover:bg-muted transition-colors"
+            @click="showResourceModal = false"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </VModal>
   </div>
 </template>

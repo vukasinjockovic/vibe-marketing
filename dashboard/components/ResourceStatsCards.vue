@@ -6,6 +6,11 @@ const props = defineProps<{
   projectId?: any
   campaignId?: any
   contentBatchId?: any
+  activeType?: string | null
+}>()
+
+const emit = defineEmits<{
+  selectType: [type: string | null]
 }>()
 
 const queryArgs = computed(() => {
@@ -50,7 +55,11 @@ const topTypes = computed(() => {
 <template>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
     <!-- Total card -->
-    <div class="rounded-lg border bg-card shadow-sm p-4">
+    <button
+      class="rounded-lg border bg-card shadow-sm p-4 text-left cursor-pointer transition-all hover:shadow-md w-full"
+      :class="activeType === null || activeType === undefined ? 'ring-2 ring-primary' : ''"
+      @click="emit('selectType', null)"
+    >
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-primary/10 text-primary">
           <FileStack :size="18" />
@@ -60,13 +69,15 @@ const topTypes = computed(() => {
           <p class="text-xs text-muted-foreground">Total Resources</p>
         </div>
       </div>
-    </div>
+    </button>
 
     <!-- Top type cards -->
-    <div
+    <button
       v-for="item in topTypes"
       :key="item.type"
-      class="rounded-lg border bg-card shadow-sm p-4"
+      class="rounded-lg border bg-card shadow-sm p-4 text-left cursor-pointer transition-all hover:shadow-md w-full"
+      :class="activeType === item.type ? 'ring-2 ring-primary' : ''"
+      @click="emit('selectType', item.type)"
     >
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-muted">
@@ -77,7 +88,7 @@ const topTypes = computed(() => {
           <p class="text-xs text-muted-foreground">{{ item.label }}</p>
         </div>
       </div>
-    </div>
+    </button>
 
     <!-- Loading skeleton -->
     <template v-if="loading">

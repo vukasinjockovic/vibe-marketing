@@ -20,6 +20,8 @@ import {
   Download,
   Upload,
   Loader2,
+  Copy,
+  Check,
 } from 'lucide-vue-next'
 
 const { isOpen, initialPath, projectSlug, close } = useArtifactsBrowser()
@@ -91,6 +93,14 @@ const fileSaving = ref(false)
 const fileDirty = ref(false)
 const treeLoading = ref(false)
 const errorMessage = ref('')
+const pathCopied = ref(false)
+
+async function copyPath() {
+  const path = selectedFile.value?.path || projectRoot.value
+  await navigator.clipboard.writeText(path)
+  pathCopied.value = true
+  setTimeout(() => { pathCopied.value = false }, 1500)
+}
 
 // --- File type detection ---
 
@@ -443,6 +453,23 @@ async function renameItem() {
     const msg = err?.data?.statusMessage || 'Failed to rename'
     alert(msg)
   }
+  hideContextMenu()
+}
+
+// --- Download file ---
+function downloadItem() {
+  if (!contextMenu.value?.node || contextMenu.value.node.isDirectory) {
+    hideContextMenu()
+    return
+  }
+  const node = contextMenu.value.node
+  const url = `/api/file-serve?path=${encodeURIComponent(node.path)}`
+  const a = document.createElement('a')
+  a.href = url
+  a.download = node.name
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
   hideContextMenu()
 }
 
@@ -849,6 +876,14 @@ onUnmounted(() => {
               <span class="text-xs text-muted-foreground ml-2">
                 {{ selectedFile ? selectedFile.path : projectRoot }}
               </span>
+              <button
+                class="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                title="Copy path"
+                @click="copyPath"
+              >
+                <Check v-if="pathCopied" :size="14" class="text-green-500" />
+                <Copy v-else :size="14" />
+              </button>
             </div>
             <div class="flex items-center gap-2">
               <!-- Save button (text files only) -->
@@ -1210,6 +1245,16 @@ onUnmounted(() => {
         >
           <Upload :size="14" class="text-muted-foreground" />
           Upload File
+        </button>
+
+        <!-- Download (only for files, not directories) -->
+        <button
+          v-if="contextMenu.node && !contextMenu.node.isDirectory"
+          class="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors text-left"
+          @click="downloadItem"
+        >
+          <Download :size="14" class="text-muted-foreground" />
+          Download
         </button>
 
         <!-- Rename / Delete (only for files/folders, not background) -->

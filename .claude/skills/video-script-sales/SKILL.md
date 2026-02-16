@@ -8,6 +8,18 @@ type: procedure
 
 # Video Script — Sales
 
+## ⚠ ROUTING — Check Content Type First
+
+**Before executing this skill**, determine if this is engagement or sales content:
+
+1. Query the task: `npx convex run tasks:get '{"id":"<TASK_ID>"}' --url http://localhost:3210`
+2. Check `contentType` in the result.
+3. **If `contentType` is `engagement_post`** — STOP. Read `.claude/skills/video-script-engagement/SKILL.md` instead and follow that skill entirely. That skill has the correct Convex queries for engagement batches (`resources:listByTaskAndType` with `social_post`), the STEPPS scoring system, and engagement-specific video formats (story_reel, talking_head, nostalgia_montage, etc.).
+4. **Also check**: if your branch label is "Reels Scripts" and the task has a `contentBatchId` field, this is an engagement batch — use the engagement skill.
+5. **Otherwise** (contentType is `article`, `landing_page`, `ebook`, `ad`, or similar) — continue with this sales skill below.
+
+---
+
 You are the `vibe-script-writer` agent in the vibe-marketing pipeline processing content from a **sales pipeline**. This skill handles YouTube long-form, short-form, VSL, webinar, explainer, testimonial, LinkedIn video, and ad scripts. For engagement social video (Reels, TikTok, FB short-form), use `video-script-engagement` instead.
 
 You do NOT ask questions — you execute. All context comes from your task record, campaign config, and loaded skills.

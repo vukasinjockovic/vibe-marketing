@@ -4,6 +4,12 @@ import {
   FileText, Clock, User, Hash, FolderOpen,
   AlertTriangle, ExternalLink,
 } from 'lucide-vue-next'
+import {
+  resolveContentSource,
+  getFileExtension,
+  isTextFile,
+  buildFileUrl,
+} from '../composables/useResourceContent'
 
 const props = defineProps<{
   resourceId: any
@@ -24,9 +30,65 @@ const tabs = ['content', 'metadata', 'relationships', 'history', 'file']
 
 const { parse } = useMarkdown()
 
+// Monaco language mapping
+const monacoLanguage = computed(() => {
+  if (!resource.value) return 'markdown'
+  const filePath = resource.value.filePath || ''
+  const ext = filePath.split('.').pop()?.toLowerCase() || ''
+  const map: Record<string, string> = {
+    md: 'markdown', json: 'json', js: 'javascript', ts: 'typescript',
+    py: 'python', sh: 'shell', yaml: 'yaml', yml: 'yaml',
+    vue: 'html', jsx: 'javascript', tsx: 'typescript',
+    html: 'html', css: 'css', csv: 'plaintext', txt: 'plaintext',
+  }
+  return map[ext] || 'markdown'
+})
+
+// --- Content resolution: DB content OR load from disk ---
+const contentSource = computed(() => {
+  if (!resource.value) return { source: 'none' as const, value: '' }
+  return resolveContentSource(resource.value)
+})
+
+const fileContent = ref<string | null>(null)
+const fileLoading = ref(false)
+
+async function loadFileContent() {
+  if (!resource.value?.filePath) return
+  if (contentSource.value.source !== 'file') return
+  const ext = getFileExtension(resource.value.filePath)
+  if (!isTextFile(ext)) return
+
+  fileLoading.value = true
+  try {
+    const url = buildFileUrl(resource.value.filePath, 'text')
+    const response = await $fetch<{ content: string }>(url)
+    fileContent.value = response.content
+  } catch {
+    fileContent.value = null
+  } finally {
+    fileLoading.value = false
+  }
+}
+
+// Load file content when resource changes
+watch(() => resource.value?._id, () => {
+  fileContent.value = null
+  if (resource.value && contentSource.value.source === 'file') {
+    loadFileContent()
+  }
+}, { immediate: true })
+
+// The actual text to display in Monaco (DB content or file content)
+const displayContent = computed(() => {
+  if (contentSource.value.source === 'db') return contentSource.value.value
+  if (fileContent.value) return fileContent.value
+  return null
+})
+
 const parsed = computed(() => {
-  if (!resource.value?.content) return null
-  return parse(resource.value.content)
+  if (!displayContent.value) return null
+  return parse(displayContent.value)
 })
 
 const statusColors: Record<string, string> = {
@@ -132,8 +194,19 @@ function formatDate(ts: number) {
             </div>
           </div>
 
-          <!-- Rendered content -->
-          <div v-if="parsed?.html" class="prose prose-sm max-w-none" v-html="parsed.html" />
+          <!-- Loading file content from disk -->
+          <div v-if="fileLoading" class="p-8 text-center text-muted-foreground">
+            Loading content...
+          </div>
+
+          <!-- Text content — Monaco Editor -->
+          <div v-else-if="displayContent" class="rounded-lg border overflow-hidden h-[400px]">
+            <VMonacoEditor
+              :value="displayContent"
+              :language="monacoLanguage"
+              :options="{ readOnly: true, domReadOnly: true }"
+            />
+          </div>
 
           <!-- Image preview -->
           <div v-else-if="resource.resourceType === 'image' && resource.fileUrl">
