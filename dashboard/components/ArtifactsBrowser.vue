@@ -45,6 +45,7 @@ interface TreeNode extends FileEntry {
   children?: TreeNode[]
   expanded?: boolean
   loading?: boolean
+  uploading?: boolean
 }
 
 // --- Resizable sidebar ---
@@ -483,28 +484,69 @@ function triggerUpload() {
   })
 }
 
+function injectGhostNodes(targetDir: string, fileNames: string[]) {
+  const ghosts: TreeNode[] = fileNames.map((name) => ({
+    name,
+    isDirectory: false,
+    path: `${targetDir}/${name}`,
+    uploading: true,
+  }))
+
+  if (targetDir === projectRoot.value) {
+    treeRoots.value = [...treeRoots.value, ...ghosts]
+  } else {
+    const parentNode = findNodeByPath(targetDir, treeRoots.value)
+    if (parentNode && parentNode.isDirectory) {
+      parentNode.children = [...(parentNode.children || []), ...ghosts]
+      parentNode.expanded = true
+    }
+  }
+}
+
+function removeGhostNodes(targetDir: string) {
+  if (targetDir === projectRoot.value) {
+    treeRoots.value = treeRoots.value.filter((n) => !n.uploading)
+  } else {
+    const parentNode = findNodeByPath(targetDir, treeRoots.value)
+    if (parentNode?.children) {
+      parentNode.children = parentNode.children.filter((n) => !n.uploading)
+    }
+  }
+}
+
 async function handleFileUpload(e: Event) {
   const input = e.target as HTMLInputElement
   const files = input.files
   if (!files || files.length === 0) return
 
-  for (const file of Array.from(files)) {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('destDir', uploadTargetDir)
+  const fileList = Array.from(files)
+  const targetDir = uploadTargetDir
 
-    try {
-      await $fetch('/api/file-upload', {
-        method: 'POST',
-        body: formData,
-      })
-    } catch (err: any) {
-      const msg = err?.data?.statusMessage || `Failed to upload ${file.name}`
-      alert(msg)
+  // Inject ghost rows immediately
+  injectGhostNodes(targetDir, fileList.map((f) => f.name))
+
+  // Upload all files in parallel
+  const results = await Promise.allSettled(
+    fileList.map(async (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('destDir', targetDir)
+      await $fetch('/api/file-upload', { method: 'POST', body: formData })
+    }),
+  )
+
+  // Report any failures
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') {
+      const msg = (r.reason as any)?.data?.statusMessage || `Failed to upload ${fileList[i].name}`
+      console.error(msg)
     }
-  }
+  })
 
-  await refreshDirectory(uploadTargetDir)
+  // Remove ghosts and refresh with real entries
+  removeGhostNodes(targetDir)
+  await refreshDirectory(targetDir)
+
   // Reset input so the same file can be re-uploaded
   input.value = ''
 }
@@ -525,12 +567,42 @@ function onTreeBgDragLeave() {
 function onTreeBgDrop(e: DragEvent) {
   treeBgDragOver.value = false
   if (!e.dataTransfer) return
+
+  // External files from desktop
+  if (e.dataTransfer.files?.length) {
+    uploadExternalFiles(e.dataTransfer.files, projectRoot.value)
+    return
+  }
+
   const sourcePath = e.dataTransfer.getData('text/plain')
   if (!sourcePath) return
   // Drop on background = move to project root
   const sourceParent = sourcePath.slice(0, sourcePath.lastIndexOf('/'))
   if (sourceParent === projectRoot.value) return // already there
   moveItem(sourcePath, projectRoot.value)
+}
+
+async function uploadExternalFiles(files: FileList, targetDir: string) {
+  const fileList = Array.from(files)
+  injectGhostNodes(targetDir, fileList.map((f) => f.name))
+
+  const results = await Promise.allSettled(
+    fileList.map(async (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('destDir', targetDir)
+      await $fetch('/api/file-upload', { method: 'POST', body: formData })
+    }),
+  )
+
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') {
+      console.error(`Failed to upload ${fileList[i].name}`)
+    }
+  })
+
+  removeGhostNodes(targetDir)
+  await refreshDirectory(targetDir)
 }
 
 async function moveItem(sourcePath: string, destDirPath: string) {
@@ -948,6 +1020,7 @@ onUnmounted(() => {
                     @select="selectFile"
                     @contextmenu="showContextMenu"
                     @drop="moveItem"
+                    @upload="uploadExternalFiles"
                   />
                 </template>
               </div>

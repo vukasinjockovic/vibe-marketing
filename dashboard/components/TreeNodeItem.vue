@@ -15,6 +15,7 @@ interface TreeNode {
   children?: TreeNode[]
   expanded?: boolean
   loading?: boolean
+  uploading?: boolean
 }
 
 const props = defineProps<{
@@ -28,6 +29,7 @@ const emit = defineEmits<{
   select: [node: TreeNode]
   contextmenu: [event: MouseEvent, node: TreeNode]
   drop: [sourcePath: string, destDirPath: string]
+  upload: [files: FileList, destDirPath: string]
 }>()
 
 function handleClick() {
@@ -87,6 +89,13 @@ function onDrop(e: DragEvent) {
   }
 
   if (!props.node.isDirectory || !e.dataTransfer) return
+
+  // External files from desktop
+  if (e.dataTransfer.files?.length) {
+    emit('upload', e.dataTransfer.files, props.node.path)
+    return
+  }
+
   const sourcePath = e.dataTransfer.getData('text/plain')
   if (!sourcePath || sourcePath === props.node.path) return
   // Don't drop into own parent (same location = noop)
@@ -108,13 +117,14 @@ onUnmounted(() => {
     <button
       class="w-full flex items-center gap-1 px-2 py-1 text-xs text-left transition-colors group"
       :class="[
-        isSelected ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted/60',
+        node.uploading ? 'opacity-60 cursor-default' : '',
+        isSelected && !node.uploading ? 'bg-primary/10 text-primary' : !node.uploading ? 'text-foreground hover:bg-muted/60' : 'text-muted-foreground',
         isDragOver && node.isDirectory ? 'bg-primary/20 ring-1 ring-primary/40' : '',
       ]"
       :style="{ paddingLeft: `${depth * 16 + 8}px` }"
-      draggable="true"
-      @click="handleClick"
-      @contextmenu.prevent.stop="emit('contextmenu', $event, node)"
+      :draggable="!node.uploading"
+      @click="!node.uploading && handleClick()"
+      @contextmenu.prevent.stop="!node.uploading && emit('contextmenu', $event, node)"
       @dragstart="onDragStart"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
@@ -128,8 +138,11 @@ onUnmounted(() => {
       </template>
       <span v-else class="w-3 shrink-0" />
 
+      <!-- Uploading spinner instead of icon -->
+      <Loader2 v-if="node.uploading" :size="14" class="shrink-0 animate-spin text-primary" />
       <!-- File icon (Material) -->
       <MaterialFileIcon
+        v-else
         :name="node.name"
         :is-directory="node.isDirectory"
         :expanded="node.expanded"
@@ -138,6 +151,7 @@ onUnmounted(() => {
 
       <!-- File name -->
       <span class="truncate">{{ node.name }}</span>
+      <span v-if="node.uploading" class="text-[10px] text-muted-foreground ml-auto shrink-0">uploading</span>
     </button>
 
     <!-- Children (recursive) -->
@@ -152,6 +166,7 @@ onUnmounted(() => {
         @select="emit('select', $event)"
         @contextmenu="(e: MouseEvent, n: any) => emit('contextmenu', e, n)"
         @drop="(s: string, d: string) => emit('drop', s, d)"
+        @upload="(f: FileList, d: string) => emit('upload', f, d)"
       />
     </template>
   </div>
