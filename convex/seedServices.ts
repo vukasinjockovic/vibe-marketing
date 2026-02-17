@@ -147,9 +147,9 @@ const providers: ProviderSeed[] = [
   },
   {
     categoryName: "image_generation", name: "higgsfield-images", displayName: "Higgsfield AI Images",
-    description: "Cinematic image generation — Nano Banana Pro (4K, unlimited on paid plans), Soul (character consistency), 8+ models",
-    scriptPath: "services/higgsfield-images/generate.py", apiKeyEnvVar: "HIGGSFIELD_API_KEY",
-    costInfo: "Free: 150 credits (watermarked). Paid $9+/mo (no watermark)", useCases: ["hero_images", "product_shots", "social_graphics", "cinematic_images"],
+    description: "Cinematic image generation — Nano Banana Pro (4K), Soul (character consistency), 8+ models. API priced per-call, not subscription.",
+    scriptPath: "services/higgsfield-images/generate.py", apiKeyEnvVar: "HF_API_KEY",
+    costInfo: "API: ~$0.23/image (Nano Banana Pro). Web subscription cheaper but not for API.", useCases: ["hero_images", "product_shots", "social_graphics", "cinematic_images"],
     docsUrl: "https://cloud.higgsfield.ai/", defaultPriority: 6, integrationType: "script", freeTier: true,
   },
 

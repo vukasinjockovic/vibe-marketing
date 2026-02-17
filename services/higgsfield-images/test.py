@@ -6,11 +6,15 @@ import os
 import sys
 
 def test():
-    api_key = os.environ.get("HIGGSFIELD_API_KEY")
-    secret = os.environ.get("HIGGSFIELD_SECRET")
+    hf_key = os.environ.get("HF_KEY", "")
+    if ":" in hf_key:
+        api_key, secret = hf_key.split(":", 1)
+    else:
+        api_key = os.environ.get("HF_API_KEY", "")
+        secret = os.environ.get("HF_API_SECRET", "")
 
     if not api_key or not secret:
-        return {"status": "error", "message": "HIGGSFIELD_API_KEY and HIGGSFIELD_SECRET not set"}
+        return {"status": "error", "message": "Set HF_KEY='key:secret' or both HF_API_KEY and HF_API_SECRET"}
 
     try:
         import higgsfield_client

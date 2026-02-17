@@ -17,13 +17,13 @@
   "selfHosted": null,
   "auth": {
     "type": "api_key",
-    "envVars": ["HIGGSFIELD_API_KEY", "HIGGSFIELD_SECRET"],
-    "primaryEnvVar": "HIGGSFIELD_API_KEY",
+    "envVars": ["HF_API_KEY", "HF_API_SECRET"],
+    "primaryEnvVar": "HF_API_KEY",
     "docsUrl": "https://cloud.higgsfield.ai/"
   },
   "costInfo": {
-    "summary": "Free: 150 credits (watermarked). Paid from $9/mo (no watermark, Nano Banana Pro unlimited)",
-    "freeTier": true
+    "summary": "API: ~$0.23/image (Nano Banana Pro). Web UI subscription cheaper but not usable via API. Segmind alternative: $0.12/image",
+    "freeTier": false
   },
   "models": {
     "nano-banana-pro": {
@@ -31,7 +31,7 @@
       "endpoint": "higgsfield/nano-banana-pro/text-to-image",
       "capabilities": ["text-to-image", "inpainting", "text-rendering"],
       "maxResolution": "4096x4096",
-      "notes": "Unlimited on paid plans. Best text rendering and physical realism."
+      "notes": "Unlimited on paid web UI plans only — API charged per call (~$0.23). Best text rendering and physical realism."
     },
     "soul": {
       "name": "Higgsfield Soul",
@@ -65,5 +65,9 @@
     "free": "Watermark on all outputs",
     "paid": "No watermark on any paid plan ($9+/month)",
     "notes": "No API toggle — automatic based on plan. Cannot retroactively remove from free-tier images."
+  },
+  "pricingWarning": {
+    "apiVsSubscription": "Web UI subscription (e.g. $9/mo Basic) does NOT give cheap API rates. API is billed per-call at ~$0.23/image for Nano Banana Pro. Subscription 'unlimited' only applies to web UI usage.",
+    "alternatives": "Third-party API proxies (Segmind $0.12/img, APIYI $0.05/img) offer cheaper API access to same models."
   }
 }

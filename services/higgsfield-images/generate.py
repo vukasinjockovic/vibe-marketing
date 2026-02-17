@@ -4,9 +4,10 @@
 Uses the official higgsfield-client SDK.
 Install: pip install higgsfield-client
 
-Env vars required:
-  HIGGSFIELD_API_KEY  — from https://cloud.higgsfield.ai/
-  HIGGSFIELD_SECRET   — from https://cloud.higgsfield.ai/
+Env vars required (pick one):
+  HF_KEY              — combined "api_key:api_secret" format
+  HF_API_KEY          — API key from https://cloud.higgsfield.ai/
+  HF_API_SECRET       — API secret from https://cloud.higgsfield.ai/
 """
 
 import json
@@ -52,10 +53,16 @@ def generate(
     Returns:
         dict with image_url, model, and metadata.
     """
-    api_key = os.environ.get("HIGGSFIELD_API_KEY")
-    secret = os.environ.get("HIGGSFIELD_SECRET")
+    # Support both combined HF_KEY="key:secret" and separate vars
+    hf_key = os.environ.get("HF_KEY", "")
+    if ":" in hf_key:
+        api_key, secret = hf_key.split(":", 1)
+    else:
+        api_key = os.environ.get("HF_API_KEY", "")
+        secret = os.environ.get("HF_API_SECRET", "")
+
     if not api_key or not secret:
-        return {"error": "HIGGSFIELD_API_KEY and HIGGSFIELD_SECRET must be set"}
+        return {"error": "Set HF_KEY='key:secret' or both HF_API_KEY and HF_API_SECRET"}
 
     endpoint = MODELS.get(model, DEFAULT_MODEL)
 
