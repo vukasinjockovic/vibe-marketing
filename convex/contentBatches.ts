@@ -165,17 +165,24 @@ export const activate = mutation({
     if (!batch.pipelineSnapshot) {
       const pipeline = await ctx.db.get(batch.pipelineId);
       if (pipeline) {
-        const snapshot = { ...pipeline } as any;
-        // Apply mediaConfig toggles to parallel branches
-        const mediaConfig = batch.mediaConfig as any;
-        if (snapshot.parallelBranches && mediaConfig) {
-          snapshot.parallelBranches = snapshot.parallelBranches.filter((b: any) => {
-            if (b.agent === "vibe-image-director" && mediaConfig.imagePrompt === false) return false;
-            if (b.agent === "vibe-script-writer" && mediaConfig.videoScript === false) return false;
-            return true;
-          });
-        }
-        await ctx.db.patch(args.id, { pipelineSnapshot: snapshot });
+        await ctx.db.patch(args.id, { pipelineSnapshot: { ...pipeline } as any });
+      }
+    }
+
+    // Always apply mediaConfig toggles to parallel branches (even if snapshot already existed)
+    const freshBatch = await ctx.db.get(args.id);
+    const snapshot = freshBatch?.pipelineSnapshot as any;
+    const mediaConfig = batch.mediaConfig as any;
+    if (snapshot?.parallelBranches && mediaConfig) {
+      const filtered = snapshot.parallelBranches.filter((b: any) => {
+        if (b.agent === "vibe-image-director" && mediaConfig.imagePrompt === false) return false;
+        if (b.agent === "vibe-script-writer" && mediaConfig.videoScript === false) return false;
+        return true;
+      });
+      if (filtered.length !== snapshot.parallelBranches.length) {
+        await ctx.db.patch(args.id, {
+          pipelineSnapshot: { ...snapshot, parallelBranches: filtered },
+        });
       }
     }
 

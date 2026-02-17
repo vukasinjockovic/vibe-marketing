@@ -16,36 +16,37 @@ const emit = defineEmits<{
   select: [resource: any]
 }>()
 
-// Pick the right query based on props
-const queryFn = computed(() => {
-  if (props.campaignId) return api.resources.listByCampaign
-  if (props.contentBatchId) return api.resources.listByContentBatch
-  if (props.resourceType && props.projectId) return api.resources.listByType
-  if (props.projectId) return api.resources.listByProject
-  return null
-})
-
+// Separate queries — useConvexQuery needs a static function reference, not a computed
 const paginationOpts = { numItems: 200 }
 
-const queryArgs = computed(() => {
-  if (!queryFn.value) return 'skip'
-  if (props.campaignId) return { campaignId: props.campaignId, paginationOpts }
-  if (props.contentBatchId) return { contentBatchId: props.contentBatchId, paginationOpts }
-  if (props.resourceType && props.projectId) return { projectId: props.projectId, resourceType: props.resourceType, paginationOpts }
-  if (props.projectId) return { projectId: props.projectId, paginationOpts }
-  return 'skip'
-})
-
-const { data: result, loading } = useConvexQuery(
-  computed(() => queryFn.value || api.resources.listByProject),
-  queryArgs,
+const { data: campaignResult, loading: loadingCampaign } = useConvexQuery(
+  api.resources.listByCampaign,
+  computed(() => props.campaignId ? { campaignId: props.campaignId, paginationOpts } : 'skip'),
 )
+
+const { data: batchResult, loading: loadingBatch } = useConvexQuery(
+  api.resources.listByContentBatch,
+  computed(() => !props.campaignId && props.contentBatchId ? { contentBatchId: props.contentBatchId, paginationOpts } : 'skip'),
+)
+
+const { data: typeResult, loading: loadingType } = useConvexQuery(
+  api.resources.listByType,
+  computed(() => !props.campaignId && !props.contentBatchId && props.resourceType && props.projectId ? { projectId: props.projectId, resourceType: props.resourceType, paginationOpts } : 'skip'),
+)
+
+const { data: projectResult, loading: loadingProject } = useConvexQuery(
+  api.resources.listByProject,
+  computed(() => !props.campaignId && !props.contentBatchId && !props.resourceType && props.projectId ? { projectId: props.projectId, paginationOpts } : 'skip'),
+)
+
+const result = computed(() => campaignResult.value || batchResult.value || typeResult.value || projectResult.value)
+const loading = computed(() => loadingCampaign.value || loadingBatch.value || loadingType.value || loadingProject.value)
 
 const rawResources = computed(() => result.value?.page || [])
 
-// Client-side type filter (for contentBatchId + resourceType combo)
+// Client-side type filter (when using batch/campaign query but also filtering by type)
 const allResources = computed(() => {
-  if (!props.resourceType || (props.resourceType && props.projectId)) return rawResources.value
+  if (!props.resourceType || (!props.campaignId && !props.contentBatchId)) return rawResources.value
   return rawResources.value.filter((r: any) => r.resourceType === props.resourceType)
 })
 
@@ -57,8 +58,8 @@ const resources = computed(() => {
   return allResources.value.slice(start, start + props.pageSize)
 })
 
-// Reset page when query args change
-watch(queryArgs, () => { currentPage.value = 1 })
+// Reset page when filter changes
+watch(() => [props.contentBatchId, props.campaignId, props.projectId, props.resourceType], () => { currentPage.value = 1 })
 
 const typeLabels: Record<string, string> = {
   research_material: 'Research',

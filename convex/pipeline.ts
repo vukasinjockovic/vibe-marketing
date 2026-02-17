@@ -326,7 +326,17 @@ export const completeStep = mutation({
           const batch = await ctx.db.get(task.contentBatchId);
           const snapshot = batch?.pipelineSnapshot as any;
           convergenceStep = snapshot?.convergenceStep;
-          const parallelBranches = snapshot?.parallelBranches as any[] | undefined;
+          const mediaConfig = batch?.mediaConfig as any;
+          let parallelBranches = snapshot?.parallelBranches as any[] | undefined;
+
+          // Respect mediaConfig toggles
+          if (parallelBranches?.length && mediaConfig) {
+            parallelBranches = parallelBranches.filter((b: any) => {
+              if (b.agent === "vibe-image-director" && mediaConfig.imagePrompt === false) return false;
+              if (b.agent === "vibe-script-writer" && mediaConfig.videoScript === false) return false;
+              return true;
+            });
+          }
 
           if (parallelBranches?.length) {
             const completedStepOrder = pipeline[currentStepIndex].step;
