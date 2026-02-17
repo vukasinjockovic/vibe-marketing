@@ -29,7 +29,7 @@ const emit = defineEmits<{
   select: [node: TreeNode]
   contextmenu: [event: MouseEvent, node: TreeNode]
   drop: [sourcePath: string, destDirPath: string]
-  upload: [files: FileList, destDirPath: string]
+  upload: [transfer: DataTransfer, destDirPath: string]
 }>()
 
 function handleClick() {
@@ -90,9 +90,9 @@ function onDrop(e: DragEvent) {
 
   if (!props.node.isDirectory || !e.dataTransfer) return
 
-  // External files from desktop
+  // External files/folders from desktop
   if (e.dataTransfer.files?.length) {
-    emit('upload', e.dataTransfer.files, props.node.path)
+    emit('upload', e.dataTransfer, props.node.path)
     return
   }
 
@@ -166,7 +166,7 @@ onUnmounted(() => {
         @select="emit('select', $event)"
         @contextmenu="(e: MouseEvent, n: any) => emit('contextmenu', e, n)"
         @drop="(s: string, d: string) => emit('drop', s, d)"
-        @upload="(f: FileList, d: string) => emit('upload', f, d)"
+        @upload="(t: DataTransfer, d: string) => emit('upload', t, d)"
       />
     </template>
   </div>

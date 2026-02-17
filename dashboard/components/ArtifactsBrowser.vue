@@ -568,9 +568,9 @@ function onTreeBgDrop(e: DragEvent) {
   treeBgDragOver.value = false
   if (!e.dataTransfer) return
 
-  // External files from desktop
+  // External files/folders from desktop
   if (e.dataTransfer.files?.length) {
-    uploadExternalFiles(e.dataTransfer.files, projectRoot.value)
+    uploadExternalFiles(e.dataTransfer, projectRoot.value)
     return
   }
 
@@ -582,22 +582,106 @@ function onTreeBgDrop(e: DragEvent) {
   moveItem(sourcePath, projectRoot.value)
 }
 
-async function uploadExternalFiles(files: FileList, targetDir: string) {
-  const fileList = Array.from(files)
-  injectGhostNodes(targetDir, fileList.map((f) => f.name))
+// --- Recursive folder upload helpers ---
 
+interface PendingUpload {
+  file: File
+  destDir: string
+}
+
+function readEntries(reader: any): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    reader.readEntries((entries: any[]) => resolve(entries), reject)
+  })
+}
+
+async function traverseEntry(entry: any, baseDest: string): Promise<{ dirs: string[]; files: PendingUpload[] }> {
+  const dirs: string[] = []
+  const files: PendingUpload[] = []
+
+  if (entry.isFile) {
+    const file: File = await new Promise((resolve, reject) => entry.file(resolve, reject))
+    files.push({ file, destDir: baseDest })
+  } else if (entry.isDirectory) {
+    const dirPath = `${baseDest}/${entry.name}`
+    dirs.push(dirPath)
+    const reader = entry.createReader()
+    let batch: any[]
+    // readEntries returns in batches of ~100, must loop until empty
+    do {
+      batch = await readEntries(reader)
+      for (const child of batch) {
+        const sub = await traverseEntry(child, dirPath)
+        dirs.push(...sub.dirs)
+        files.push(...sub.files)
+      }
+    } while (batch.length > 0)
+  }
+
+  return { dirs, files }
+}
+
+async function uploadExternalFiles(fileListOrTransfer: FileList | DataTransfer, targetDir: string) {
+  // Try to get entries for folder support
+  const transfer = fileListOrTransfer instanceof DataTransfer ? fileListOrTransfer : null
+  const items = transfer?.items
+  let allDirs: string[] = []
+  let allFiles: PendingUpload[] = []
+  let ghostNames: string[] = []
+
+  if (items) {
+    // Use webkitGetAsEntry for folder detection
+    const entries: any[] = []
+    for (let i = 0; i < items.length; i++) {
+      const entry = items[i].webkitGetAsEntry?.()
+      if (entry) entries.push(entry)
+    }
+
+    if (entries.length > 0) {
+      // Collect ghost names (top-level entries)
+      ghostNames = entries.map((e) => e.name)
+      injectGhostNodes(targetDir, ghostNames)
+
+      for (const entry of entries) {
+        const result = await traverseEntry(entry, targetDir)
+        allDirs.push(...result.dirs)
+        allFiles.push(...result.files)
+      }
+    }
+  }
+
+  // Fallback: plain FileList (no folder support)
+  if (allFiles.length === 0) {
+    const fileList = transfer?.files || (fileListOrTransfer as FileList)
+    const files = Array.from(fileList)
+    ghostNames = files.map((f) => f.name)
+    injectGhostNodes(targetDir, ghostNames)
+    allFiles = files.map((f) => ({ file: f, destDir: targetDir }))
+  }
+
+  // Create directories first (sorted by depth for correct order)
+  allDirs.sort((a, b) => a.split('/').length - b.split('/').length)
+  for (const dirPath of allDirs) {
+    try {
+      await $fetch('/api/files', { method: 'POST', body: { path: dirPath, type: 'folder' } })
+    } catch {
+      // Directory may already exist, continue
+    }
+  }
+
+  // Upload files in parallel
   const results = await Promise.allSettled(
-    fileList.map(async (file) => {
+    allFiles.map(async ({ file, destDir }) => {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('destDir', targetDir)
+      formData.append('destDir', destDir)
       await $fetch('/api/file-upload', { method: 'POST', body: formData })
     }),
   )
 
   results.forEach((r, i) => {
     if (r.status === 'rejected') {
-      console.error(`Failed to upload ${fileList[i].name}`)
+      console.error(`Failed to upload ${allFiles[i].file.name}`)
     }
   })
 
