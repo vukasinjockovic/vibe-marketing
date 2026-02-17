@@ -145,6 +145,13 @@ const providers: ProviderSeed[] = [
     costInfo: "$0.04/image", useCases: ["hero_images", "conceptual_art"],
     docsUrl: "https://platform.openai.com/docs/guides/images", defaultPriority: 5, integrationType: "script", freeTier: false,
   },
+  {
+    categoryName: "image_generation", name: "higgsfield-images", displayName: "Higgsfield AI Images",
+    description: "Cinematic image generation — Nano Banana Pro (4K, unlimited on paid plans), Soul (character consistency), 8+ models",
+    scriptPath: "services/higgsfield-images/generate.py", apiKeyEnvVar: "HIGGSFIELD_API_KEY",
+    costInfo: "Free: 150 credits (watermarked). Paid $9+/mo (no watermark)", useCases: ["hero_images", "product_shots", "social_graphics", "cinematic_images"],
+    docsUrl: "https://cloud.higgsfield.ai/", defaultPriority: 6, integrationType: "script", freeTier: true,
+  },
 
   // ── Video Generation ──
   {

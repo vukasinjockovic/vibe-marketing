@@ -1,0 +1,69 @@
+{
+  "name": "higgsfield-images",
+  "displayName": "Higgsfield AI Images",
+  "description": "Cinematic image generation via Higgsfield AI — Nano Banana Pro (text-to-image, 4K, unlimited on paid plans), Soul (image-to-image, character consistency), inpainting, upscaling, background removal, and 8+ models",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "category": "image_generation",
+      "defaultPriority": 6,
+      "useCases": ["image_generation", "marketing_visuals", "hero_images", "product_shots", "social_graphics", "cinematic_images"]
+    }
+  ],
+  "integrationType": "script",
+  "scriptPath": "services/higgsfield-images/generate.py",
+  "testPath": "services/higgsfield-images/test.py",
+  "mcp": null,
+  "selfHosted": null,
+  "auth": {
+    "type": "api_key",
+    "envVars": ["HIGGSFIELD_API_KEY", "HIGGSFIELD_SECRET"],
+    "primaryEnvVar": "HIGGSFIELD_API_KEY",
+    "docsUrl": "https://cloud.higgsfield.ai/"
+  },
+  "costInfo": {
+    "summary": "Free: 150 credits (watermarked). Paid from $9/mo (no watermark, Nano Banana Pro unlimited)",
+    "freeTier": true
+  },
+  "models": {
+    "nano-banana-pro": {
+      "name": "Nano Banana Pro",
+      "endpoint": "higgsfield/nano-banana-pro/text-to-image",
+      "capabilities": ["text-to-image", "inpainting", "text-rendering"],
+      "maxResolution": "4096x4096",
+      "notes": "Unlimited on paid plans. Best text rendering and physical realism."
+    },
+    "soul": {
+      "name": "Higgsfield Soul",
+      "endpoint": "higgsfield/soul/image-to-image",
+      "capabilities": ["image-to-image", "character-consistency", "inpainting"],
+      "notes": "Character consistency via Soul ID. Editorial/fashion realism."
+    },
+    "seedream-4": {
+      "name": "Seedream 4.0 (ByteDance)",
+      "endpoint": "bytedance/seedream/v4/text-to-image",
+      "capabilities": ["text-to-image"],
+      "notes": "Ultra-realistic fashion/studio model."
+    },
+    "flux-kontext-max": {
+      "name": "Flux Kontext Max",
+      "endpoint": "flux-pro/kontext/max/text-to-image",
+      "capabilities": ["text-to-image", "text-prompt-editing"],
+      "notes": "Black Forest Labs Flux model."
+    }
+  },
+  "features": {
+    "upscaling": "Up to 8K resolution",
+    "backgroundRemoval": true,
+    "objectRemoval": true,
+    "faceSwap": true,
+    "styleTransfer": true,
+    "outpainting": "Via Canvas tool",
+    "drawToEdit": "Via Nano Banana (up to 8 references)"
+  },
+  "watermarkPolicy": {
+    "free": "Watermark on all outputs",
+    "paid": "No watermark on any paid plan ($9+/month)",
+    "notes": "No API toggle — automatic based on plan. Cannot retroactively remove from free-tier images."
+  }
+}
