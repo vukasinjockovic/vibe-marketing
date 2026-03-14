@@ -1,0 +1,100 @@
+---
+session: ofs-starter-kit-baby-milestones
+date: 2026-02-17
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Build Milestones stage (M1-M4), fix B2-B8 heading spacing, iterate B1 poster design
+now: Screenshot B1 example #2 SVG then build template-02 with 2 boy + 2 girl color variants
+
+done_this_session:
+  - task: Fix B2-B8 heading-to-content spacing (32px/mb-8)
+    files: [b2-hospital-bag-checklist/index.html, b2-hospital-bag-checklist/index-pink.html, b3-first-year-memory-book/index.html, b3-first-year-memory-book/index-pink.html, b4-pregnancy-tracker/index.html, b4-pregnancy-tracker/index-pink.html, b5-baby-name-worksheet/index.html, b5-baby-name-worksheet/index-pink.html, b6-nursery-checklist/index.html, b6-nursery-checklist/index-pink.html, b7-letters-to-my-baby/index.html, b7-letters-to-my-baby/index-pink.html, b8-baby-photo-display-guide/index.html, b8-baby-photo-display-guide/index-pink.html]
+  - task: Fix B4 pregnancy tracker excessive spacing (reduced gaps, tighter layout)
+    files: [b4-pregnancy-tracker/index.html, b4-pregnancy-tracker/index-pink.html]
+  - task: B1 template-01 iterations (enlarge photos 210px, month labels 38px, milestones 22px, title capitalized, info fields 18px/24px, divider darkened)
+    files: [b1-baby-milestone-cards/template-01-neutral-minimalist/index.html]
+  - task: Add warm gold/champagne Milestone palette to shared CSS
+    files: [shared/styles/print-base.css]
+  - task: Build M1 Baptism/Christening Planning Checklist (4 pages, gold palette)
+    files: [m1-baptism-checklist/index.html]
+  - task: Build M3 Family Tree Printable (2 pages, gold palette, CSS flex tree with connectors)
+    files: [m3-family-tree/index.html]
+  - task: Fix M1 wasted space (added note lines, Special Memories section, bumped fonts to 15px)
+    files: [m1-baptism-checklist/index.html]
+  - task: Fix M3 page 2 overflow (max-height, reduced note lines), font size bumps
+    files: [m3-family-tree/index.html]
+  - task: Fix M3 tree spacing (space-evenly), connector alignment (CSS flex brackets), title/subtitle spacing
+    files: [m3-family-tree/index.html, m1-baptism-checklist/index.html]
+  - task: Build M4 Baby Milestone Chart (boy blue + girl pink, 51 milestones, baby signs, teething tracker)
+    files: [m4-milestone-chart/index.html, m4-milestone-chart/index-pink.html]
+  - task: Fix M4 spacings (header 32px, section 12px, bigger signs checkboxes 12px, bigger teeth 16x18px/9px)
+    files: [m4-milestone-chart/index.html, m4-milestone-chart/index-pink.html]
+
+blockers: []
+
+questions:
+  - User wants B1 template-02 with TWO boy + TWO girl color palettes (4 variants total) — need to define second palette pair
+
+decisions:
+  - milestone_gold_palette: "Warm gold/champagne (#C4A265 accent, #E8D5B0 light, #FFFDF5 bg, #2C1810 text) for M1/M3"
+  - m4_uses_baby_palettes: "M4 milestone chart uses baby-blue and baby-pink palettes (not gold) since it's baby-focused"
+  - tree_space_evenly: "Family tree uses space-evenly for balanced vertical distribution without excessive gaps"
+  - svg_connectors_replaced: "M3 SVG percentage-based connectors replaced with CSS flex brackets for proper alignment"
+
+findings:
+  - fill_line_min_width: "print-base.css fill-line classes have min-width:200px — use inline borders to bypass"
+  - hook_crashes_dont_lose_work: "classifyHandoffIfNeeded crashes happen after edits are saved — work is preserved"
+  - poster_sizing: "A3 landscape posters need 210px+ photo circles, 38px+ month labels, 22px+ body text"
+
+worked:
+  - Parallel kraken agents for independent templates
+  - CSS flex brackets instead of SVG percentage connectors for tree alignment
+  - space-evenly for balanced tree layout
+  - Inline border styles to bypass min-width on fill lines
+
+failed:
+  - SVG percentage-based connectors (misaligned with flex-positioned boxes)
+  - space-between for tree layout (too much gap)
+  - flex-start for tree layout (all content at top, 40% empty at bottom)
+
+next:
+  - Screenshot agent running for B1 example #2 (Beige Neutral Modern Photo Collage Poster)
+  - Build B1 template-02 from example #2 with 4 color variants (2 boy, 2 girl)
+  - Build remaining B1 templates (8 more Canva examples)
+  - M2 Monthly Baby Photo Prop Signs (still to do)
+  - A1-A4 Wall Art stage (still to do)
+
+files:
+  created:
+    - m1-baptism-checklist/index.html
+    - m3-family-tree/index.html
+    - m4-milestone-chart/index.html
+    - m4-milestone-chart/index-pink.html
+    - m4-milestone-chart/m4-milestone-chart.pdf
+    - m4-milestone-chart/m4-milestone-chart-pink.pdf
+    - m1-baptism-checklist/m1-baptism-checklist.pdf
+    - m3-family-tree/m3-family-tree.pdf
+  modified:
+    - shared/styles/print-base.css (added milestone gold palette)
+    - b1-baby-milestone-cards/template-01-neutral-minimalist/index.html (multiple size/color iterations)
+    - b2 through b8 index.html + index-pink.html (heading spacing mb-8)
+    - b4-pregnancy-tracker/index.html + index-pink.html (reduced excessive spacing)
+
+context:
+  b1_example_being_processed: "Beige Neutral Modern Photo Baby's First Year Birthday Collage Poster.svg"
+  screenshot_agent_running: true
+  color_palettes:
+    baby_blue: "#A7C7E7 accent, #F5FAFF bg, #0a1929 text"
+    baby_pink: "#E8B4B8 accent, #FFF5F7 bg, #2C1810 text"
+    milestone_gold: "#C4A265 accent, #E8D5B0 light, #FFFDF5 bg, #2C1810 text"
+  remaining_examples:
+    - "Black and White Simple Baby's First Year Birthday Sign.svg"
+    - "Black and White Vintage Newspaper Baby Birthday Invitation Poster.svg"
+    - "Black and White Vintage Newspaper Baby First Birthday Milestone Poster.svg"
+    - "Blue Watercolor Cute Bear Baby Boy First Year Milestone Banner Landscape.svg"
+    - "Coral pastel minimalist arch photo collage baby firat year poster.svg"
+    - "Cream and Beige Cute Pastel One Year Baby Milestone Photo Collage.svg"
+    - "Pink and White Baby's First Birthday Milestone Board.svg"
+    - "Pink Watercolor Floral Girly 1st Birthday Announcement Baby Milestone Photo Collage Poster.svg"

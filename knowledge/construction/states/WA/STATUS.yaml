@@ -1,0 +1,69 @@
+state: WA
+name: Washington
+status: COMPLETE
+last_updated: 2026-03-10
+
+sources_ingested:
+  - name: L&I Contractor License Data - General
+    url: https://data.wa.gov/api/views/m8qx-ubtq/rows.csv
+    format: CSV (Socrata API)
+    records: 159,680
+    fields: BusinessName, ContractorLicenseNumber, LicenseType, Address, Phone, Specialty, Status, EffectiveDate, ExpirationDate, UBI, PrimaryPrincipal
+    file: raw/wa_contractors_general.csv
+
+  - name: L&I Contractor License Data - Insurance
+    url: https://data.wa.gov/api/views/ciwg-agsx/rows.csv
+    format: CSV (Socrata API)
+    records: 75,454
+    fields: InsuranceCompany, InsuranceAgency, PolicyNo, Amount, EffectiveDate, ExpirationDate, CancelDate
+    file: raw/wa_contractors_insurance.csv
+
+  - name: L&I Contractor License Data - Bond
+    url: https://data.wa.gov/api/views/bzff-4fmt/rows.csv
+    format: CSV (Socrata API)
+    records: 171,688
+    fields: BondFirmName, BondAccountID, BondAmt, EffectiveDate, ExpirationDate, CancelDate, Impaired
+    file: raw/wa_contractors_bond.csv
+
+  - name: L&I Contractor License Data - Principal
+    url: https://data.wa.gov/api/views/4xk5-x9j6/rows.csv
+    format: CSV (Socrata API)
+    records: 248,420
+    fields: PrincipalName, BusinessType, StartDate, EndDate
+    file: raw/wa_contractors_principal.csv
+
+sources_not_yet_scraped:
+  - name: OSHA Inspections (WA state, construction SIC)
+    url: https://www.osha.gov/ords/imis/establishment.html
+    format: Web scrape
+    notes: Need to filter by state=WA and SIC construction codes
+
+  - name: EPA RRP Certified Firms (WA)
+    url: https://cdxapps.epa.gov/ocspp-oppt-leadhub/firm-location-search
+    format: Web scrape
+    notes: Lead-safe certified renovation firms in WA
+
+  - name: WA Attorney General Contractor Complaints
+    url: https://www.atg.wa.gov/contractors
+    format: Web scrape
+    notes: Consumer complaints against contractors
+
+ingestion_results:
+  contractors: 159,680
+  licenses: 159,680
+  insurance_records: 75,454
+  bond_records: 171,688
+  officers: 248,420
+  categories: 159,375
+
+key_stats:
+  active_licenses: 74,389
+  expired_licenses: 60,869
+  suspended_licenses: 9,891
+  insurance_expiring_90d: 19,022
+  licenses_expiring_90d: 10,084
+  out_of_state_contractors: 19,988  # licensed in WA but based elsewhere
+
+field_mapping: mappings/wa_field_mapping.yaml
+ingestion_script: ../../ingest_wa.py
+database: ../../contractors.sqlite

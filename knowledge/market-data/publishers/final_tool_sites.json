@@ -1,0 +1,2343 @@
+{
+  "total_publishers": 15499,
+  "niche_breakdown": {
+    "Other": {
+      "total": 7809,
+      "mv": 4500,
+      "rp": 3309
+    },
+    "Food/Recipe": {
+      "total": 2734,
+      "mv": 1445,
+      "rp": 1289
+    },
+    "Tech/Programming": {
+      "total": 899,
+      "mv": 478,
+      "rp": 421
+    },
+    "Parenting/Family": {
+      "total": 807,
+      "mv": 491,
+      "rp": 316
+    },
+    "Travel": {
+      "total": 646,
+      "mv": 490,
+      "rp": 156
+    },
+    "DIY/Home/Garden": {
+      "total": 591,
+      "mv": 316,
+      "rp": 275
+    },
+    "Pets/Animals": {
+      "total": 385,
+      "mv": 207,
+      "rp": 178
+    },
+    "Automotive": {
+      "total": 314,
+      "mv": 162,
+      "rp": 152
+    },
+    "Health/Fitness": {
+      "total": 277,
+      "mv": 175,
+      "rp": 102
+    },
+    "Finance": {
+      "total": 228,
+      "mv": 120,
+      "rp": 108
+    },
+    "Education": {
+      "total": 193,
+      "mv": 104,
+      "rp": 89
+    },
+    "Sports/Outdoors": {
+      "total": 188,
+      "mv": 99,
+      "rp": 89
+    },
+    "Fashion/Beauty": {
+      "total": 177,
+      "mv": 109,
+      "rp": 68
+    },
+    "Games/Entertainment": {
+      "total": 118,
+      "mv": 39,
+      "rp": 79
+    },
+    "Music/Audio": {
+      "total": 105,
+      "mv": 58,
+      "rp": 47
+    },
+    "Photography": {
+      "total": 28,
+      "mv": 17,
+      "rp": 11
+    }
+  },
+  "tool_sites": [
+    {
+      "domain": "fatcalc.com",
+      "name": "Bruno D'Amario",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Body Fat Calculator",
+      "rust_advantage": "High",
+      "domain_quality": 100
+    },
+    {
+      "domain": "calculateme.com",
+      "name": "H Brothers Inc",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator",
+      "rust_advantage": "High",
+      "domain_quality": 90
+    },
+    {
+      "domain": "convertbinary.com",
+      "name": "Supergloo Inc",
+      "network": "raptive",
+      "category": "Converter",
+      "tool_type": "Converter",
+      "rust_advantage": "High",
+      "domain_quality": 85
+    },
+    {
+      "domain": "calculatemyroof.com",
+      "name": "Moving Data Systems d.o.o.",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator",
+      "rust_advantage": "High",
+      "domain_quality": 85
+    },
+    {
+      "domain": "typinggames.zone",
+      "name": "HL Publishing Oy",
+      "network": "raptive",
+      "category": "Text Tool",
+      "tool_type": "Typing Tool",
+      "rust_advantage": "High",
+      "domain_quality": 80
+    },
+    {
+      "domain": "calculator.academy",
+      "name": "Patrick Myers",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 80
+    },
+    {
+      "domain": "gradecalculator.com",
+      "name": "Kyrios Learning LLC",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "randomgenerators.com",
+      "name": "Giles & Company, Inc",
+      "network": "raptive",
+      "category": "Generator",
+      "tool_type": "Generator",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "charactercounter.com",
+      "name": "Character Counter LLC",
+      "network": "raptive",
+      "category": "Text Tool",
+      "tool_type": "Character Counter",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "rgbcolorpicker.com",
+      "name": "Utkarsh Kukreti",
+      "network": "raptive",
+      "category": "Color Tool",
+      "tool_type": "Color Picker",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "frameratetest.com",
+      "name": "Abhranil Majumdar",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "FPS Test",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "inchcalculator.com",
+      "name": "Calc Hub, LLC",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "thewordcounter.com",
+      "name": "Kevin Miller",
+      "network": "raptive",
+      "category": "Text Tool",
+      "tool_type": "Word Counter",
+      "rust_advantage": "High",
+      "domain_quality": 70
+    },
+    {
+      "domain": "thepointcalculator.com",
+      "name": "The Point Calculator",
+      "network": "mediavine",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "fantasyfootballcalculator.com",
+      "name": "Left Brain Sports LLC",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "puppyweightcalculator.com",
+      "name": "Whitney Woolstenhulme",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "cryptoprofitcalculator.com",
+      "name": "Anup Kayastha",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "titlecaseconverter.com",
+      "name": "Matthias Belz",
+      "network": "raptive",
+      "category": "Converter",
+      "tool_type": "Converter",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "thecalculatorsite.com",
+      "name": "Hazell Industries Ltd",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "randompowergenerator.com",
+      "name": "Tycore Sdn. Bhd.",
+      "network": "raptive",
+      "category": "Generator",
+      "tool_type": "Generator",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "kingshotcalculator.com",
+      "name": "Amir Haris Khan",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 65
+    },
+    {
+      "domain": "tdeecalculator.me",
+      "name": "Anup Kayastha",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 63
+    },
+    {
+      "domain": "strongpasswordgenerator.org",
+      "name": "Tycore Sdn. Bhd.",
+      "network": "raptive",
+      "category": "Generator",
+      "tool_type": "Generator",
+      "rust_advantage": "High",
+      "domain_quality": 60
+    },
+    {
+      "domain": "mypaycalculator.co.uk",
+      "name": "My Pay Calculator",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 55
+    },
+    {
+      "domain": "starbucks-calorie-calculator.com",
+      "name": "Gaurav Kumar Dubey",
+      "network": "raptive",
+      "category": "Calculator",
+      "tool_type": "Calculator Site",
+      "rust_advantage": "High",
+      "domain_quality": 55
+    },
+    {
+      "domain": "diffen.com",
+      "name": "Diffen LLC",
+      "network": "raptive",
+      "category": "Reference/Comparison",
+      "tool_type": "Comparison/Difference Site",
+      "rust_advantage": "Medium",
+      "domain_quality": 100
+    },
+    {
+      "domain": "svg.com",
+      "name": "Static Media",
+      "network": "raptive",
+      "category": "SVG/Font/Craft",
+      "tool_type": "SVG File Site",
+      "rust_advantage": "Medium",
+      "domain_quality": 100
+    },
+    {
+      "domain": "game.dazepuzzle.com",
+      "name": "My Payment Profile",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Browser Game",
+      "rust_advantage": "Medium",
+      "domain_quality": 85
+    },
+    {
+      "domain": "foodduchess.com",
+      "name": "Food Duchess",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Chess",
+      "rust_advantage": "Medium",
+      "domain_quality": 75
+    },
+    {
+      "domain": "travelmath.com",
+      "name": "Border Blue, Inc.",
+      "network": "raptive",
+      "category": "Reference/Comparison",
+      "tool_type": "Travel Calculator",
+      "rust_advantage": "Medium",
+      "domain_quality": 75
+    },
+    {
+      "domain": "flagle-game.com",
+      "name": "Midnight Digital llc",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Browser Game",
+      "rust_advantage": "Medium",
+      "domain_quality": 75
+    },
+    {
+      "domain": "crosswordjam.net",
+      "name": "Darius Ceckevicius",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "puzzlepagecheats.com",
+      "name": "Darius Ceckevicius",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Puzzle",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "online-solitaire.com",
+      "name": "Holger Sindbaek Aps",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Solitaire",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "nytcrossword.org",
+      "name": "EM Programming",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "puzzleseveryday.com",
+      "name": "Everyday Puzzles Answers",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Puzzle",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "puzzles-to-print.com",
+      "name": "Kim White",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Puzzle",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "blackcrossword.com",
+      "name": "Juliana Pache",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "crosswordbuzz.com",
+      "name": "IDAN BARANES",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 70
+    },
+    {
+      "domain": "dresslikeaduchess.com",
+      "name": "Dress Like a Duchess",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Chess",
+      "rust_advantage": "Medium",
+      "domain_quality": 65
+    },
+    {
+      "domain": "crosswordmasterhelp.com",
+      "name": "Nafaa Kabaou",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 65
+    },
+    {
+      "domain": "usatodaycrosswordanswers.com",
+      "name": "E. M. Programming",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 65
+    },
+    {
+      "domain": "freescrapbookfonts.com",
+      "name": "Kevin and Amanda, LLC",
+      "network": "raptive",
+      "category": "SVG/Font/Craft",
+      "tool_type": "Font Site",
+      "rust_advantage": "Medium",
+      "domain_quality": 65
+    },
+    {
+      "domain": "dailycommutercrossword.com",
+      "name": "EM Programming",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 65
+    },
+    {
+      "domain": "playwordle.uk",
+      "name": "Dau Thanh Quynh",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Word Game",
+      "rust_advantage": "Medium",
+      "domain_quality": 60
+    },
+    {
+      "domain": "crosswordanswers911.net",
+      "name": "IDAN BARANES",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 60
+    },
+    {
+      "domain": "ladypuzzle.pro",
+      "name": "Liliana Andre",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Puzzle",
+      "rust_advantage": "Medium",
+      "domain_quality": 60
+    },
+    {
+      "domain": "nytcrosswordanswers.org",
+      "name": "BM Advertising",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 60
+    },
+    {
+      "domain": "crossword-explorer.net",
+      "name": "Darius Ceckevicius",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 60
+    },
+    {
+      "domain": "dailythemedcrossword.info",
+      "name": "Darius Ceckevicius",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Crossword",
+      "rust_advantage": "Medium",
+      "domain_quality": 50
+    },
+    {
+      "domain": "wodtools.com",
+      "name": "Fat Frog Ventures Ltd",
+      "network": "mediavine",
+      "category": "Specific Tool",
+      "tool_type": "CrossFit/WOD Tools",
+      "rust_advantage": "Low",
+      "domain_quality": 85
+    },
+    {
+      "domain": "generatorgrid.com",
+      "name": "eFactory, LLC",
+      "network": "raptive",
+      "category": "Specific Tool",
+      "tool_type": "Generator Directory",
+      "rust_advantage": "Low",
+      "domain_quality": 85
+    },
+    {
+      "domain": "remote.tools",
+      "name": "Remote Tools",
+      "network": "mediavine",
+      "category": "Specific Tool",
+      "tool_type": "Remote Work Tools Directory",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "triviawhizz.com",
+      "name": "Timothy Stripto",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Trivia",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "slythergames.com",
+      "name": "Jeffrey Lerman",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "15worksheets.com",
+      "name": "Mountain Press LLC",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "kanji.tools",
+      "name": "LHAS WEBWORKS Co. Ltd.",
+      "network": "raptive",
+      "category": "Specific Tool",
+      "tool_type": "Japanese Kanji Tool",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "mywordgames.com",
+      "name": "Gipros Web Solutions",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "theriagames.com",
+      "name": "Theria Games Ltd",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "houndgames.com",
+      "name": "HOUNDGAMES PTY LTD",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "novelgames.com",
+      "name": "Novel Games Limited",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "triviabliss.com",
+      "name": "Canyon Crest Media LLC",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Trivia",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "pd2.tools",
+      "name": "Cole Estrin",
+      "network": "raptive",
+      "category": "Specific Tool",
+      "tool_type": "Payday 2 Tools",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "west-games.com",
+      "name": "OLAPHASE SDN. BHD.",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 75
+    },
+    {
+      "domain": "printables4mom.com",
+      "name": "Billie Wirthlin",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "printablesfairy.com",
+      "name": "Sonia P\u00e9rez",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "triviaquiznight.com",
+      "name": "Scribes Media Ltd",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Trivia",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "practicecnatest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Certification Test Prep",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "pertpracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "coloringpageshq.com",
+      "name": "Tawna Schmidt",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Coloring Pages",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "printablecrush.com",
+      "name": "Erin Williams",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "crazymonkeygames.com",
+      "name": "Westech Media, LLC",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "tsipracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "siepracticeexam.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Exam",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "intoindiegames.com",
+      "name": "Into Indie Games INC",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "howthingscompare.com",
+      "name": "David Barnes",
+      "network": "raptive",
+      "category": "Reference/Comparison",
+      "tool_type": "Comparison Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "rbtpracticeexam.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Exam",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "emojiflashcards.com",
+      "name": "Robin Dickson",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Flashcard Tool",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "everythingtrivia.com",
+      "name": "Trademodo",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Trivia",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "worksheetgenius.com",
+      "name": "Vasil Jalani",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "worksheetplace.com",
+      "name": "Deb Russell",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "crossplaygames.com",
+      "name": "Hungry Internet Marketing Ltd",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "worldofcardgames.com",
+      "name": "Holger Sindbaek ApS",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "aswbpracticeexam.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Exam",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "yaycoloringpages.com",
+      "name": "Carri Corbett",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Coloring Pages",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "ptcbpracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "createprintables.com",
+      "name": "Nicolette Roux",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "hesipracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "smartbikegames.com",
+      "name": "The Terrell Empire Ltd",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 70
+    },
+    {
+      "domain": "goldstarworksheets.com",
+      "name": "GOLD STAR ACADEMY LTD",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "favoriteprintables.com",
+      "name": "Laura Nicholson",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "superstarworksheets.com",
+      "name": "Valerie McClintick LLC",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "printablesforlife.com",
+      "name": "Mommy Maker Teacher, LLC",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "prettysweetprintables.com",
+      "name": "Pretty Sweet Printables",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "comparebeforebuying.com",
+      "name": "Nicely Network Limited",
+      "network": "mediavine",
+      "category": "Reference/Comparison",
+      "tool_type": "Product Comparison",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "theprintableprincess.com",
+      "name": "The Printable Princess, Inc",
+      "network": "mediavine",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "free-n8n-templates.com",
+      "name": "Ausmosphere, LLC",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Template Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "worksheets-to-print.com",
+      "name": "Kim White Steele LLC",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Worksheet Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "worldofprintables.com",
+      "name": "Meant to be Made Ltd",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "nremtpracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "highschooltestprep.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Test Prep",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "smartdrivinggames.com",
+      "name": "Daixtech inc",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "yourfreecareertest.com",
+      "name": "Wordphrase Ltd",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Assessment/Personality Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "workkeyspracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "notimeforflashcards.com",
+      "name": "Allison McDonald",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Flashcard Tool",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "spiritanimaltest.org",
+      "name": "Jingfeng Sun",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Assessment/Personality Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "gedpracticequestions.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Certification Test Prep",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "makefunprintables.com",
+      "name": "Nicolette Roux",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "gedpracticetest.net",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "asvabpracticetests.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "onceuponaprintable.com",
+      "name": "Julie Boston",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "parapropracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "accuplacerpracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "phlebotomyexaminer.com",
+      "name": "ink acres",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Certification Test Prep",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "az900practicetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "ccmapracticetests.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "servsafepracticetest.com",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "pmppracticeexam.org",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Exam",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "freeorganizingprintables.com",
+      "name": "Twenty Three Publishing LLC",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Printable Site",
+      "rust_advantage": "Low",
+      "domain_quality": 65
+    },
+    {
+      "domain": "discordtemplates.me",
+      "name": "Han Cen",
+      "network": "raptive",
+      "category": "Template/Printable",
+      "tool_type": "Template Site",
+      "rust_advantage": "Low",
+      "domain_quality": 63
+    },
+    {
+      "domain": "phlebotomypracticetest.net",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 60
+    },
+    {
+      "domain": "hisetpracticetest.org",
+      "name": "A10 Test Prep LLC",
+      "network": "raptive",
+      "category": "Test/Quiz",
+      "tool_type": "Practice Test",
+      "rust_advantage": "Low",
+      "domain_quality": 60
+    },
+    {
+      "domain": "quiz-questions.uk",
+      "name": "Quiz Questions UK",
+      "network": "mediavine",
+      "category": "Game",
+      "tool_type": "Quiz",
+      "rust_advantage": "Low",
+      "domain_quality": 55
+    },
+    {
+      "domain": "kindergartenworksheetsandgames.com",
+      "name": "Elizabeth Gorden",
+      "network": "raptive",
+      "category": "Game",
+      "tool_type": "Game Site",
+      "rust_advantage": "Low",
+      "domain_quality": 55
+    }
+  ],
+  "by_category": {
+    "Calculator": [
+      {
+        "domain": "fatcalc.com",
+        "name": "Bruno D'Amario",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Body Fat Calculator",
+        "rust_advantage": "High",
+        "domain_quality": 100
+      },
+      {
+        "domain": "calculateme.com",
+        "name": "H Brothers Inc",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator",
+        "rust_advantage": "High",
+        "domain_quality": 90
+      },
+      {
+        "domain": "calculatemyroof.com",
+        "name": "Moving Data Systems d.o.o.",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator",
+        "rust_advantage": "High",
+        "domain_quality": 85
+      },
+      {
+        "domain": "calculator.academy",
+        "name": "Patrick Myers",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 80
+      },
+      {
+        "domain": "gradecalculator.com",
+        "name": "Kyrios Learning LLC",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      },
+      {
+        "domain": "inchcalculator.com",
+        "name": "Calc Hub, LLC",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      },
+      {
+        "domain": "thepointcalculator.com",
+        "name": "The Point Calculator",
+        "network": "mediavine",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "fantasyfootballcalculator.com",
+        "name": "Left Brain Sports LLC",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "puppyweightcalculator.com",
+        "name": "Whitney Woolstenhulme",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "cryptoprofitcalculator.com",
+        "name": "Anup Kayastha",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "thecalculatorsite.com",
+        "name": "Hazell Industries Ltd",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "kingshotcalculator.com",
+        "name": "Amir Haris Khan",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "tdeecalculator.me",
+        "name": "Anup Kayastha",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 63
+      },
+      {
+        "domain": "mypaycalculator.co.uk",
+        "name": "My Pay Calculator",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 55
+      },
+      {
+        "domain": "starbucks-calorie-calculator.com",
+        "name": "Gaurav Kumar Dubey",
+        "network": "raptive",
+        "category": "Calculator",
+        "tool_type": "Calculator Site",
+        "rust_advantage": "High",
+        "domain_quality": 55
+      }
+    ],
+    "Converter": [
+      {
+        "domain": "convertbinary.com",
+        "name": "Supergloo Inc",
+        "network": "raptive",
+        "category": "Converter",
+        "tool_type": "Converter",
+        "rust_advantage": "High",
+        "domain_quality": 85
+      },
+      {
+        "domain": "titlecaseconverter.com",
+        "name": "Matthias Belz",
+        "network": "raptive",
+        "category": "Converter",
+        "tool_type": "Converter",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      }
+    ],
+    "Text Tool": [
+      {
+        "domain": "typinggames.zone",
+        "name": "HL Publishing Oy",
+        "network": "raptive",
+        "category": "Text Tool",
+        "tool_type": "Typing Tool",
+        "rust_advantage": "High",
+        "domain_quality": 80
+      },
+      {
+        "domain": "charactercounter.com",
+        "name": "Character Counter LLC",
+        "network": "raptive",
+        "category": "Text Tool",
+        "tool_type": "Character Counter",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      },
+      {
+        "domain": "thewordcounter.com",
+        "name": "Kevin Miller",
+        "network": "raptive",
+        "category": "Text Tool",
+        "tool_type": "Word Counter",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      }
+    ],
+    "Generator": [
+      {
+        "domain": "randomgenerators.com",
+        "name": "Giles & Company, Inc",
+        "network": "raptive",
+        "category": "Generator",
+        "tool_type": "Generator",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      },
+      {
+        "domain": "randompowergenerator.com",
+        "name": "Tycore Sdn. Bhd.",
+        "network": "raptive",
+        "category": "Generator",
+        "tool_type": "Generator",
+        "rust_advantage": "High",
+        "domain_quality": 65
+      },
+      {
+        "domain": "strongpasswordgenerator.org",
+        "name": "Tycore Sdn. Bhd.",
+        "network": "raptive",
+        "category": "Generator",
+        "tool_type": "Generator",
+        "rust_advantage": "High",
+        "domain_quality": 60
+      }
+    ],
+    "Color Tool": [
+      {
+        "domain": "rgbcolorpicker.com",
+        "name": "Utkarsh Kukreti",
+        "network": "raptive",
+        "category": "Color Tool",
+        "tool_type": "Color Picker",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      }
+    ],
+    "Test/Quiz": [
+      {
+        "domain": "frameratetest.com",
+        "name": "Abhranil Majumdar",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "FPS Test",
+        "rust_advantage": "High",
+        "domain_quality": 70
+      },
+      {
+        "domain": "practicecnatest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Certification Test Prep",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "pertpracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "tsipracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "siepracticeexam.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Exam",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "rbtpracticeexam.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Exam",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "aswbpracticeexam.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Exam",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "ptcbpracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "hesipracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "nremtpracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "highschooltestprep.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Test Prep",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "yourfreecareertest.com",
+        "name": "Wordphrase Ltd",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Assessment/Personality Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "workkeyspracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "spiritanimaltest.org",
+        "name": "Jingfeng Sun",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Assessment/Personality Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "gedpracticequestions.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Certification Test Prep",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "gedpracticetest.net",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "asvabpracticetests.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "parapropracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "accuplacerpracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "phlebotomyexaminer.com",
+        "name": "ink acres",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Certification Test Prep",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "az900practicetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "ccmapracticetests.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "servsafepracticetest.com",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "pmppracticeexam.org",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Exam",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "phlebotomypracticetest.net",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 60
+      },
+      {
+        "domain": "hisetpracticetest.org",
+        "name": "A10 Test Prep LLC",
+        "network": "raptive",
+        "category": "Test/Quiz",
+        "tool_type": "Practice Test",
+        "rust_advantage": "Low",
+        "domain_quality": 60
+      }
+    ],
+    "Reference/Comparison": [
+      {
+        "domain": "diffen.com",
+        "name": "Diffen LLC",
+        "network": "raptive",
+        "category": "Reference/Comparison",
+        "tool_type": "Comparison/Difference Site",
+        "rust_advantage": "Medium",
+        "domain_quality": 100
+      },
+      {
+        "domain": "travelmath.com",
+        "name": "Border Blue, Inc.",
+        "network": "raptive",
+        "category": "Reference/Comparison",
+        "tool_type": "Travel Calculator",
+        "rust_advantage": "Medium",
+        "domain_quality": 75
+      },
+      {
+        "domain": "howthingscompare.com",
+        "name": "David Barnes",
+        "network": "raptive",
+        "category": "Reference/Comparison",
+        "tool_type": "Comparison Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "comparebeforebuying.com",
+        "name": "Nicely Network Limited",
+        "network": "mediavine",
+        "category": "Reference/Comparison",
+        "tool_type": "Product Comparison",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      }
+    ],
+    "SVG/Font/Craft": [
+      {
+        "domain": "svg.com",
+        "name": "Static Media",
+        "network": "raptive",
+        "category": "SVG/Font/Craft",
+        "tool_type": "SVG File Site",
+        "rust_advantage": "Medium",
+        "domain_quality": 100
+      },
+      {
+        "domain": "freescrapbookfonts.com",
+        "name": "Kevin and Amanda, LLC",
+        "network": "raptive",
+        "category": "SVG/Font/Craft",
+        "tool_type": "Font Site",
+        "rust_advantage": "Medium",
+        "domain_quality": 65
+      }
+    ],
+    "Game": [
+      {
+        "domain": "game.dazepuzzle.com",
+        "name": "My Payment Profile",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Browser Game",
+        "rust_advantage": "Medium",
+        "domain_quality": 85
+      },
+      {
+        "domain": "foodduchess.com",
+        "name": "Food Duchess",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Chess",
+        "rust_advantage": "Medium",
+        "domain_quality": 75
+      },
+      {
+        "domain": "flagle-game.com",
+        "name": "Midnight Digital llc",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Browser Game",
+        "rust_advantage": "Medium",
+        "domain_quality": 75
+      },
+      {
+        "domain": "crosswordjam.net",
+        "name": "Darius Ceckevicius",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "puzzlepagecheats.com",
+        "name": "Darius Ceckevicius",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Puzzle",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "online-solitaire.com",
+        "name": "Holger Sindbaek Aps",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Solitaire",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "nytcrossword.org",
+        "name": "EM Programming",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "puzzleseveryday.com",
+        "name": "Everyday Puzzles Answers",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Puzzle",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "puzzles-to-print.com",
+        "name": "Kim White",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Puzzle",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "blackcrossword.com",
+        "name": "Juliana Pache",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "crosswordbuzz.com",
+        "name": "IDAN BARANES",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 70
+      },
+      {
+        "domain": "dresslikeaduchess.com",
+        "name": "Dress Like a Duchess",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Chess",
+        "rust_advantage": "Medium",
+        "domain_quality": 65
+      },
+      {
+        "domain": "crosswordmasterhelp.com",
+        "name": "Nafaa Kabaou",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 65
+      },
+      {
+        "domain": "usatodaycrosswordanswers.com",
+        "name": "E. M. Programming",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 65
+      },
+      {
+        "domain": "dailycommutercrossword.com",
+        "name": "EM Programming",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 65
+      },
+      {
+        "domain": "playwordle.uk",
+        "name": "Dau Thanh Quynh",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Word Game",
+        "rust_advantage": "Medium",
+        "domain_quality": 60
+      },
+      {
+        "domain": "crosswordanswers911.net",
+        "name": "IDAN BARANES",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 60
+      },
+      {
+        "domain": "ladypuzzle.pro",
+        "name": "Liliana Andre",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Puzzle",
+        "rust_advantage": "Medium",
+        "domain_quality": 60
+      },
+      {
+        "domain": "nytcrosswordanswers.org",
+        "name": "BM Advertising",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 60
+      },
+      {
+        "domain": "crossword-explorer.net",
+        "name": "Darius Ceckevicius",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 60
+      },
+      {
+        "domain": "dailythemedcrossword.info",
+        "name": "Darius Ceckevicius",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Crossword",
+        "rust_advantage": "Medium",
+        "domain_quality": 50
+      },
+      {
+        "domain": "triviawhizz.com",
+        "name": "Timothy Stripto",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Trivia",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "slythergames.com",
+        "name": "Jeffrey Lerman",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "mywordgames.com",
+        "name": "Gipros Web Solutions",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "theriagames.com",
+        "name": "Theria Games Ltd",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "houndgames.com",
+        "name": "HOUNDGAMES PTY LTD",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "novelgames.com",
+        "name": "Novel Games Limited",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "triviabliss.com",
+        "name": "Canyon Crest Media LLC",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Trivia",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "west-games.com",
+        "name": "OLAPHASE SDN. BHD.",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "triviaquiznight.com",
+        "name": "Scribes Media Ltd",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Trivia",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "coloringpageshq.com",
+        "name": "Tawna Schmidt",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Coloring Pages",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "crazymonkeygames.com",
+        "name": "Westech Media, LLC",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "intoindiegames.com",
+        "name": "Into Indie Games INC",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "everythingtrivia.com",
+        "name": "Trademodo",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Trivia",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "crossplaygames.com",
+        "name": "Hungry Internet Marketing Ltd",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "worldofcardgames.com",
+        "name": "Holger Sindbaek ApS",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "yaycoloringpages.com",
+        "name": "Carri Corbett",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Coloring Pages",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "smartbikegames.com",
+        "name": "The Terrell Empire Ltd",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "smartdrivinggames.com",
+        "name": "Daixtech inc",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "quiz-questions.uk",
+        "name": "Quiz Questions UK",
+        "network": "mediavine",
+        "category": "Game",
+        "tool_type": "Quiz",
+        "rust_advantage": "Low",
+        "domain_quality": 55
+      },
+      {
+        "domain": "kindergartenworksheetsandgames.com",
+        "name": "Elizabeth Gorden",
+        "network": "raptive",
+        "category": "Game",
+        "tool_type": "Game Site",
+        "rust_advantage": "Low",
+        "domain_quality": 55
+      }
+    ],
+    "Specific Tool": [
+      {
+        "domain": "wodtools.com",
+        "name": "Fat Frog Ventures Ltd",
+        "network": "mediavine",
+        "category": "Specific Tool",
+        "tool_type": "CrossFit/WOD Tools",
+        "rust_advantage": "Low",
+        "domain_quality": 85
+      },
+      {
+        "domain": "generatorgrid.com",
+        "name": "eFactory, LLC",
+        "network": "raptive",
+        "category": "Specific Tool",
+        "tool_type": "Generator Directory",
+        "rust_advantage": "Low",
+        "domain_quality": 85
+      },
+      {
+        "domain": "remote.tools",
+        "name": "Remote Tools",
+        "network": "mediavine",
+        "category": "Specific Tool",
+        "tool_type": "Remote Work Tools Directory",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "kanji.tools",
+        "name": "LHAS WEBWORKS Co. Ltd.",
+        "network": "raptive",
+        "category": "Specific Tool",
+        "tool_type": "Japanese Kanji Tool",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "pd2.tools",
+        "name": "Cole Estrin",
+        "network": "raptive",
+        "category": "Specific Tool",
+        "tool_type": "Payday 2 Tools",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      }
+    ],
+    "Template/Printable": [
+      {
+        "domain": "15worksheets.com",
+        "name": "Mountain Press LLC",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 75
+      },
+      {
+        "domain": "printables4mom.com",
+        "name": "Billie Wirthlin",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "printablesfairy.com",
+        "name": "Sonia P\u00e9rez",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "printablecrush.com",
+        "name": "Erin Williams",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "emojiflashcards.com",
+        "name": "Robin Dickson",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Flashcard Tool",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "worksheetgenius.com",
+        "name": "Vasil Jalani",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "worksheetplace.com",
+        "name": "Deb Russell",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "createprintables.com",
+        "name": "Nicolette Roux",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 70
+      },
+      {
+        "domain": "goldstarworksheets.com",
+        "name": "GOLD STAR ACADEMY LTD",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "favoriteprintables.com",
+        "name": "Laura Nicholson",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "superstarworksheets.com",
+        "name": "Valerie McClintick LLC",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "printablesforlife.com",
+        "name": "Mommy Maker Teacher, LLC",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "prettysweetprintables.com",
+        "name": "Pretty Sweet Printables",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "theprintableprincess.com",
+        "name": "The Printable Princess, Inc",
+        "network": "mediavine",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "free-n8n-templates.com",
+        "name": "Ausmosphere, LLC",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Template Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "worksheets-to-print.com",
+        "name": "Kim White Steele LLC",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Worksheet Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "worldofprintables.com",
+        "name": "Meant to be Made Ltd",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "notimeforflashcards.com",
+        "name": "Allison McDonald",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Flashcard Tool",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "makefunprintables.com",
+        "name": "Nicolette Roux",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "onceuponaprintable.com",
+        "name": "Julie Boston",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "freeorganizingprintables.com",
+        "name": "Twenty Three Publishing LLC",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Printable Site",
+        "rust_advantage": "Low",
+        "domain_quality": 65
+      },
+      {
+        "domain": "discordtemplates.me",
+        "name": "Han Cen",
+        "network": "raptive",
+        "category": "Template/Printable",
+        "tool_type": "Template Site",
+        "rust_advantage": "Low",
+        "domain_quality": 63
+      }
+    ]
+  }
+}

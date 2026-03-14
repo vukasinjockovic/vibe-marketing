@@ -1,0 +1,95 @@
+---
+session: general
+date: 2026-02-16
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Dashboard UX improvements - resource modals, Monaco editor, batch editing, pagination, artifacts browser
+now: E2E test a full engagement batch through the pipeline. Wire advanced-image-prompt-engineering.md into image-director-sales.
+
+test: "cd /var/www/vibe-marketing/dashboard && npx nuxi build && pm2 restart vibe-dashboard"
+
+done_this_session:
+  - task: "Resource detail modal on resources page - click row opens modal instead of navigating, with 'Open Full Page' link"
+    files: [dashboard/pages/projects/slug/resources/index.vue]
+  - task: "URL-synced filters and pagination on resources page (resources_page, resources_type, resources_status query params)"
+    files: [dashboard/pages/projects/slug/resources/index.vue]
+  - task: "ResourceDetailPanel loads content from disk via /api/file-content when DB content field is empty (matching full page behavior)"
+    files: [dashboard/components/ResourceDetailPanel.vue]
+  - task: "Monaco editor for all text content viewing in ResourceDetailPanel and full resource page (replaced markdown prose rendering)"
+    files: [dashboard/components/ResourceDetailPanel.vue, dashboard/pages/projects/slug/resources/id.vue]
+  - task: "VMonacoEditor fixes for modal context - automaticLayout:true + delayed layout call after v-show toggle"
+    files: [dashboard/components/VMonacoEditor.vue]
+  - task: "Edit batch when status=planning - form edit mode with status guard in Convex mutation"
+    files: [dashboard/components/ContentBatchForm.vue, convex/contentBatches.ts]
+  - task: "Clickable resource stats cards that filter resource table by type"
+    files: [dashboard/components/ResourceStatsCards.vue]
+  - task: "ResourceTable pageSize prop (12 for batch detail, 25 default) + client-side pagination"
+    files: [dashboard/components/ResourceTable.vue]
+  - task: "Resource detail modal on batch detail page with -mx-6 -my-4 padding negation"
+    files: [dashboard/pages/projects/slug/engagement/batches/id.vue]
+  - task: "Engagement page: status filter tabs for batches + mb-8 section spacing"
+    files: [dashboard/pages/projects/slug/engagement/index.vue]
+  - task: "ArtifactsBrowser: copy path button in header, download file in context menu, cache busting with ?v=mtime"
+    files: [dashboard/components/ArtifactsBrowser.vue]
+  - task: "File-serve endpoint: Content-Disposition header with filename, attachment mode for downloads"
+    files: [dashboard/server/api/file-serve.get.ts]
+  - task: "Fix pathSanitizer doubling absolute paths"
+    files: [dashboard/server/utils/pathSanitizer.ts]
+  - task: "Agent skill routing: sales skills redirect to engagement skills for engagement content"
+    files: [.claude/skills/image-director-sales/SKILL.md, .claude/skills/video-script-sales/SKILL.md]
+
+blockers: []
+
+questions:
+  - "E2E test: run a 12-post full engagement batch through the pipeline to verify chain works end-to-end"
+  - "Should legacy deliverableConfig + targetArticleCount be removed from schema?"
+
+decisions:
+  - resource_content_resolution: "ResourceDetailPanel now uses resolveContentSource() from useResourceContent.ts - checks DB content first, falls back to loading from disk via /api/file-content. Same pattern as full resource detail page."
+  - monaco_in_modals: "Added automaticLayout:true to VMonacoEditor defaults + nextTick + setTimeout(250ms) layout calls. The v-show approach means Monaco creates editor on hidden container; these ensure proper sizing after visibility."
+  - url_filter_sync: "Type/status filter computed setters reset resources_page to undefined (page 1) automatically, so the watch only needs to handle searchQuery reset."
+  - modal_padding_negation: "Used -mx-6 -my-4 wrapper div to negate VModal's px-6 py-4 content padding, letting ResourceDetailPanel's own padding handle layout."
+  - cache_busting: "All file-serve URLs now append ?v={mtime} from FileEntry.modified field. Covers images, video, audio, epub, docx, spreadsheets, and text content."
+
+findings:
+  - resource_content_on_disk: "Most resources store content on disk (filePath) not in DB content field. ResourceDetailPanel was only checking resource.content, showing 'No content to display' for disk-based resources. This was the real reason Monaco appeared broken in modals."
+  - content_disposition_for_downloads: "Browser ignores a.download attribute for cross-origin or when server sends conflicting headers. Setting Content-Disposition: attachment; filename='...' on the server is the reliable fix."
+
+worked:
+  - "resolveContentSource + $fetch('/api/file-content') for loading disk content in ResourceDetailPanel"
+  - "Computed get/set pattern for URL query param sync (router.replace preserves other params)"
+  - "serveUrl() helper centralizes cache busting across all file-serve calls"
+
+failed:
+  - "Initial Monaco modal fix (nextTick layout only) didn't help because the real issue was content not loading from disk, not a layout problem"
+  - "npx nuxi build from project root occasionally fails with '@nuxt/kit' resolution error - running from dashboard/ dir fixes it"
+
+next:
+  - "E2E TEST: Run a 12-post full engagement batch through the full pipeline"
+  - "WIRE SALES REFERENCE: Add advanced-image-prompt-engineering.md into image-director-sales skill"
+  - "REMOVE LEGACY: Consider removing deliverableConfig + targetArticleCount from schema"
+  - "SEEDER IMPROVEMENT: Consider making seeder upsert-based to avoid ghost skill problem"
+  - "DASHBOARD TESTING: Test all new features with real data (resource modals, batch editing, filter persistence)"
+
+files:
+  modified:
+    - dashboard/components/ArtifactsBrowser.vue
+    - dashboard/components/ContentBatchForm.vue
+    - dashboard/components/ResourceDetailPanel.vue
+    - dashboard/components/ResourceStatsCards.vue
+    - dashboard/components/ResourceTable.vue
+    - dashboard/components/VMonacoEditor.vue
+    - dashboard/pages/projects/slug/engagement/batches/id.vue
+    - dashboard/pages/projects/slug/engagement/index.vue
+    - dashboard/pages/projects/slug/resources/id.vue
+    - dashboard/pages/projects/slug/resources/index.vue
+    - dashboard/server/api/file-serve.get.ts
+    - dashboard/server/utils/pathSanitizer.ts
+    - convex/contentBatches.ts
+    - convex/agents.ts
+    - convex/pipeline.ts
+    - convex/schema.ts
+    - .claude/skills/image-director-sales/SKILL.md
+    - .claude/skills/video-script-sales/SKILL.md

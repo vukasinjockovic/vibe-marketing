@@ -1,0 +1,142 @@
+---
+session: general
+date: 2026-03-08
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Build end-to-end Angi provider scraping system for FatStud — Python sidecar, Laravel jobs, admin dashboard, Tor discovery, Typesense search
+now: Tune RSC regex parsing for missing fields (reviews, years_in_business, categories), then batch-scrape providers via admin dashboard or artisan command
+test: "curl -s http://127.0.0.1:8430/health | python3 -c \"import sys,json; d=json.load(sys.stdin); print('OK' if d['status']=='ok' else 'FAIL')\""
+
+done_this_session:
+  - task: Installed Laravel Horizon + Reverb packages, published configs
+    files: [/var/www/fatstud.businesspress.dev/config/horizon.php, /var/www/fatstud.businesspress.dev/config/broadcasting.php, /var/www/fatstud.businesspress.dev/config/reverb.php]
+  - task: Created WEF JSON with 33 provider fields (angi_uuid through last_scraped_at), verified all registered via WEFService::getWEFDataTypes
+    files: [/var/www/fatstud.businesspress.dev/wef-json/provider_angi_data.json]
+  - task: Updated Provider model with getSchemaColumnOverrides (filterable/sortable for Typesense), typesenseCollectionSchema (geopoint), toSearchableArray (lat/lng)
+    files: [/var/www/fatstud.businesspress.dev/app/Models/Provider.php]
+  - task: Built Python scraper sidecar — aiohttp on port 8430, RSC:1 header bypass, scrapling Fetcher with DataImpulse residential proxy, stealthy_headers=True
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/angi_scraper_service.py]
+  - task: Created AngiScraperClient HTTP service wrapper for Python sidecar
+    files: [/var/www/fatstud.businesspress.dev/app/Services/AngiScraperClient.php]
+  - task: Created ScrapeCompleted broadcast event (ShouldBroadcastNow, scrape-feed channel)
+    files: [/var/www/fatstud.businesspress.dev/app/Events/ScrapeCompleted.php]
+  - task: Created ScrapeProviderJob — calls sidecar, upserts Provider CPT with buffered WEF saves, records Redis stats, broadcasts event
+    files: [/var/www/fatstud.businesspress.dev/app/Jobs/ScrapeProviderJob.php]
+  - task: Created scrape:angi-providers artisan command (--url, --file, --batch, --status, --reset-stats)
+    files: [/var/www/fatstud.businesspress.dev/app/Console/Commands/ScrapeAngiProviders.php]
+  - task: Created admin controller with 10 API endpoints (provider list, detail, stats, seed single/bulk/batch, health)
+    files: [/var/www/fatstud.businesspress.dev/app/Http/Controllers/Admin/ProviderController.php]
+  - task: Created admin routes under 'admin' middleware at /admin/providers
+    files: [/var/www/fatstud.businesspress.dev/routes/web.php]
+  - task: Built 3-tab admin Blade view — Provider List (card grid, search, filters, infinite scroll, detail modal), Dispatch (single URL, bulk upload, SQLite batch), Live Feed (WebSocket stats, event table)
+    files: [/var/www/fatstud.businesspress.dev/resources/views/admin/providers.blade.php]
+  - task: Configured Horizon with supervisor-angi (10 local/50 prod processes, angi-scraping queue)
+    files: [/var/www/fatstud.businesspress.dev/config/horizon.php]
+  - task: Added angi_scraper service config
+    files: [/var/www/fatstud.businesspress.dev/config/services.php]
+  - task: Added nginx WebSocket proxy (/app → 127.0.0.1:8897) to fatstud vhost
+    files: [/etc/nginx/sites-available/fatstud.businesspress.dev]
+  - task: Created Tor-based URL discovery script with FIFO semaphore, 50 parallel workers, 20 categories × 500 cities
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls.sh, /var/www/fatstud.businesspress.dev/scripts/scrapers/us-cities.txt]
+  - task: Created 3 supervisor configs for all processes
+    files: [/etc/supervisor/conf.d/fatstud-horizon.conf, /etc/supervisor/conf.d/fatstud-reverb.conf, /etc/supervisor/conf.d/fatstud-sidecar.conf]
+  - task: Set TYPESENSE_API_KEY, synced bp_provider collection (38 fields), verified search works
+    files: [/var/www/fatstud.businesspress.dev/.env]
+  - task: "E2E verified: Torres Plumbing LLC scraped from Angi → PostgreSQL Provider CPT → Typesense auto-synced → searchable"
+
+blockers:
+  - "RSC regex parsing incomplete: review_count, years_in_business, provider_categories returning empty for some providers — needs regex tuning against actual RSC payloads"
+  - "Fatstud not on Octane — running php-fpm via nginx"
+
+decisions:
+  - proxy_architecture: "DataImpulse proxy configured in supervisor env var (ANGI_SCRAPER_PROXY), not in Laravel .env — only Python sidecar needs it"
+  - websocket_routing: "WebSocket via /app path on same nginx vhost (port 443) rather than separate ws.fatstud subdomain — simpler setup"
+  - scrapling_config: "stealthy_headers=True required for Cloudflare bypass — without it, RSC:1 header alone gets 403. Proxy kwarg goes in get() not configure()."
+  - wef_field_naming: "Used provider_city, provider_state, provider_categories to avoid conflict with core CPT columns"
+  - supervisor_over_pm2: "Supervisor for all 3 processes (matching OF pattern and all other BusinessPress sites)"
+
+findings:
+  - scrapling_api_v03: "Fetcher API changed in v0.3: proxy is kwarg to get(), not constructor arg. configure() is for parser settings only. Response uses .body (bytes) and .status, not .text/.status_code."
+  - cpt_name_column: "CPT table uses 'name' not 'title' column — job was inserting into nonexistent 'title' column"
+  - typesense_38_fields: "bp_provider collection has 38 fields including geopoint 'location', faceted city/state/categories, sortable rating/reviews/years"
+
+worked:
+  - "scrapling Fetcher with stealthy_headers=True + RSC:1 header + DataImpulse proxy = 200 OK from Angi detail pages"
+  - "enableMetaBuffering() + setWEF() loop + flushCoreMeta() for efficient batch meta saves"
+  - "WEF JSON in app-level wef-json/ dir auto-discovered by WEFService — 33 fields registered on first bp:optimize"
+  - "getSchemaColumnOverrides() with meta.field_name keys to force filterable/sortable on WEF fields in Typesense"
+  - "Supervisor pattern from OF scraper works identically for fatstud"
+
+failed:
+  - "scrapling Fetcher(proxy=...) constructor — deprecated in v0.3, throws warning"
+  - "fetcher.configure(proxy=...) — configure() is for parser kwargs only, not HTTP proxy"
+  - "fetcher.get(url, headless=False) — headless is not a valid kwarg for Fetcher.get"
+  - "Provider.title = name — CPT uses 'name' column, not 'title'"
+
+next:
+  - name: Tune RSC Parsing Regexes
+    description: "Scrape 5-10 different providers, dump raw RSC bodies to files, analyze actual JSON structure for review_count, years_in_business, categories. The regex patterns may need adjustment for how Angi serializes these in the RSC payload."
+    priority: 1
+  - name: Test Admin Dashboard
+    description: "Login to https://fatstud.businesspress.dev/admin/providers, verify all 3 tabs work — provider card shows Torres Plumbing, dispatch tab can seed URLs, live feed shows WebSocket events"
+    priority: 2
+  - name: Batch Scrape 50-100 Providers
+    description: "Create a test file with 50 Angi URLs from different cities/categories, dispatch via artisan --file, verify pipeline handles volume"
+    priority: 3
+  - name: Run Tor Discovery for 1 City
+    description: "Test discover-angi-urls.sh with --cities (1 city file) --category plumbing to verify URL extraction works, check SQLite database"
+    priority: 4
+  - name: Geosearch Verification
+    description: "After more providers with lat/lng are scraped, test Typesense geosearch: filter_by=location:(30.508,-97.679,50km)"
+    priority: 5
+
+infrastructure:
+  supervisor_processes:
+    - name: fatstud-horizon
+      config: /etc/supervisor/conf.d/fatstud-horizon.conf
+      user: www-data
+    - name: fatstud-reverb
+      config: /etc/supervisor/conf.d/fatstud-reverb.conf
+      user: www-data
+      port: 8897
+    - name: fatstud-sidecar
+      config: /etc/supervisor/conf.d/fatstud-sidecar.conf
+      user: vuk
+      port: 8430
+      proxy: DataImpulse residential
+  typesense:
+    collection: bp_provider
+    fields: 38
+    api_key_location: /var/www/fatstud.businesspress.dev/.env (TYPESENSE_API_KEY)
+  redis_keys:
+    - "angi:stats (hash: total, ok, not_found, cf_blocked, error, bytes, duration_sum)"
+  verified_e2e:
+    provider: "Torres Plumbing, LLC"
+    id: "019ccab1-3a3c-71de-a4d6-a95c25bffe6d"
+    source_url: "https://www.angi.com/companylist/us/tx/round-rock/torres-plumbing-llc-reviews-2.htm"
+    typesense_searchable: true
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/wef-json/provider_angi_data.json
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/angi_scraper_service.py
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls.sh
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/us-cities.txt
+    - /var/www/fatstud.businesspress.dev/app/Services/AngiScraperClient.php
+    - /var/www/fatstud.businesspress.dev/app/Events/ScrapeCompleted.php
+    - /var/www/fatstud.businesspress.dev/app/Jobs/ScrapeProviderJob.php
+    - /var/www/fatstud.businesspress.dev/app/Console/Commands/ScrapeAngiProviders.php
+    - /var/www/fatstud.businesspress.dev/app/Http/Controllers/Admin/ProviderController.php
+    - /var/www/fatstud.businesspress.dev/resources/views/admin/providers.blade.php
+    - /etc/supervisor/conf.d/fatstud-horizon.conf
+    - /etc/supervisor/conf.d/fatstud-reverb.conf
+    - /etc/supervisor/conf.d/fatstud-sidecar.conf
+  modified:
+    - /var/www/fatstud.businesspress.dev/app/Models/Provider.php
+    - /var/www/fatstud.businesspress.dev/config/horizon.php
+    - /var/www/fatstud.businesspress.dev/config/services.php
+    - /var/www/fatstud.businesspress.dev/routes/web.php
+    - /var/www/fatstud.businesspress.dev/.env
+    - /etc/nginx/sites-available/fatstud.businesspress.dev

@@ -1,0 +1,68 @@
+# Washington State Field Mapping
+# Maps WA L&I CSV fields → contractors.sqlite schema
+
+source: wa_lni
+state: WA
+link_key: ContractorLicenseNumber  # joins all 4 datasets
+secondary_key: UBI  # WA Unified Business Identifier
+
+general_csv:
+  BusinessName: contractors.business_name
+  PhoneNumber: contractors.phone  # 10-digit, needs formatting
+  Address1: contractors.street
+  Address2: contractors.street2
+  City: contractors.city
+  State: contractors.state
+  Zip: contractors.zip
+  BusinessTypeCode: contractors.entity_type
+  BusinessTypeCodeDesc: contractors.entity_type_desc
+  PrimaryPrincipalName: contractors.owner_name
+  ContractorLicenseNumber: licenses.license_number
+  ContractorLicenseTypeCode: licenses.license_type
+  ContractorLicenseTypeCodeDesc: licenses.license_type_desc
+  SpecialtyCode1: licenses.classification
+  SpecialtyCode1Desc: licenses.classification_desc
+  SpecialtyCode2: licenses.classification2
+  SpecialtyCode2Desc: licenses.classification2_desc
+  StatusCode: licenses.status
+  ContractorLicenseStatus: licenses.status_desc
+  LicenseEffectiveDate: licenses.issue_date  # MM/DD/YYYY → YYYY-MM-DD
+  LicenseExpirationDate: licenses.expiration_date
+  ContractorLicenseSuspendDate: licenses.suspend_date
+  UBI: licenses.ubi
+
+insurance_csv:
+  InsuranceCompany: insurance_records.insurance_company
+  InsuranceAgencyName: insurance_records.insurance_agency
+  InsurancePolicyNo: insurance_records.policy_number
+  InsuranceAmt: insurance_records.coverage_amount  # string → float
+  EffectiveDate: insurance_records.effective_date
+  ExpirationDate: insurance_records.expiration_date  # $$$ KEY FIELD
+  CancelDate: insurance_records.cancel_date
+
+bond_csv:
+  BondFirmName: bond_records.bond_company
+  BondAccountID: bond_records.bond_account_id
+  BondAmt: bond_records.bond_amount  # string → float
+  BondEffectiveDate: bond_records.effective_date
+  BondExpirationDate: bond_records.expiration_date  # "Until Canceled" = NULL
+  BondCancelDate: bond_records.cancel_date
+  BondImpaired: bond_records.is_impaired  # non-empty = 1
+  BondImpairedDate: bond_records.impaired_date
+
+principal_csv:
+  PrincipalName: officers.name
+  BusinessTypeCodeDesc: officers.title  # mapped to Owner/Partner/Officer/Member
+  StartDate: officers.start_date
+  EndDate: officers.end_date
+
+date_format: "%m/%d/%Y"  # all dates in this format
+output_format: "%Y-%m-%d"  # stored as ISO
+
+specialty_codes:
+  "01": GENERAL
+  "02": ELECTRICAL
+  "03": PLUMBING
+  "04": HVAC
+  "05": ROOFING
+  # ... more codes exist, stored in raw_data JSON

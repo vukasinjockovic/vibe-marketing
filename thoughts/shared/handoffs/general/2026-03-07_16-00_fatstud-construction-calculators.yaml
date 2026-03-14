@@ -1,0 +1,127 @@
+---
+session: general
+date: 2026-03-07
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Build FatStud — ad-monetized construction calculator site on BusinessPress with pSEO, blog content, and US construction company directory
+now: Site is installed and running. Next is brand/styleguide + first calculator build.
+test: curl -sk https://fatstud.businesspress.dev | grep -q "FatStud" && echo "OK"
+
+done_this_session:
+  - task: Keyword research — 17,967 unique keywords from Google Keyword Planner across 15 construction categories
+    files: [rust/construction-calculators/keyword-research/MASTER-SUMMARY.md, rust/construction-calculators/keyword-research/keyword-summary.md]
+  - task: Google Autocomplete sweep — 5,976 unique suggestions from 47 seed keywords
+    files: [rust/construction-calculators/keyword-research/autocomplete-suggestions.txt]
+  - task: 14 category analysis files with volume tiers, CPC data, pSEO recommendations
+    files:
+      - rust/construction-calculators/keyword-research/concrete-latest-analysis.md
+      - rust/construction-calculators/keyword-research/roofing-latest-analysis.md
+      - rust/construction-calculators/keyword-research/deck-fence-latest-analysis.md
+      - rust/construction-calculators/keyword-research/paint-flooring-latest-analysis.md
+      - rust/construction-calculators/keyword-research/landscaping-latest-analysis.md
+      - rust/construction-calculators/keyword-research/drywall-insulation-latest-analysis.md
+      - rust/construction-calculators/keyword-research/electrical-latest-analysis.md
+      - rust/construction-calculators/keyword-research/brick-masonry-latest-analysis.md
+      - rust/construction-calculators/keyword-research/patio-outdoor-latest-analysis.md
+      - rust/construction-calculators/keyword-research/lumber-latest-analysis.md
+      - rust/construction-calculators/keyword-research/square-footage-latest-analysis.md
+      - rust/construction-calculators/keyword-research/concrete-cost-extended-latest-analysis.md
+      - rust/construction-calculators/keyword-research/roofing-cost-extended-latest-analysis.md
+      - rust/construction-calculators/keyword-research/flooring-extended-latest-analysis.md
+      - rust/construction-calculators/keyword-research/misc-construction-latest-analysis.md
+  - task: Decided on brand name "FatStud" — fatstud.com available (not yet purchased), fatstud.businesspress.dev live
+    files: []
+  - task: Installed Laravel 12 at /var/www/fatstud.businesspress.dev with nginx (php8.3-fpm), PostgreSQL (fatstud db), SSL
+    files: [/etc/nginx/sites-available/fatstud.businesspress.dev]
+  - task: Cloned and symlinked BusinessPress packages (core dev branch, ai, page-builder, starter) — all dev-main
+    files: [/var/www/fatstud.businesspress.dev/composer.json]
+  - task: Ran bp:install (fresh migrations + seeders) and bp:optimize — all green, 122 models, GraphQL schemas cached
+    files: []
+  - task: Fixed UseCaptcha bug — removed deprecated appendCaptchaRules() calls from ContactForm and RegisterForm in starter package
+    files:
+      - /var/www/fatstud.businesspress.dev/packages/businesspress/starter/src/Livewire/Frontend/Forms/ContactForm.php
+      - /var/www/fatstud.businesspress.dev/packages/businesspress/starter/src/Livewire/Frontend/Forms/RegisterForm.php
+  - task: Dropped Rust/WASM approach — JS/Alpine.js is sufficient for calculator math, no complex computation needed
+    files: []
+
+blockers:
+  - fatstud.com domain not yet purchased (available, user will buy during the day)
+  - No ad network yet (need 50K sessions/mo for Mediavine, 10K for Ezoic)
+
+decisions:
+  - brand_name: FatStud — "stud" is a construction framing term, double meaning makes it viral/memorable
+  - tech_stack: BusinessPress (Laravel 12) + Alpine.js calculators + Blade pSEO templates. NOT Rust/WASM — JS is sufficient for simple arithmetic calculators.
+  - monetization_phases: Phase 1 = display ads (RPM $25-50), Phase 2 = lead gen for contractors, Phase 3 = company directory with lead selling
+  - calculator_count: ~49 distinct calculator engines, 500-1000+ pSEO variant pages
+  - pseo_approach: BusinessPress taxonomies + page-builder for seeding pages programmatically, each page gets unique H1/meta/intro/defaults/FAQ
+  - dropped_rust_wasm: All calculator math is trivial (L×W×D, area/count, Ohm's law). JS handles in <1ms. Rust/WASM overhead not justified.
+
+findings:
+  - total_addressable_market: 40.6M monthly searches across 17,967 keywords
+  - hero_keywords: 33 keywords at 50K+ monthly volume (sq ft calc 500K, concrete calc 500K, etc.)
+  - revenue_projections: Conservative $10K/mo (1% capture), Moderate $71K/mo (5%), Optimistic $203K/mo (10%)
+  - cpc_goldmine: Roofing dominates — "roof repair estimate near me" at $122.89 CPC. 8 of top 20 highest-CPC are roofing.
+  - highest_rpm_verticals: Roofing ($50-65), Windows ($35-95 CPC), Flooring ($25-78 CPC), Concrete ($25-35)
+  - sq_footage_gateway: 25.8M/mo searches — build first as traffic gateway, cross-link to material calcs
+  - build_phases: Phase 1 (8 simple calcs, 2M searches), Phase 2 (8 more, 450K), Phase 3 (10 premium CPC), Phase 4 (100+ pSEO)
+  - alpine_js_components: Only need ~10-12 reusable component types to power all 49 calculators
+  - domain_availability: Checked 85 domains via whois — fatstud.com confirmed available
+
+next:
+  - name: Brand & Styleguide
+    description: Create FatStud brand identity — logo concept, color palette, typography, component style guide for calculators
+    priority: 1
+  - name: First Calculator (Square Footage)
+    description: Build square footage calculator as Alpine.js component in Blade. 500K/mo searches. Dead simple L×W math. Template for all others.
+    priority: 2
+  - name: Concrete Slab Calculator
+    description: Second calculator — L×W×D → cubic yards + bags. 500K/mo. Same component pattern.
+    priority: 3
+  - name: Calculator Component Library
+    description: Build remaining Phase 1 calculators (CMU block, paint, tile, gravel, mulch, topsoil) — all reuse volume/area component patterns
+    priority: 4
+  - name: pSEO Page Seeding
+    description: Use BusinessPress page-builder to programmatically seed 500+ variant pages from calculator templates with unique content per page
+    priority: 5
+  - name: Blog Content
+    description: Scrape existing construction blog posts for topics/structure, mass-generate with AI, unique per topic
+    priority: 6
+  - name: US Construction Company Directory
+    description: Build directory of US construction companies with basic data. Later contact for lead gen/selling leads.
+    priority: 7
+  - name: Audience Research (Vibe Marketing)
+    description: Run vibe-marketing platform research agents on Reddit, Quora, YouTube comments for construction pain points and content gaps. Separate app.
+    priority: 8
+  - name: Google Indexing & Domain Purchase
+    description: Buy fatstud.com, point DNS, submit sitemap to Google Search Console, request indexing
+    priority: 9
+
+infrastructure:
+  server:
+    path: /var/www/fatstud.businesspress.dev
+    nginx: /etc/nginx/sites-available/fatstud.businesspress.dev
+    php: php8.3-fpm (not Octane yet)
+    db: PostgreSQL on port 5433, database "fatstud", user "app"
+    ssl: Wildcard businesspress.dev cert
+    url: https://fatstud.businesspress.dev
+  packages:
+    core: packages/businesspress/core (branch: dev, symlinked)
+    ai: packages/businesspress/ai (branch: main, symlinked)
+    page-builder: packages/businesspress/page-builder (branch: main, symlinked)
+    starter: packages/businesspress/starter (branch: main, symlinked)
+  keyword_research: rust/construction-calculators/keyword-research/
+  master_summary: rust/construction-calculators/keyword-research/MASTER-SUMMARY.md
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/ (entire Laravel 12 project)
+    - /etc/nginx/sites-available/fatstud.businesspress.dev
+    - rust/construction-calculators/keyword-research/MASTER-SUMMARY.md
+    - rust/construction-calculators/keyword-research/keyword-summary.md
+    - rust/construction-calculators/keyword-research/autocomplete-suggestions.txt
+    - rust/construction-calculators/keyword-research/categories/ (14 CSV + analysis files)
+  modified:
+    - packages/businesspress/starter/src/Livewire/Frontend/Forms/ContactForm.php (removed appendCaptchaRules)
+    - packages/businesspress/starter/src/Livewire/Frontend/Forms/RegisterForm.php (removed appendCaptchaRules)

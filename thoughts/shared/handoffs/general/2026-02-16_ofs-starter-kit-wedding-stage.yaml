@@ -1,0 +1,231 @@
+handoff:
+  title: "Our Forever Stories — Starter Kit Wedding Stage (W1-W10) Complete"
+  date: "2026-02-16"
+  author: "opus-session"
+  status: "wedding-stage-complete"
+
+context:
+  project: "Our Forever Stories"
+  project_slug: "our-forever-stories"
+  base_path: "/var/www/vibe-marketing/projects/our-forever-stories/starter-kit"
+  strategy_doc: "our-forever-stories-starter-kit.md"
+  description: |
+    30-item digital freebie bundle for Facebook engagement funnel.
+    Wedding stage (10 items) is now complete. 8 printable PDFs + 1 Excel + 1 Canva (not yet done).
+    HTML → Vite + UnoCSS → Puppeteer PDF pipeline.
+
+pipeline:
+  build_tool: "Vite + UnoCSS"
+  pdf_generator: "Puppeteer (scripts/generate-pdf.js)"
+  config: "vite.config.ts — auto-discovers w*/index.html"
+  shared_styles: "shared/styles/print-base.css"
+  shared_entry: "shared/main.ts"
+  uno_config: "uno.config.ts"
+  generate_command: "cd starter-kit && node scripts/generate-pdf.js <folder-name>"
+
+design_system:
+  fonts:
+    heading: "Cormorant Garamond (400, 500, 600, 700, italic)"
+    body: "Inter (300, 400, 500, 600)"
+  colors:
+    brand_accent: "rose-400 (#c56d7d) — headers, accents, checkboxes"
+    body_text: "prussian-900 (#0a1929)"
+    secondary: "slate-500 (#617e9e)"
+    tips: "slate-400 italic"
+    fill_lines: "thistle-300 (#c4a1ac)"
+    section_lines: "rose gradient → thistle → transparent"
+  css_shortcuts:
+    - "print-page — A4 page container"
+    - "section-title — uppercase section headers"
+    - "check-item — checkbox row (flex items-start gap-2.5)"
+    - "check-label — item text (13px prussian-900)"
+    - "check-note — italic tip (11px slate-500)"
+    - "fill-line — write-in line (thistle border-bottom)"
+    - "page-break — CSS page-break-before: always"
+    - "corner-flourish — decorative corners (page 1 only)"
+  page_template: "print-page min-h-297mm px-14mm py-8mm box-border"
+  footer_domain: "our-forever-stories.com"
+  brand_header: '<p class="font-body text-10px tracking-[0.3em] uppercase text-rose-400 mb-1">Our Forever Stories</p>'
+
+items_completed:
+  - id: W1
+    name: "Wedding Photo Checklist"
+    folder: "w1-wedding-photo-checklist"
+    format: "PDF (3 pages)"
+    size: "206KB"
+    files:
+      - "index.html"
+      - "w1-wedding-photo-checklist.pdf"
+      - "wedding-photo-checklist.md"
+    description: "50 must-have shots checklist + custom shots page"
+    status: "complete — manually iterated in main context"
+
+  - id: W2
+    name: "Wedding Day Timeline"
+    folder: "w2-wedding-day-timeline"
+    format: "PDF (3 pages)"
+    size: "187KB"
+    files:
+      - "index.html"
+      - "w2-wedding-day-timeline.pdf"
+    description: "Fill-in timeline planner + pro tips + key contacts + custom page"
+    notes: "Started with timeline dots/nodes, ditched for simpler layout matching W1"
+    status: "complete — manually iterated in main context"
+
+  - id: W3
+    name: "Our Love Story Fill-in Journal"
+    folder: "w3-our-love-story-journal"
+    format: "PDF (8 pages)"
+    size: "298KB"
+    files:
+      - "index.html"
+      - "w3-our-love-story-journal.pdf"
+      - "our-love-story-journal.md"
+    description: "8-page emotional journal: How We Met, First Date, When I Knew, Proposal, Memories, What I Love, Our Forever"
+    status: "complete — built by subagent"
+
+  - id: W4
+    name: "Wedding Vow Writing Worksheet"
+    folder: "w4-wedding-vow-worksheet"
+    format: "PDF (4 pages)"
+    size: "253KB"
+    files:
+      - "index.html"
+      - "w4-wedding-vow-worksheet.pdf"
+      - "wedding-vow-worksheet.md"
+    description: "Brainstorming prompts → draft space → final version → notes"
+    status: "complete — built by subagent"
+
+  - id: W5
+    name: "Wedding Thank You Note Templates"
+    folder: "w5-thank-you-notes"
+    format: "PDF (6 pages)"
+    size: "87KB"
+    files:
+      - "index.html"
+      - "w5-thank-you-notes.pdf"
+      - "wedding-thank-you-notes.md"
+    description: "6 printable thank you note templates — Parents, Wedding Party, Guests, Vendors, Family, Blank. Each has photo placeholder + writing lines + prompts."
+    status: "complete — built with HTML→PDF pipeline instead of Canva"
+
+  - id: W6
+    name: "Wedding Countdown Printable"
+    folder: "w6-wedding-countdown"
+    format: "PDF (1 page)"
+    size: "136KB"
+    files:
+      - "index.html"
+      - "w6-wedding-countdown.pdf"
+      - "wedding-countdown.md"
+    description: "100-day cross-off grid with highlighted milestones. Fridge-friendly single page."
+    status: "complete — built by subagent"
+
+  - id: W7
+    name: "Guest Seating Planner Grid"
+    folder: "w7-seating-planner"
+    format: "PDF (3 pages)"
+    size: "256KB"
+    files:
+      - "index.html"
+      - "w7-seating-planner.pdf"
+      - "seating-planner.md"
+    description: "15 tables × 8 guests, 2-column layout, quick reference index + seating tips"
+    status: "complete — built by subagent"
+
+  - id: W8
+    name: "Wedding Budget Tracker"
+    folder: "w8-wedding-budget-tracker"
+    format: "Excel (.xlsx)"
+    size: "11KB"
+    files:
+      - "wedding-budget-tracker.xlsx"
+      - "generate-budget.py"
+    description: "11 categories, 48 items, auto-sum subtotals, summary dashboard, conditional formatting, branded colors"
+    notes: "Generated with openpyxl. Can upload to Google Sheets."
+    status: "complete — built in main context"
+
+  - id: W9
+    name: "Questions to Ask Your Photographer"
+    folder: "w9-photographer-questions"
+    format: "PDF (3 pages)"
+    size: "215KB"
+    files:
+      - "index.html"
+      - "w9-photographer-questions.pdf"
+      - "photographer-questions.md"
+    description: "37 questions across 5 sections + rating grid + notes. Same checkbox format as W1."
+    status: "complete — built by subagent"
+
+  - id: W10
+    name: "Gallery Wall Layout Guide"
+    folder: "w10-gallery-wall-guide"
+    format: "PDF (4 pages)"
+    size: "495KB"
+    files:
+      - "index.html"
+      - "w10-gallery-wall-guide.pdf"
+      - "gallery-wall-guide.md"
+    description: "Photos to print checklist + 4 layout diagrams (CSS rectangles) + size guide + photo planner"
+    notes: "Product funnel item — references getting prints from our-forever-stories.com"
+    status: "complete — built by subagent"
+
+remaining_stages:
+  honeymoon:
+    items: ["H1 Packing Checklist (4 variants)", "H2 Itinerary Template", "H3 Travel Memory Journal (10 pages)", "H4 Rate Our Honeymoon Scorecard", "H5 Travel Photo Organizer"]
+    format: "All printable PDFs — same pipeline"
+  baby_family:
+    items: ["B1 Baby Milestone Cards (12)", "B2 Hospital Bag Checklist", "B3 Baby First Year Memory Book (12 pages)", "B4 Pregnancy Tracker (4 pages)", "B5 Baby Name Worksheet", "B6 Nursery Checklist", "B7 Letters to My Baby", "B8 Baby Photo Display Guide"]
+    format: "Mix of PDFs and image files (B1 needs AI image gen)"
+  milestones:
+    items: ["M1 Baptism Planning Checklist", "M2 Monthly Baby Photo Signs (12)", "M3 Family Tree Printable"]
+    format: "Mix of PDFs and image files"
+  wall_art:
+    items: ["A1 Gallery Wall Art Set (3-piece)", "A2 Our Family Rules Poster", "A3 Lightroom Presets (3)", "A4 Print Size Reference Card"]
+    format: "Mix of high-res images, .xmp files, and PDFs"
+
+qa_status: "COMPLETE — all 9 items reviewed, 5 items had fixes applied, PDFs regenerated"
+
+qa_results:
+  w1_photo_checklist:
+    status: "fixed"
+    fix: "Page 3 blank lines: space-y-3 → flex flex-col justify-between (distributes lines evenly)"
+    pdf_regenerated: true
+  w2_day_timeline:
+    status: "fixed"
+    fix: "Page 3 blank lines: same space-y-3 → flex fix as W1"
+    pdf_regenerated: true
+  w3_love_story_journal:
+    status: "pass"
+    notes: "All 8 pages clean, no issues"
+  w4_vow_worksheet:
+    status: "fixed"
+    fix: "Added missing footers to pages 1 & 2, added extra fill lines to page 2"
+    pdf_regenerated: true
+  w6_wedding_countdown:
+    status: "pass"
+    notes: "Single page, no issues"
+  w7_seating_planner:
+    status: "fixed"
+    fix: "Added Room Layout Sketch section to fill dead space on page 1, added missing footers to pages 1 & 2"
+    pdf_regenerated: true
+  w8_budget_tracker:
+    status: "pass"
+    notes: "All formulas correct, currency formatting confirmed"
+  w9_photographer_questions:
+    status: "fixed"
+    fix: "Fixed Photographer label clipping (flex justify-between + flex-1), added note lines and footer to page 2"
+    pdf_regenerated: true
+  w10_gallery_wall_guide:
+    status: "pass"
+    notes: "4-page layout verified, no issues"
+
+lessons_learned:
+  - "Timeline dots/nodes with CSS absolute positioning don't render reliably in Puppeteer PDF — ditched for simpler layout"
+  - "PDFs are not editable — don't build complex visual elements that look nice on screen but can't be filled in by hand"
+  - "Consistent section pattern (section-title + section-line + content) works well across all items"
+  - "fill-line class + generous spacing = actually usable as a hand-written planner"
+  - "Subagent parallelization works well for batch creation — 6 items in ~6 minutes"
+  - "Auto-discover vite config (w*/index.html glob) means no config changes for new items"
+  - "Excel generation via openpyxl is straightforward — branded colors, formulas, conditional formatting all work"
+  - "QA agents catch common subagent issues: missing footers, dead space, clustering from space-y instead of flex justify-between"
+  - "flex flex-col justify-between is the correct pattern for distributing fill lines evenly across a full page"

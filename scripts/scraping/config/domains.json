@@ -1,0 +1,173 @@
+{
+  "thisoldhouse.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://www.thisoldhouse.com/sitemap_index.xml",
+    "sitemap_filter": "post-sitemap",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "Allows ClaudeBot, 10+ sitemaps"
+  },
+  "familyhandyman.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://www.familyhandyman.com/sitemap_index.xml",
+    "sitemap_filter": "post-sitemap",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "Open crawling, 9+ sitemaps"
+  },
+  "fixr.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://www.fixr.com/sitemapindex.xml",
+    "sitemap_filter": "(costs|articles|comparisons)",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "Cost guides, articles, comparisons"
+  },
+  "bobvila.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://www.bobvila.com/sitemap_index.xml",
+    "sitemap_filter": "post-sitemap",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "8+ sitemaps, broad DIY coverage"
+  },
+  "inspectapedia.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://inspectapedia.com/6317515_index.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "Custom sitemap format, massive encyclopedia"
+  },
+  "todayshomeowner.com": {
+    "method": ["sitemap"],
+    "sitemap_index": "https://todayshomeowner.com/sitemap_index.xml",
+    "sitemap_filter": "post-sitemap",
+    "scrape_delay": 10,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "robots.txt Crawl-delay: 10"
+  },
+  "concretenetwork.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "No sitemap, GAU only"
+  },
+  "costhelper.com": {
+    "method": ["gau", "sitemap"],
+    "sitemap_index": "https://www.costhelper.com/sitemap.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 5,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "Thin sitemap + GAU for coverage, courtesy 5s delay"
+  },
+  "homeguide.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 5,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Cloudflare blocks sitemap, GAU for URL discovery, content scrapes OK"
+  },
+  "thespruce.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.thespruce.com/sitemap.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Broad home/garden, filter for construction-relevant"
+  },
+  "finehomebuilding.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.finehomebuilding.com/sitemap_index.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Pro-level building content"
+  },
+  "inchcalculator.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.inchcalculator.com/sitemap_index.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Calculator pages + blog articles"
+  },
+  "homewyse.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.homewyse.com/sitemap.xml",
+    "sitemap_filter": "",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Cost estimator content"
+  },
+  "doityourself.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 5,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Hard Cloudflare, GAU/archive only"
+  },
+  "instructables.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Individual project pages OK via GAU"
+  },
+  "protoolreviews.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.protoolreviews.com/sitemap_index.xml",
+    "sitemap_filter": "post-sitemap",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "~7,572 URLs, 6,781 posts. Tool & material reviews. No AI blocks."
+  },
+  "hunker.com": {
+    "method": ["sitemap", "gau"],
+    "sitemap_index": "https://www.hunker.com/sitemap_index.xml",
+    "sitemap_filter": "(post-sitemap|legacy-sitemap)",
+    "scrape_delay": 3,
+    "scrape_min_words": 200,
+    "priority": 1,
+    "notes": "~32,106 URLs (32K!), 30 legacy sitemaps 2008-2022 + 3 current. No AI blocks."
+  },
+  "jlconline.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 5,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Cloudflare blocked, GAU/archive only. Zonda Media property."
+  },
+  "builderonline.com": {
+    "method": ["gau"],
+    "sitemap_index": null,
+    "sitemap_filter": null,
+    "scrape_delay": 5,
+    "scrape_min_words": 200,
+    "priority": 2,
+    "notes": "Cloudflare blocked, GAU/archive only. Zonda Media property."
+  }
+}

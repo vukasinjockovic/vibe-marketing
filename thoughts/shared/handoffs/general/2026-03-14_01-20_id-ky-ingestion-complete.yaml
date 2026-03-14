@@ -1,0 +1,92 @@
+---
+session: general
+date: 2026-03-14
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: "Ingest ID (58.5K) + scrape & ingest KY (91.5K) — DB now at 3.33M contractors across 22 states"
+now: "Probe NV (nscb.nv.gov) and NM (cid.state.nm.us) — both license ALL contractors, highest ROI un-probed states"
+test: "PGPASSWORD=phevasTAz7d2 psql -h localhost -p 5433 -U app -d us_contractors -c 'SELECT state, COUNT(*) FROM master.contractors WHERE state IN ($$ID$$,$$KY$$) GROUP BY state ORDER BY count DESC;'"
+
+done_this_session:
+  - task: "Ingested ID DOPL data — 66,353 licenses from 8 boards → 59,005 new contractors (58,556 total ID)"
+    files: [data/gov/ID/ingest_id.py, data/gov/ID/ID-README.md]
+  - task: "Fixed ID ingest script INPUT_CSV path (was pointing to test file id_dopl_licenses.csv, changed to id_dopl_all.csv)"
+    files: [data/gov/ID/ingest_id.py]
+  - task: "Built KY DHBC scraper — ASP.NET WebForms, 9 divisions concurrent, retry on 500s, checkpoint per division"
+    files: [data/gov/KY/scrape_ky_dhbc.py]
+  - task: "Scraped all 9 KY DHBC divisions — 127,906 license records (HVAC 51K, Electrical 42K, Plumbing 16K, HAZMAT 10K, Fire 6K, MH 1.3K, BCE 877, KIBS 408, Fire Marshal 110)"
+    files: [data/gov/KY/raw/ky_dhbc_all.csv, data/gov/KY/checkpoints/dhbc_checkpoint.json]
+  - task: "Built + ran KY ingestion script — 87,072 new contractors, 129K licenses, 110K tradespersons, 97K categories"
+    files: [data/gov/KY/ingest_ky.py]
+  - task: "Probed KY JO Portal (ky.joportal.com) — 403 F5 WAF geo-blocked, alt domain has 0 data. Only covers Boiler/Elevator. SKIP."
+    files: [data/gov/KY/KY-README.md]
+  - task: "Updated KY-README.md, ID-README.md, NEXT-TARGETS-2026-03-13.md, STATE-PRIORITY-TRACKER.md with actual counts"
+    files: [data/gov/KY/KY-README.md, data/gov/ID/ID-README.md, data/gov/NEXT-TARGETS-2026-03-13.md, data/gov/STATE-PRIORITY-TRACKER.md]
+
+blockers:
+  - "JO Portal (ky.joportal.com) geo-blocked from EU — F5 BIG-IP WAF. Only covers Boiler+Elevator, not worth proxy effort."
+  - "KY DHBC has NO address data (no street, city, zip, phone, email) — enrichment via SOS needed"
+  - "UT still needs $149-599 paid data request (secure.utah.gov/datarequest) — no free scraping path"
+  - "ewccv.com still unreachable from EU (10 states WC data blocked)"
+
+questions:
+  - "Should we probe NV + NM next (both license ALL contractors) or focus on cheaper Tier 2 states (MN, IA)?"
+  - "Worth paying $149-599 for UT DOPL bulk data download?"
+
+decisions:
+  - ky_jo_portal_skip: "JO Portal blocked from EU, only covers 2 minor divisions (Boiler/Elevator), data also in DHBC. Not worth proxy effort."
+  - ky_no_address: "KY DHBC portal does not expose addresses on list or detail pages. SOS enrichment is the only path to get addresses."
+  - ky_all_divisions_work: "All 9 DHBC divisions worked despite probe oracle reporting 500s on 4 divisions. Errors were intermittent."
+  - id_csv_fix: "ID ingest_id.py was pointing to id_dopl_licenses.csv (75-row test file) instead of id_dopl_all.csv (66K). Fixed."
+
+findings:
+  - db_totals: "3,331,438 contractors | ~3.4M licenses | 910,174 insurance across 22 states"
+  - ky_bigger_than_expected: "KY yielded 127,906 license records vs 15-30K estimate — HVAC alone was 51K (not in original estimates)"
+  - ky_active_rate: "Only 33% of KY licenses are active (42,657 of 129,024). 39% terminated, 8% expired."
+  - ky_entity_split: "85% individual, 15% business entities in KY data"
+  - id_email_phone: "ID DOPL has <1% email/phone fill rate — portal doesn't expose contact info for most records"
+  - next_targets: "Un-probed states by ROI: NV (15-30K, licenses ALL contractors), NM (10-20K, CID licenses all), MN (10-25K, Minneapolis), OK (10-20K, CIB), IA (10-20K, trade licenses)"
+
+worked:
+  - "Concurrent division scraping for KY (9 parallel sessions) — finished 128K records in ~60 minutes"
+  - "ASP.NET ViewState chain scraping pattern works reliably (same as ID DOPL)"
+  - "Retry with exponential backoff handled intermittent 500s without any data loss"
+  - "kraken agent for building ingest_ky.py — produced working script on first try using ID pattern as reference"
+
+failed:
+  - "JO Portal probe from EU — F5 WAF blocks completely, alternate domain has no data"
+  - "data.ky.gov DNS doesn't resolve from EU — no open data path"
+
+next:
+  - "Probe NV (nscb.nv.gov) — Nevada State Contractors Board, licenses ALL contractors, Vegas boom market"
+  - "Probe NM (cid.state.nm.us) — Construction Industries Division, licenses ALL construction"
+  - "Probe MN (dli.mn.gov) — residential contractor licensing + trade licenses"
+  - "Probe IA — state electrical/plumbing board portals"
+  - "Consider UT paid data request ($149-599 for bulk CSV with address+phone)"
+  - "Build KY SOS enrichment to get addresses for 91K contractors (sosbes.sos.ky.gov)"
+  - "Run embedding-based WC matching for states with WC data (FL, TX, NJ)"
+  - "Replenish proxy credits or set up US proxy for ewccv.com (10 states WC)"
+
+files:
+  created:
+    - data/gov/KY/scrape_ky_dhbc.py
+    - data/gov/KY/ingest_ky.py
+    - data/gov/KY/raw/ky_dhbc_all.csv
+    - data/gov/KY/raw/ky_dhbc_49.csv
+    - data/gov/KY/raw/ky_dhbc_52.csv
+    - data/gov/KY/raw/ky_dhbc_53.csv
+    - data/gov/KY/raw/ky_dhbc_55.csv
+    - data/gov/KY/raw/ky_dhbc_56.csv
+    - data/gov/KY/raw/ky_dhbc_57.csv
+    - data/gov/KY/raw/ky_dhbc_58.csv
+    - data/gov/KY/raw/ky_dhbc_61.csv
+    - data/gov/KY/raw/ky_dhbc_62.csv
+    - data/gov/KY/checkpoints/dhbc_checkpoint.json
+  modified:
+    - data/gov/ID/ingest_id.py
+    - data/gov/ID/ID-README.md
+    - data/gov/KY/KY-README.md
+    - data/gov/NEXT-TARGETS-2026-03-13.md
+    - data/gov/STATE-PRIORITY-TRACKER.md

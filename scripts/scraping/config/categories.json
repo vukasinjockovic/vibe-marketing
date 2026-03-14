@@ -1,0 +1,25 @@
+{
+  "_comment": "URL path patterns mapped to construction categories. Evaluated top-to-bottom, first match wins.",
+  "rules": [
+    {"pattern": "concret|slab|cement|footing|foundation", "category": "concrete"},
+    {"pattern": "roof|shingle|gutter|fascia|soffit|flashing", "category": "roofing"},
+    {"pattern": "electr|wir(e|ing)|outlet|circuit|breaker|panel|volt|amp", "category": "electrical"},
+    {"pattern": "plumb|pipe|drain|faucet|toilet|water-heater|sewer|valve", "category": "plumbing"},
+    {"pattern": "paint|stain|primer|finish|coat|varnish|lacquer", "category": "paint"},
+    {"pattern": "floor|tile|carpet|hardwood|laminate|vinyl|grout|epoxy-floor", "category": "flooring"},
+    {"pattern": "deck|fence|patio|pergola|railing|post", "category": "deck_fence"},
+    {"pattern": "landscap|yard|lawn|garden|retaining.wall|paver|gravel|mulch|irrigation|sod", "category": "landscaping"},
+    {"pattern": "drywall|insulation|sheetrock|vapor.barrier|r-value|blown-in", "category": "drywall_insulation"},
+    {"pattern": "lumber|framing|stud|joist|beam|rafter|header|plywood|osb|2x4", "category": "lumber"},
+    {"pattern": "mason|brick|block|stone|mortar|veneer|chimney|fireplace", "category": "masonry"},
+    {"pattern": "hvac|furnace|air.condition|heat.pump|duct|thermostat|boiler|mini.split", "category": "hvac"},
+    {"pattern": "window|door|siding|trim|caulk|weatherstrip|storm.door", "category": "windows_doors"},
+    {"pattern": "kitchen|cabinet|countertop|backsplash|island|appliance", "category": "kitchen"},
+    {"pattern": "bathroom|shower|bathtub|vanity|toilet|tile-shower", "category": "bathroom"},
+    {"pattern": "cost|price|estimat|budget|how.much|average.cost|per.square", "category": "cost_guide"},
+    {"pattern": "calculat|convert|formula|measure|dimension", "category": "calculator"},
+    {"pattern": "tool|saw|drill|level|tape.measure|nailer|compressor|sander", "category": "tools"},
+    {"pattern": "code|permit|inspect|safety|osha|nec|irc|egress", "category": "codes_safety"},
+    {"pattern": "stair|step|riser|tread|stringer|handrail|baluster", "category": "stairs"}
+  ]
+}

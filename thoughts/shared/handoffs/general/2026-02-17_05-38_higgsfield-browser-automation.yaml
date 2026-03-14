@@ -1,0 +1,79 @@
+---
+session: general
+date: 2026-02-17
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Integrate Higgsfield AI image generation into vibe-marketing platform with browser automation to bypass expensive API pricing
+now: Wait for Clerk rate limit to clear (~15-20 min), then test login flow and build the full Playwright automation skill
+
+done_this_session:
+  - task: Researched Higgsfield capabilities - 8+ models, all image features, watermark policy, API vs subscription pricing
+    files: [dashboard/.claude/cache/agents/oracle/output-20260217-higgsfield-image-capabilities.md]
+  - task: Created Higgsfield service plugin (manifest, generate.py, test.py, seed entry, env vars)
+    files: [services/higgsfield-images/manifest.json, services/higgsfield-images/generate.py, services/higgsfield-images/test.py]
+  - task: Added seed entry to Convex seedServices.ts and deployed
+    files: [convex/seedServices.ts]
+  - task: Updated env vars from HIGGSFIELD_API_KEY to official SDK names (HF_API_KEY, HF_API_SECRET, HF_EMAIL, HF_PASSWORD)
+    files: [.env.example, services/higgsfield-images/manifest.json, services/higgsfield-images/generate.py, services/higgsfield-images/test.py, convex/seedServices.ts]
+  - task: Deployed to Convex, seeded Higgsfield service into DB, rebuilt and restarted dashboard
+    files: []
+  - task: Mapped Higgsfield Nano Banana Pro page structure via Playwright for browser automation
+    files: []
+
+blockers:
+  - Clerk auth rate limit (IP-based) from failed JWT refresh attempts blocks login via Playwright. Need to wait 15-30 min for it to clear.
+
+questions:
+  - Does the "Unlimited" toggle need to be clicked, or is it auto-enabled for paid subscribers?
+  - How does image download work on the page - direct URL or blob download?
+  - Will DataDome bot detection block headless Playwright after repeated use?
+
+decisions:
+  - browser_automation_over_api: "API costs $0.23/image vs subscription unlimited. Browser automation uses subscription at $0 marginal cost."
+  - env_var_naming: "Use HF_API_KEY/HF_API_SECRET for API, HF_EMAIL/HF_PASSWORD for browser auth - matching official SDK conventions."
+  - playwright_mcp: "Use Playwright MCP tools for browser automation rather than standalone selenium scripts."
+
+findings:
+  - api_vs_subscription_pricing: "Higgsfield API charges ~$0.23/image per-call. Web UI subscription ($9-$249/mo) gives credits + unlimited Nano Banana Pro. API and subscription are completely separate pricing."
+  - watermark_policy: "Any paid plan ($9+/month) removes watermark automatically. No API toggle - based on plan tier."
+  - clerk_auth: "Higgsfield uses Clerk auth. JWTs expire in 60 seconds. Refresh tokens handle renewal but only via Clerk's client-side JS. Cookie-based auth is impractical - must use email/password login via Playwright."
+  - page_structure: "Nano Banana Pro page at /image/nano_banana_2 has: prompt textarea, model selector (default Nano Banana Pro), aspect ratio (1:1), resolution (1K/2K/4K), image count (1-4), Generate button with credit cost, Draw option."
+  - rate_limiting: "Clerk rate limits are IP-based, not cookie-based. Fresh browser context doesn't help. Need to wait for timeout."
+
+worked:
+  - "Playwright MCP can navigate to Higgsfield, see full page structure, interact with forms"
+  - "Clearing cookies + fresh context removes cookie-based state but NOT IP rate limits"
+  - "Cookie consent dismissal via JS evaluate (removing DOM element)"
+
+failed:
+  - "Cookie-based auth - Clerk JWTs expire in 60 seconds, exported cookies are stale by the time they're used"
+  - "Multiple login attempts while rate limited - each attempt extends the rate limit timer"
+
+next:
+  - "Wait for Clerk rate limit to clear, then test email/password login via Playwright"
+  - "After successful login, navigate to /image/nano_banana_2 and explore the full generation flow"
+  - "Find the 'Unlimited' toggle and understand how resolution/count selection works via JS"
+  - "Build complete Playwright automation: login -> set params -> paste prompt -> generate -> wait for image -> download"
+  - "Create Claude Code skill at .claude/skills/higgsfield-generate/ that wraps the full flow"
+  - "Integrate with service_chain.py so agents can call it via execute_with_fallback"
+  - "Store HF_EMAIL and HF_PASSWORD in Convex service config (via dashboard Services page)"
+
+files:
+  created:
+    - services/higgsfield-images/manifest.json
+    - services/higgsfield-images/generate.py
+    - services/higgsfield-images/test.py
+  modified:
+    - convex/seedServices.ts
+    - .env.example
+    - thoughts/highsfield-api.md
+
+context:
+  credentials_file: thoughts/highsfield-api.md
+  email: jockovicvukasin@gmail.com
+  target_url: https://higgsfield.ai/image/nano_banana_2
+  git_commits:
+    - "879f65a: add Higgsfield AI Images service plugin for image generation"
+    - "b027237: fix Higgsfield env vars to match SDK (HF_API_KEY) and correct API pricing info"

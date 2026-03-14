@@ -1,0 +1,76 @@
+title: "Probe NCCI-Derived WC Portals for All States Missing WC Data"
+created: "2026-03-12T02:00:00"
+priority: HIGH
+project: fatstud.businesspress.dev
+status: ready
+
+summary: |
+  Systematically probe every state in our contractor DB that has no/minimal WC insurance data.
+  Find state-specific portals (like NC's ccms.ic.nc.gov) that are easier to scrape than NCCI's
+  central ewccv.com portal. Build scrapers for each viable portal. Goal: add 180-535K WC records
+  across 14 states, approaching 1M+ total WC records nationally.
+
+context:
+  current_wc_records: 775000
+  states_with_wc: [FL, TX, CA, WA, OR, NJ, NC, NY]
+  states_needing_wc: [CT, CO, IL, VA, PA, OH, MA, VT, GA, AZ, TN, SC, MD, AL]
+  proven_scrapers:
+    - pattern: "HTML form + requests"
+      example: "data/gov/NC/scrape_nc_wc.py"
+      states_using: [NC]
+    - pattern: "JSON API + detail pages"
+      example: "data/gov/NJ/scrape_njcrib_fast.py"
+      states_using: [NJ]
+    - pattern: "ewccv.com Playwright (NOT YET BUILT)"
+      states_using: [CT, IL, VA, VT, GA, AZ, TN, SC, AL, MD]
+
+tasks:
+  - name: "Probe state-specific WC portals"
+    description: "For each target state, check if they have their own simpler portal vs ewccv.com"
+    priority: 1
+    states: [CT, CO, IL, VA, OH, PA, MA]
+
+  - name: "Build OH BWC scraper"
+    description: "ASP.NET form, monopolistic state, no CAPTCHA. bwc.ohio.gov"
+    priority: 2
+    effort: low
+
+  - name: "Build PA PCRB scraper"
+    description: "HTML form at pa.gov. Independent bureau (not NCCI)."
+    priority: 3
+    effort: low
+
+  - name: "Build MA WCRIB scraper"
+    description: "Simple form at mapoc.org. Independent bureau."
+    priority: 4
+    effort: low
+
+  - name: "Build ewccv.com Playwright mega-scraper"
+    description: "One Playwright scraper for 10 NCCI states. WAF protected, needs careful session handling."
+    priority: 5
+    effort: medium
+    states: [CT, IL, VA, VT, GA, AZ, TN, SC, AL, MD]
+
+  - name: "CO scraper with US proxy"
+    description: "cdle.colorado.gov geo-blocked. Needs US residential proxy."
+    priority: 6
+    effort: medium
+
+key_files:
+  - /var/www/fatstud.businesspress.dev/data/gov/INSURANCE-INTELLIGENCE.md
+  - /var/www/fatstud.businesspress.dev/data/gov/HANDOFF-WC-NCCI-PROBE.md
+  - /var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_wc.py
+  - /var/www/fatstud.businesspress.dev/data/gov/NJ/scrape_njcrib_fast.py
+
+decisions_made:
+  - "NCCI's central system (ncci.com) is NOT accessible for bulk queries — regulator/insurer only"
+  - "ewccv.com covers 10 states but needs Playwright due to JS + WAF"
+  - "State-specific portals (NC, OH, PA, MA) are simpler — requests-based scrapers work"
+  - "CO is geo-blocked — needs US proxy"
+  - "Certificial and all COI platforms are dead ends — consent-gated"
+  - "No centralized bond database exists — state licensing boards are the only bond source"
+  - "GL insurance is fundamentally private — only available via NYC DOB permits or FOIA"
+
+in_progress:
+  - "NC WC scraper running (95% done, ~60K records, ETA ~20 min)"
+  - "NJ NJCRIB scraper completed (45,153 records)"

@@ -1,0 +1,156 @@
+---
+session: general
+date: 2026-03-08
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Angi provider scraping system — full E2E pipeline built, URL discovery + scraping + storage + search ready, needs production runs
+now: Run URL discovery script to populate SQLite queue, then batch-scrape providers via admin dashboard or artisan CLI
+
+done_this_session:
+  - task: Built Python scraper sidecar (port 8430) — scrapling Fetcher + RSC:1 header bypass + DataImpulse residential proxy
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/angi_scraper_service.py]
+  - task: Built Tor-based URL discovery script — 100 Tor ports, 50 parallel workers, 20 categories x 500 US cities
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls.sh, /var/www/fatstud.businesspress.dev/scripts/scrapers/us-cities.txt]
+  - task: Created Laravel job pipeline — ScrapeProviderJob upserts Provider CPT with 33 WEF fields, syncs to Typesense, broadcasts via Reverb WebSocket
+    files: [/var/www/fatstud.businesspress.dev/app/Jobs/ScrapeProviderJob.php, /var/www/fatstud.businesspress.dev/app/Services/AngiScraperClient.php, /var/www/fatstud.businesspress.dev/app/Events/ScrapeCompleted.php]
+  - task: Created artisan command scrape:angi-providers (--url, --file, --batch from SQLite, --status, --reset-stats)
+    files: [/var/www/fatstud.businesspress.dev/app/Console/Commands/ScrapeAngiProviders.php]
+  - task: Built admin dashboard — 3-tab Blade view (Provider List + Dispatch + Live Feed), 10 API endpoints
+    files: [/var/www/fatstud.businesspress.dev/app/Http/Controllers/Admin/ProviderController.php, /var/www/fatstud.businesspress.dev/resources/views/admin/providers.blade.php]
+  - task: Configured Horizon (angi-scraping queue), Reverb (port 8897), Supervisor for all 3 processes
+    files: [/var/www/fatstud.businesspress.dev/config/horizon.php, /etc/supervisor/conf.d/fatstud-horizon.conf, /etc/supervisor/conf.d/fatstud-reverb.conf, /etc/supervisor/conf.d/fatstud-sidecar.conf]
+  - task: E2E verified — Torres Plumbing LLC scraped from Angi, stored in PostgreSQL Provider CPT, auto-synced to Typesense, searchable
+  - task: Created 11 iterative probe scripts during discovery/reverse-engineering phase
+    files: [/var/www/vibe-marketing/scripts/scrapers/probe-angi.py through probe-angi11.py]
+
+blockers:
+  - "RSC regex parsing incomplete: review_count, years_in_business, provider_categories return empty for some providers — needs regex tuning against more RSC payloads"
+  - "SQLite URL queue (database/angi_urls.sqlite) does NOT exist yet — discover-angi-urls.sh has never been run"
+  - "Supervisor not currently running (permission error) — needs sudo supervisorctl restart"
+
+questions:
+  - "How many providers should we target for initial batch? Full discovery = 20 categories x 500 cities x ~20 results = up to 200K URLs"
+  - "Should we scrape all 20 categories or prioritize core trades (plumbing, roofing, hvac, electrical) first?"
+
+decisions:
+  - proxy_architecture: "DataImpulse proxy in supervisor env var only — Python sidecar is the only component that needs residential IP"
+  - rsc_bypass: "scrapling Fetcher with stealthy_headers=True + RSC:1 header = Cloudflare bypass on Angi detail pages"
+  - url_discovery_via_tor: "Free discovery via 100 Tor ports (LD+JSON SearchResultsPage extraction) — save DataImpulse bandwidth for detail page scraping only"
+  - storage_architecture: "Provider CPT in fatstud PostgreSQL + 33 WEF fields + Typesense bp_provider collection (38 fields, geopoint)"
+  - supervisor_over_pm2: "Supervisor for all 3 processes (matching BusinessPress pattern)"
+
+findings:
+  - angi_rsc_protocol: "Angi uses React Server Components — sending RSC:1 header gets structured data payload instead of HTML shell. 7 named components parsed: business-profile, pro-profiles, ratings, reviews-list, faq, head-metadata, business-images"
+  - scrapling_v03_api: "Fetcher API changed in v0.3: proxy is kwarg to get(), not constructor. Response uses .body (bytes) and .status, not .text/.status_code"
+  - angi_url_pattern: "Detail pages at /companylist/us/{state}/{city}/{business-slug}-reviews-{spid}.htm"
+  - thin_body_not_relevant: "Angi serves full RSC payload to any IP with RSC:1 header — thin-body detection (from blog scraper) not needed here"
+
+worked:
+  - "scrapling Fetcher + stealthy_headers=True + RSC:1 header + DataImpulse = 200 OK from Angi"
+  - "enableMetaBuffering() + setWEF() loop + flushCoreMeta() for efficient batch meta saves"
+  - "WEF JSON in app-level wef-json/ dir auto-discovered by WEFService"
+  - "getSchemaColumnOverrides() with meta.field_name keys for Typesense filterable/sortable"
+
+failed:
+  - "scrapling Fetcher(proxy=...) constructor — deprecated in v0.3"
+  - "fetcher.configure(proxy=...) — configure() is for parser kwargs only"
+  - "Provider.title — CPT uses 'name' column, not 'title'"
+
+next:
+  - name: Start Supervisor processes
+    description: "sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start fatstud-sidecar fatstud-horizon fatstud-reverb"
+    priority: 1
+  - name: Run URL discovery for 1 test city
+    description: "cd /var/www/fatstud.businesspress.dev/scripts/scrapers && bash discover-angi-urls.sh --category plumbing (single city test to verify SQLite population)"
+    priority: 2
+  - name: Tune RSC regex parsing
+    description: "Scrape 5-10 diverse providers, dump raw RSC to files, fix regexes for review_count, years_in_business, provider_categories"
+    priority: 3
+  - name: Batch scrape test run (50-100 providers)
+    description: "php artisan scrape:angi-providers --batch=100 or use admin dashboard Dispatch tab"
+    priority: 4
+  - name: Full discovery run
+    description: "Run discover-angi-urls.sh for all 20 categories x 500 cities — populate full URL queue"
+    priority: 5
+  - name: Production batch scrape
+    description: "Dispatch all discovered URLs via artisan --batch or admin bulk endpoint"
+    priority: 6
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/angi_scraper_service.py
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls.sh
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/us-cities.txt
+    - /var/www/fatstud.businesspress.dev/app/Services/AngiScraperClient.php
+    - /var/www/fatstud.businesspress.dev/app/Events/ScrapeCompleted.php
+    - /var/www/fatstud.businesspress.dev/app/Jobs/ScrapeProviderJob.php
+    - /var/www/fatstud.businesspress.dev/app/Console/Commands/ScrapeAngiProviders.php
+    - /var/www/fatstud.businesspress.dev/app/Http/Controllers/Admin/ProviderController.php
+    - /var/www/fatstud.businesspress.dev/resources/views/admin/providers.blade.php
+    - /var/www/fatstud.businesspress.dev/wef-json/provider_angi_data.json
+    - /etc/supervisor/conf.d/fatstud-horizon.conf
+    - /etc/supervisor/conf.d/fatstud-reverb.conf
+    - /etc/supervisor/conf.d/fatstud-sidecar.conf
+  modified:
+    - /var/www/fatstud.businesspress.dev/app/Models/Provider.php
+    - /var/www/fatstud.businesspress.dev/config/horizon.php
+    - /var/www/fatstud.businesspress.dev/config/services.php
+    - /var/www/fatstud.businesspress.dev/routes/web.php
+    - /var/www/fatstud.businesspress.dev/.env
+    - /etc/nginx/sites-available/fatstud.businesspress.dev
+  research_artifacts:
+    - /var/www/vibe-marketing/scripts/scrapers/probe-angi.py (through probe-angi11.py — 11 iterative probe scripts)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-api-config.json (frontend config with API URLs, keys)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-rsc-json-objects.json (27,984-line parsed RSC payload)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-ldjson-5-ItemList.json (provider listing LD+JSON)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-ldjson-6-SearchResultsPage.json (search results LD+JSON)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-rsc-payload.txt (raw RSC response)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-rsc-full.txt (full RSC body)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-detail-rsc.txt (detail page RSC)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-detail-response.html (detail page HTML)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-probe-response.html (initial probe HTML)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-chunk-9269.js (JS bundle chunk)
+    - /var/www/vibe-marketing/scripts/scrapers/angi-page-chunk.js (another JS chunk)
+
+infrastructure:
+  architecture: |
+    discover-angi-urls.sh (Tor, 100 ports, 50 workers)
+      -> database/angi_urls.sqlite (pending URL queue — NOT YET CREATED)
+      -> ScrapeAngiProviders artisan (or admin API /admin/providers/seed/batch)
+          -> ScrapeProviderJob (Laravel Horizon, angi-scraping queue)
+              -> AngiScraperClient.php (HTTP to sidecar)
+                  -> angi_scraper_service.py (port 8430, scrapling + DataImpulse)
+                      -> Angi detail pages (RSC:1 bypass)
+              -> Provider CPT (PostgreSQL, 33 WEF fields)
+              -> Typesense (bp_provider, 38 fields, geopoint)
+              -> Redis angi:stats hash
+              -> ScrapeCompleted event -> Reverb WebSocket -> admin dashboard
+  database:
+    primary: "PostgreSQL (fatstud) — Provider CPT with 33 WEF meta fields"
+    queue: "database/angi_urls.sqlite — 2 tables: angi_urls, discovery_progress (NOT YET POPULATED)"
+    search: "Typesense bp_provider collection — 38 fields including geopoint location"
+    stats: "Redis angi:stats hash (total, ok, not_found, cf_blocked, error, bytes, duration_sum)"
+  tor_ports: "61000-61099 (100 SOCKS5 proxies for URL discovery)"
+  dataimpulse_proxy: "gw.dataimpulse.com:823 (residential, per-KB billing, for detail page scraping)"
+  supervisor:
+    sidecar: "fatstud-sidecar — Python on port 8430"
+    horizon: "fatstud-horizon — Laravel queue worker"
+    reverb: "fatstud-reverb — WebSocket on port 8897"
+
+cli_examples:
+  discovery:
+    - "cd /var/www/fatstud.businesspress.dev/scripts/scrapers && bash discover-angi-urls.sh"
+    - "bash discover-angi-urls.sh --category plumbing  # single category"
+  scraping:
+    - "php artisan scrape:angi-providers --url 'https://www.angi.com/companylist/us/tx/round-rock/torres-plumbing-llc-reviews-2.htm'"
+    - "php artisan scrape:angi-providers --batch=100  # from SQLite queue"
+    - "php artisan scrape:angi-providers --status"
+  sidecar:
+    - "curl -s http://127.0.0.1:8430/health"
+    - "curl -s http://127.0.0.1:8430/stats"
+  admin:
+    - "https://fatstud.businesspress.dev/admin/providers  # 3-tab dashboard"
+
+previous_handoff: /var/www/vibe-marketing/thoughts/shared/handoffs/general/2026-03-08_00-52_angi-provider-scraping-system.yaml

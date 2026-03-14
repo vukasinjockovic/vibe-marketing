@@ -1,0 +1,170 @@
+# California CSLB Field Mapping
+# Maps CSLB fixed-width .dat files → us_contractors PostgreSQL schema
+# Record layout: LicenseRecordLayout.pdf (L7800020, June 2012)
+
+source: ca_cslb
+state: CA
+link_key: LIC-NUMBER  # 8-digit license number, joins license master + WC files
+
+# ── License Master File (700 chars/record, fixed-width) ──────────────
+
+license_master:
+  file: raw/ca_license_master.dat
+  record_length: 700
+  encoding: ascii
+
+  fields:
+    # Core identity
+    - { name: LIC-NUMBER,        start: 1,   len: 8,  type: num,  maps_to: licenses.license_number }
+    - { name: LAST-UPDT-DT,      start: 9,   len: 8,  type: date, maps_to: null }
+    - { name: RECEIPT-NUMBER,     start: 17,  len: 11, type: str,  maps_to: null }
+    - { name: ORIGINAL-ISSUE-DT, start: 28,  len: 8,  type: date, maps_to: licenses.issue_date }
+    - { name: EXPIRATION-DT,     start: 36,  len: 8,  type: date, maps_to: licenses.expiration_date }
+    - { name: LATE-RENEWAL-DT,   start: 44,  len: 8,  type: date, maps_to: null }
+    - { name: LATE-RENEW-P1-DT,  start: 52,  len: 8,  type: date, maps_to: null }
+    - { name: LATE-RENEW-P2-DT,  start: 60,  len: 8,  type: date, maps_to: null }
+    - { name: REISSUE-DT,        start: 68,  len: 8,  type: date, maps_to: null }
+    - { name: INACT-DT,          start: 76,  len: 8,  type: date, maps_to: licenses.suspend_date }
+    - { name: REACT-DT,          start: 84,  len: 8,  type: date, maps_to: null }
+    - { name: IPSO-FACTO-DT,     start: 92,  len: 8,  type: date, maps_to: null }
+
+    # Status (10 occurrences each, 3 chars per occurrence)
+    - { name: PRIM-STAT-CODE,    start: 100, len: 30, type: arr3, maps_to: licenses.status, note: "10x 3-char primary status codes" }
+    - { name: SEC-STAT-CODE,     start: 130, len: 30, type: arr3, maps_to: null, note: "10x 3-char secondary status codes" }
+
+    # Business type and classifications
+    - { name: BUS-TYPE-CODE,     start: 160, len: 2,  type: str,  maps_to: contractors.entity_type }
+    - { name: PRIN-CLASS,        start: 162, len: 90, type: arr3, maps_to: licenses.classification, note: "30x 3-char class codes (A,B,C-*)" }
+
+    # Flags
+    - { name: ASB-REGIST,        start: 252, len: 1,  type: str,  maps_to: null, note: "R=Asbestos Registered, C=Bid Only, N=No" }
+    - { name: WC-INS-IND,        start: 253, len: 1,  type: str,  maps_to: null, note: "Workers comp insurance indicator" }
+
+    # Business names
+    - { name: NAME-TP-1,         start: 254, len: 1,  type: str,  maps_to: null, note: "D=DBA name" }
+    - { name: BUS-NAME-1,        start: 255, len: 65, type: str,  maps_to: contractors.business_name }
+    - { name: LONG-NAME-IND-1,   start: 320, len: 1,  type: str,  maps_to: null }
+    - { name: NAME-TP-2,         start: 321, len: 1,  type: str,  maps_to: null, note: "N=Current, P=Prior" }
+    - { name: BUS-NAME-2,        start: 322, len: 65, type: str,  maps_to: null, note: "Second/prior business name" }
+    - { name: LONG-NAME-IND-2,   start: 387, len: 1,  type: str,  maps_to: null }
+
+    # Address
+    - { name: MAILING-ADDR1,     start: 388, len: 30, type: str,  maps_to: contractors.street }
+    - { name: MAILING-ADDR2,     start: 418, len: 30, type: str,  maps_to: contractors.street2 }
+    - { name: MAILING-CITY,      start: 448, len: 25, type: str,  maps_to: contractors.city }
+    - { name: MAILING-STATE,     start: 473, len: 2,  type: str,  maps_to: contractors.state }
+    - { name: MAILING-ZIP,       start: 475, len: 9,  type: str,  maps_to: contractors.zip }
+    - { name: MAILING-COUNTRY,   start: 484, len: 25, type: str,  maps_to: null }
+
+    # Phone
+    - { name: BUS-PHONE-AREA,    start: 509, len: 3,  type: str,  maps_to: contractors.phone, note: "combine area+pre+num" }
+    - { name: BUS-PHONE-PRE,     start: 512, len: 3,  type: str,  maps_to: null }
+    - { name: BUS-PHONE-NO,      start: 515, len: 4,  type: str,  maps_to: null }
+
+    # Contractor Bond (bond type 1 of 3)
+    - { name: CONT-BOND-TYPE,        start: 519, len: 2,  type: str,  maps_to: bond_records.bond_type }
+    - { name: CONT-BOND-CO-NUM,      start: 521, len: 3,  type: str,  maps_to: bond_records.bond_company }
+    - { name: CONT-BOND-AMT,         start: 524, len: 7,  type: num,  maps_to: bond_records.bond_amount }
+    - { name: CONT-BOND-NUMBER,      start: 531, len: 20, type: str,  maps_to: bond_records.bond_account_id }
+    - { name: CONT-BOND-EFF-DT,      start: 551, len: 8,  type: date, maps_to: bond_records.effective_date }
+    - { name: CONT-BOND-CANC-DT,     start: 559, len: 8,  type: date, maps_to: bond_records.cancel_date }
+
+    # LLC/Worker Bond (bond type 2 of 3)
+    - { name: WORK-BOND-TYPE,        start: 567, len: 2,  type: str,  maps_to: bond_records.bond_type }
+    - { name: WORK-BOND-CO-NUM,      start: 569, len: 3,  type: str,  maps_to: bond_records.bond_company }
+    - { name: WORK-BOND-AMT,         start: 572, len: 7,  type: num,  maps_to: bond_records.bond_amount }
+    - { name: WORK-BOND-NUMBER,      start: 579, len: 20, type: str,  maps_to: bond_records.bond_account_id }
+    - { name: WORK-BOND-EFF-DT,      start: 599, len: 8,  type: date, maps_to: bond_records.effective_date }
+    - { name: WORK-BOND-CANC-DT,     start: 607, len: 8,  type: date, maps_to: bond_records.cancel_date }
+
+    # Disciplinary Bond (bond type 3 of 3)
+    - { name: DISP-BOND-TYPE,        start: 615, len: 2,  type: str,  maps_to: bond_records.bond_type }
+    - { name: DISP-BOND-CO-NUM,      start: 617, len: 3,  type: str,  maps_to: bond_records.bond_company }
+    - { name: DISP-BOND-AMT,         start: 620, len: 7,  type: num,  maps_to: bond_records.bond_amount }
+    - { name: DISP-BOND-NUMBER,      start: 627, len: 20, type: str,  maps_to: bond_records.bond_account_id }
+    - { name: DISP-BOND-EFF-DT,      start: 647, len: 8,  type: date, maps_to: bond_records.effective_date }
+    - { name: DISP-BOND-CANC-DT,     start: 655, len: 8,  type: date, maps_to: bond_records.cancel_date }
+    - { name: DISP-BOND-ACT-CODE,    start: 663, len: 1,  type: str,  maps_to: null, note: "Reason disciplinary bond required" }
+    - { name: DISP-BOND-ACT-DT,      start: 664, len: 8,  type: date, maps_to: null }
+    - { name: DISP-BOND-CASE-NUM,    start: 672, len: 11, type: str,  maps_to: null, note: "CSLB disciplinary case number" }
+
+    # Disclosure
+    - { name: DISCLOSURE-IND,        start: 683, len: 1,  type: str,  maps_to: null, note: "X=has complaint disclosure" }
+    - { name: FILLER,                start: 684, len: 16, type: str,  maps_to: null }
+    - { name: END-OF-REC,            start: 700, len: 1,  type: str,  maps_to: null, note: "Constant 'E'" }
+
+# ── Workers' Comp File (677 chars/record, fixed-width) ───────────────
+
+workers_comp:
+  file: raw/ca_workers_comp.dat
+  record_length: 677
+  encoding: ascii
+
+  fields:
+    - { name: LIC-NUMBER,    start: 1,  len: 8,  type: num,  maps_to: insurance_records.license_number, note: "FK to license master" }
+    - { name: LAST-UPDT-DT,  start: 9,  len: 8,  type: date, maps_to: null }
+    - { name: EFF-DT,        start: 17, len: 8,  type: date, maps_to: insurance_records.effective_date }
+    - { name: EXP-DT,        start: 25, len: 8,  type: date, maps_to: insurance_records.expiration_date }
+    - { name: SUSPEND-DT,    start: 33, len: 8,  type: date, maps_to: null }
+    - { name: CANC-DT,       start: 41, len: 8,  type: date, maps_to: insurance_records.cancel_date }
+    - { name: POLICY-NO,     start: 49, len: 30, type: str,  maps_to: insurance_records.policy_number }
+    - { name: INS-CO-CDE,    start: 79, len: 3,  type: str,  maps_to: insurance_records.insurance_company, note: "code → lookup table" }
+    - { name: EXEMPT,        start: 82, len: 1,  type: str,  maps_to: null, note: "WC exempt code" }
+    # WCF-GRP-DATA repeats 10 times starting at position 83
+    - { name: END-OF-REC,    start: 677, len: 1,  type: str,  maps_to: null, note: "Constant 'E'" }
+
+# ── Schema Mapping Summary ───────────────────────────────────────────
+
+target_tables:
+  contractors:
+    source: license_master
+    key: LIC-NUMBER → source_id (prefixed "CSLB-{num}")
+    fields:
+      business_name: BUS-NAME-1
+      phone: BUS-PHONE-AREA + BUS-PHONE-PRE + BUS-PHONE-NO
+      street: MAILING-ADDR1
+      street2: MAILING-ADDR2
+      city: MAILING-CITY
+      state: MAILING-STATE (or default "CA")
+      zip: MAILING-ZIP
+      entity_type: BUS-TYPE-CODE
+      source_state: "CA"
+
+  licenses:
+    source: license_master
+    key: LIC-NUMBER
+    fields:
+      license_number: LIC-NUMBER
+      license_type: "CSLB"
+      classification: PRIN-CLASS (first non-empty 3-char code)
+      classification_desc: lookup from CSLB classification table
+      status: PRIM-STAT-CODE (first non-zero code)
+      status_desc: lookup from status code table
+      issue_date: ORIGINAL-ISSUE-DT
+      expiration_date: EXPIRATION-DT
+      suspend_date: INACT-DT
+
+  bond_records:
+    source: license_master (3 bonds per record)
+    note: "Each license can have up to 3 bonds: contractor, worker/LLC, disciplinary"
+    bonds:
+      - type: contractor
+        fields: CONT-BOND-*
+      - type: worker_llc
+        fields: WORK-BOND-*
+      - type: disciplinary
+        fields: DISP-BOND-*
+
+  insurance_records:
+    source: workers_comp
+    key: LIC-NUMBER (FK to license master)
+    fields:
+      policy_number: POLICY-NO
+      insurance_company: INS-CO-CDE (needs code→name lookup)
+      effective_date: EFF-DT
+      expiration_date: EXP-DT
+      cancel_date: CANC-DT
+
+# ── Date Format ──────────────────────────────────────────────────────
+date_format: YYYYMMDD  # all dates in this format
+output_format: "%Y-%m-%d"  # stored as ISO

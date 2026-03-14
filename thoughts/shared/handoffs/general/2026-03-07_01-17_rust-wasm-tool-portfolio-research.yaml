@@ -1,0 +1,84 @@
+---
+session: general
+date: 2026-03-07
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Market research for ad-monetized client-side Rust/WASM web tools — analyze publishers, find underserved niches, validate demand
+now: Validate keyword volumes (refresh DataForSEO key for $1) then pick ONE project to build MVP (recommendation: construction calculators)
+test: ls /var/www/vibe-marketing/rust/*/README.md | wc -l  # should be 6
+
+done_this_session:
+  - task: Analyzed 20,726 Mediavine/Raptive publishers — categorized all sites, identified 124 tool/utility sites
+    files: [knowledge/market-data/publishers/rust-rebuild-opportunities.md, knowledge/market-data/publishers/final_tool_sites.json]
+  - task: Researched SEO data supply chain (clickstream → DataForSEO → Ahrefs/Semrush → free tools)
+    files: []
+  - task: Pulled Google autocomplete data for 120+ queries across 12 tool categories — confirmed demand signals
+    files: []
+  - task: Researched Photopea model ($2.8M/yr, 1 dev, $700/yr costs, 100% client-side ads)
+    files: []
+  - task: Created 6 project folders with detailed READMEs (competitor analysis, pSEO strategy, tech stack, revenue model)
+    files: [rust/README.md, rust/resume-builder/README.md, rust/pdf-tools/README.md, rust/construction-calculators/README.md, rust/video-tools/README.md, rust/3d-file-tools/README.md, rust/audio-tools/README.md]
+
+blockers:
+  - DataForSEO API key expired (401) — $1 deposit unlocks 10K keyword lookups
+  - Perplexity API key expired (401)
+  - No budget for any paid SEO tools currently
+  - searchvolume.io blocked by reCAPTCHA, Ahrefs free tool blocked by Cloudflare
+
+questions:
+  - Which project to build first? (recommendation: construction calculators for lowest competition + highest RPM)
+  - Should resume-builder share PDF engine with pdf-tools if pdf-tools is dropped?
+  - Is 6-18 month timeline for organic traction acceptable?
+
+decisions:
+  - drop_pdf_tools: iLovePDF at 283M visits/mo is too strong an incumbent. Research preserved but project deprioritized.
+  - photopea_monetization: Everything free, ads only, optional "remove ads" sub ($3-5/mo). No freemium feature-gating — unlimited usage = more ad pageviews at $0 server cost.
+  - privacy_first_positioning: "Files never leave your browser" as core differentiator across all projects.
+  - pseo_strategy: Programmatic SEO with thousands of long-tail pages per project (e.g., "[material] calculator for [project] in [unit]")
+
+findings:
+  - ilovepdf_traffic: 283M visits/mo, $8-11M/yr revenue, uploads all files to server
+  - calculator_traffic: calculator.net 29M visits/mo ($306K/yr AdSense), omnicalculator 23M visits/mo ($4-6M/yr)
+  - photopea_model: $2.8M/yr revenue, 1 developer, $50/mo hosting, 4 years of $0 before traction, 100% client-side JS+WebGL+WASM
+  - rust_wasm_perf: 8-10x faster than JS for compute (Figma 3x load improvement, Squoosh image codecs)
+  - dataforseo_pricing: $0.0001/keyword — cheapest way to get search volume data, already in .mcp.json
+  - raptive_tool_sites: 88% of tool/utility publishers are on Raptive (not Mediavine)
+  - frustration_signals: "no upload", "no watermark", "free no sign up", "free reddit" in autocomplete = user anger at current tools
+  - construction_calcs: Every query has 5+ long-tail variations (bags, yards, cost, per material, per project), massive pSEO potential
+
+worked:
+  - Google autocomplete API (suggestqueries.google.com) — free, no auth, real demand signals
+  - Web search for traffic data (SimilarWeb, Growjo, Latka)
+  - Subagent for bulk publisher analysis (20K+ records processed)
+
+failed:
+  - DataForSEO MCP tools — 401 unauthorized, key expired
+  - Perplexity MCP — 401 unauthorized, key expired
+  - Playwright on searchvolume.io — reCAPTCHA blocked submission
+  - Playwright on Ahrefs free tool — Cloudflare challenge blocked
+  - All free keyword volume tools are gated behind CAPTCHAs or account walls
+
+next:
+  - Refresh DataForSEO API key ($1 min deposit) to validate keyword volumes for top niches
+  - Pick ONE project (construction-calculators recommended) and build Rust/WASM MVP
+  - Set up Rust toolchain: wasm-pack, wasm-bindgen, cargo-generate
+  - Build concrete calculator as proof of concept (most searched construction calc)
+  - Deploy to Cloudflare Pages (free tier)
+  - Seed on Reddit: r/construction, r/homeimprovement, r/DIY, r/3Dprinting (for 3D tools)
+  - Apply for Mediavine/Raptive at 50K sessions/mo threshold
+
+files:
+  created:
+    - rust/README.md
+    - rust/resume-builder/README.md
+    - rust/pdf-tools/README.md
+    - rust/construction-calculators/README.md
+    - rust/video-tools/README.md
+    - rust/3d-file-tools/README.md
+    - rust/audio-tools/README.md
+    - knowledge/market-data/publishers/rust-rebuild-opportunities.md
+    - knowledge/market-data/publishers/final_tool_sites.json
+    - knowledge/market-data/publishers/extract_tools_final.py
+  modified: []

@@ -1,0 +1,97 @@
+---
+session: general
+date: 2026-03-09
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Extract all Angi/AngiesList/HomeAdvisor provider URLs from Common Crawl and Wayback Machine for free
+now: Probe Yelp in Common Crawl next, then extract BBB profiles from Wayback CDX
+
+test: |
+  sqlite3 /var/www/fatstud.businesspress.dev/database/angi_urls.sqlite "SELECT COUNT(*) FROM angi_urls; SELECT COUNT(*) FROM homeadvisor_urls;"
+  # Expected: ~647k angi_urls, ~249k homeadvisor_urls
+
+done_this_session:
+  - task: Investigated Common Crawl architecture for angi.com — discovered each crawl captures different pages with <1% overlap
+    files: []
+  - task: Built and ran extract-angieslist-cc.py — extracted 349,128 new URLs from 58 CC crawls (2017-2023)
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/extract-angieslist-cc.py]
+  - task: Built and ran extract-angi-cc.py — extracted 7,856 new URLs from 21 CC crawls (2021-2025)
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/extract-angi-cc.py]
+  - task: Built and ran extract-homeadvisor-cc.py — extracted 219,108 HA providers from 97 CC crawls (2013-2025)
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/extract-homeadvisor-cc.py]
+  - task: Supplemented HA with Wayback CDX — added 30,271 more providers for 249,379 total
+    files: []
+  - task: Probed BBB in CC and Wayback — BBB not in CC (blocks crawler), found ~43k profiles in Wayback CDX
+    files: []
+  - task: Database grew from 290,848 URLs to 647,832 Angi + 249,379 HomeAdvisor = ~897k total providers
+    files: [/var/www/fatstud.businesspress.dev/database/angi_urls.sqlite]
+
+blockers:
+  - DataImpulse residential proxy bandwidth exhausted (negative balance) — needed for direct Angi scraping of remaining 151 categories
+  - BBB blocks Common Crawl bot entirely — only Wayback CDX available (~43k profiles)
+
+questions:
+  - Should we extract BBB 43k profiles from Wayback before or after Yelp CC extraction?
+  - When proxy budget is topped up, should we resume residential scraping of remaining 151 Angi categories?
+  - Google Maps data (2-3M contractors) — buy from Outscraper ($4-6k) or scrape later?
+
+decisions:
+  - cc_byte_range_extraction: Download only relevant CDX shard blocks via HTTP byte-range requests instead of full shards — reduces downloads from 50MB to 1-7MB per crawl
+  - separate_ha_table: HomeAdvisor stored in separate homeadvisor_urls table (ha_id, company_name, url) since URL structure and IDs are completely different from Angi
+  - path_based_dedup: Deduplicate angieslist.com vs angi.com by URL path (not full URL) since angieslist.com 301-redirects to angi.com with identical paths
+  - cc_angieslist_category_tag: CC-sourced URLs tagged with category='cc-angieslist' or 'cc-angi' to distinguish from proxy scraper data
+
+findings:
+  - cc_crawls_independent: Each CC crawl captures almost entirely different pages (<1% overlap between any pair) — combining 58+ crawls yields massive unique URL counts
+  - angieslist_goldmine: Pre-2021 angieslist.com CC data was the biggest haul (349k new URLs) — CC crawled it heavily 2017-2019 after paywall dropped in 2016
+  - angieslist_redirects: angieslist.com 301-redirects to angi.com with identical paths and provider IDs preserved
+  - homeadvisor_no_redirect: homeadvisor.com does NOT redirect to angi.com — returns 403 (Cloudflare) with no redirect, completely different URL structure (/rated.{Name}.{haId}.html)
+  - homeadvisor_still_live: homeadvisor.com still serves 200 responses as of Oct 2024 in CC data — it's a separate live site
+  - bbb_not_in_cc: bbb.org not present in any CC crawl (blocks crawler or heavy JS rendering)
+  - cluster_idx_binary_search: CC cluster.idx is 70-130MB sorted by SURT key — need binary search by byte-range to find domain entries efficiently
+  - angi_claims_inflated: Angi claims "millions" but likely counts same business across multiple cities/categories — real unique businesses closer to 500-800k
+
+worked:
+  - CC byte-range extraction technique — 1-7MB per crawl instead of downloading full 50MB+ shards
+  - Probing cluster.idx with binary search to find exact byte offsets for target domains
+  - Path-based deduplication across angieslist.com and angi.com domains
+  - Tagging CC-sourced URLs by source for tracking
+  - Running extractions sequentially with 3s delay — no rate limiting issues from CC
+
+failed:
+  - Initial cluster.idx search used too-small byte ranges (500KB-5MB) — needed 10-20MB ranges depending on file size
+  - Some crawls returned 0 blocks due to wrong byte range — needed to try multiple ranges per crawl
+  - Wayback CDX showNumPages returns "-" for large result sets — need to paginate manually with page=0,1,2...
+
+next:
+  - Probe Yelp in Common Crawl (com,yelp) — expected to be massive (500k-1M+ business URLs)
+  - Write and run Yelp CC extraction script (same pattern as angieslist/angi/homeadvisor scripts)
+  - Extract BBB 43k profiles from Wayback CDX into database (category='cc-bbb')
+  - When DataImpulse proxy is topped up, resume residential scraping of remaining 151 Angi categories
+  - Consider Outscraper/Google Maps data purchase when site has revenue
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/extract-angieslist-cc.py
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/extract-angi-cc.py
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/extract-homeadvisor-cc.py
+  modified:
+    - /var/www/fatstud.businesspress.dev/database/angi_urls.sqlite
+
+context:
+  database_location: /var/www/fatstud.businesspress.dev/database/angi_urls.sqlite
+  database_tables:
+    angi_urls: "url TEXT UNIQUE, category TEXT, city TEXT, state TEXT, status TEXT, discovered_at, scraped_at — 647,832 rows"
+    homeadvisor_urls: "url TEXT PRIMARY KEY, ha_id TEXT, company_name TEXT, discovered_at — 249,379 rows"
+    cc_angieslist_progress: "58 crawls completed"
+    cc_angi_progress: "21 crawls completed"
+    cc_homeadvisor_progress: "97 crawls completed (+ 1 test)"
+    discovery_progress: "proxy scraper progress (27 categories partially done)"
+    wayback_progress: "Wayback CDX state-by-state progress (only TX tested)"
+  residential_scraper: /var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls-residential.py
+  wayback_scraper: /var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls-wayback.py
+  cities_file: /var/www/fatstud.businesspress.dev/scripts/scrapers/us-cities.txt (500 US cities)
+  proxy_config: "DataImpulse gw.dataimpulse.com, user 638dd3cd818880913596, bandwidth EXHAUSTED"
+  user_goal: "pSEO construction/home site with 160+ calculators, 1M articles, directory of all US contractors — monetize via Mediavine/Raptive then lead-gen"

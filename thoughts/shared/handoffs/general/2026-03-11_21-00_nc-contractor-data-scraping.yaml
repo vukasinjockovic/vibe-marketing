@@ -1,0 +1,138 @@
+---
+session: general
+date: 2026-03-11
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Scrape and ingest all NC contractor license boards + WC insurance + building permits into PostgreSQL
+now: Wait for NCLBGC and WC scrapes to finish in tmux, then run ingest_nc.py
+
+test: |
+  # Check scrape progress
+  for log in /tmp/nc_nclbgc_fast.log /tmp/nc_ncbeec_fast.log /tmp/nc_ncphb_fast.log /tmp/nc_wc_scrape.log; do echo "=== $(basename $log) ===" && tail -2 "$log"; done
+
+  # Check output files
+  ls -lh /var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_*.csv
+
+  # Check tmux session
+  tmux has-session -t nc-scrape && echo "RUNNING" || echo "STOPPED"
+
+  # After scraping done, ingest:
+  cd /var/www/fatstud.businesspress.dev/data/gov/NC && python3 ingest_nc.py --purge && python3 ingest_nc.py
+  cd /var/www/fatstud.businesspress.dev/data/gov/NC && python3 ingest_nc.py --status
+
+done_this_session:
+  - task: Built fast async ARLS scraper (scrape_nc_arls_fast.py) — 26x faster than sequential approach
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_arls_fast.py]
+  - task: Discovered CompanyName batch search (500 results per query vs 1 per license number) + concurrent detail fetch
+    files: []
+  - task: Built NC WC Insurance scraper with 2-letter prefix enumeration and 300-cap expansion
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_wc.py]
+  - task: Built 3-phase NC ingest script (ARLS → WC → Permits enrichment)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/ingest_nc.py]
+  - task: Downloaded and ingested Raleigh building permits (252K rows → 21,202 unique contractors)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/raw/raleigh_building_permits.csv]
+  - task: NCBEEC scrape completed — 34,144 electrical contractor records (105 min)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_ncbeec_licenses.csv]
+  - task: NCPHB scrape completed — 15,012 plumbing/heating records (45 min)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_ncphb_licenses.csv]
+  - task: NCREF and NCLCLB returned 0 records — boards likely use individual names not company names, or are very small
+    files: []
+  - task: Updated NC-README.md with full technical details, scraping approach, and current status
+    files: [/var/www/fatstud.businesspress.dev/data/gov/NC/NC-README.md]
+  - task: Launched all 6 scrapes in tmux session nc-scrape (2 windows, 6 panes)
+    files: []
+
+blockers:
+  - NCLBGC scrape still running — expanding 25K capped 4-letter prefixes + 16K capped 5-letter prefixes. Largest board, will take longest.
+  - WC Insurance scrape still running — at letter J (~30% done), sequential, ~3-4 more hours
+  - NCREF and NCLCLB returned 0 results — may need AccountNumber enumeration instead of CompanyName search for these boards
+
+questions:
+  - NCREF/NCLCLB returned 0 — should we try AccountNumber enumeration (old slow method) for these small boards?
+  - NCLBGC had many capped 3-letter prefixes expanding to 4 and 5-letter — should we start with 4-letter prefixes by default for large boards?
+  - WC Insurance scraper is sequential (~4-6 hours). Could potentially parallelize with multiple sessions but JSESSIONID is per-session.
+  - Should we pursue Durham/Greensboro building permits too, or focus on getting current data ingested first?
+
+decisions:
+  - fast_async_over_sequential: CompanyName batch search + aiohttp concurrent workers is 26x faster than sequential license number enumeration
+  - detail_only_mode: Skip qualifier/matters AJAX calls by default (empty for >95% of records) — 3x fewer HTTP calls per record
+  - three_letter_prefixes: 3-letter CompanyName prefixes stay under 500-result cap for most boards; auto-expand to 4/5-letter when capped
+  - concurrency_20: Server handles 20 concurrent requests with no rate limiting, no errors
+  - all_boards_parallel: All 5 ARLS boards + WC run simultaneously (different servers, no interference)
+  - purge_nc_sourced_only: Purge only deletes source LIKE 'nc_%' contractors (not contractors from other states with NC addresses)
+
+findings:
+  - arls_no_json_api: ARLS platform has NO JSON/REST API. Even Accept:application/json returns HTML. /api/ returns 404 on all portals.
+  - arls_500_cap: CompanyName search returns max 500 results. 2-letter prefixes always hit cap. 3-letter mostly under cap.
+  - arls_concurrent_ok: Server handles 20+ concurrent requests with no rate limiting, no CAPTCHAs, no bans.
+  - arls_detail_1572_bytes: Detail page is only 1,572 bytes HTML. Qualifier and matters pages are 8-12 bytes (empty) for inactive licenses.
+  - arls_company_vs_account: CompanyName search returns batches (up to 500). AccountNumber search returns 0 or 1. CompanyName is vastly more efficient.
+  - wc_2char_minimum: NC IC WC search requires minimum 2-character employer name. Single letter returns 0 results.
+  - wc_300_cap: WC search caps at 300 results per query. 2-letter prefix enumeration (1,296 combos) with expansion to 3-letter.
+  - ncref_nclclb_empty: Refrigeration and Landscape boards returned 0 results via CompanyName search — may use different data model.
+  - ncbeec_34k: Electrical board has 34,144 records — more than expected.
+  - ncphb_15k: Plumbing/Heating/Fire Sprinkler board has 15,012 records.
+  - raleigh_permits_252k: Raleigh ArcGIS has 252,337 permit rows yielding 21,202 unique contractors with email/phone.
+
+worked:
+  - aiohttp + asyncio.Semaphore(20) for concurrent ARLS scraping — 25+ records/s
+  - CompanyName prefix search to discover keys in batches (up to 500 per query)
+  - 3-letter prefix enumeration with auto-expand to 4/5-letter when hitting 500 cap
+  - detail_only mode (skip qualifier/matters) — 3x fewer HTTP calls
+  - tmux session with 6 parallel scrapes across different servers
+  - Dedup by encrypted key in search results (same record appears in multiple prefix searches)
+  - Raleigh permits CSV download from ArcGIS (148 MB)
+  - ingest_nc.py 3-phase design (ARLS → WC → Permits enrichment)
+
+failed:
+  - Sequential license number enumeration (scrape_nc_arls.py) — 1.0/s, would take 16 hours for NCLBGC
+  - 2-letter CompanyName prefixes — always hit 500 cap, need expansion
+  - NCREF/NCLCLB via CompanyName search — returned 0 results (may need different approach)
+  - First WC parser attempt — HTML structure had nested tables different from expected
+  - Single-letter WC search — NC IC requires minimum 2 characters
+
+next:
+  - Wait for NCLBGC and WC scrapes to finish (check tmux nc-scrape)
+  - Run full ingest: python3 ingest_nc.py --purge && python3 ingest_nc.py
+  - Investigate NCREF/NCLCLB — try AccountNumber enumeration or check if boards have any data
+  - Run OSHA matching for NC (match_osha_contractors.py)
+  - Consider Durham/Greensboro building permits download
+  - NC SOS data subscription ($2,750/yr) for entity_type enrichment — decision pending
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_arls_fast.py
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_arls.py
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/scrape_nc_wc.py
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/ingest_nc.py
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/NC-README.md
+  downloaded:
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/raw/raleigh_building_permits.csv (148 MB, 252K rows)
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_ncbeec_licenses.csv (5.4 MB, 34,144 records)
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_ncphb_licenses.csv (1.8 MB, 15,012 records)
+  in_progress:
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_nclbgc_licenses.csv (NCLBGC scrape running)
+    - /var/www/fatstud.businesspress.dev/data/gov/NC/raw/nc_wc_insurance.csv (WC scrape running)
+
+context:
+  database: "PostgreSQL localhost:5433, db=us_contractors, user=app, pw=phevasTAz7d2"
+  tmux_session: "nc-scrape (2 windows: 'boards' and 'wc')"
+  scrape_logs:
+    - /tmp/nc_nclbgc_fast.log
+    - /tmp/nc_ncbeec_fast.log
+    - /tmp/nc_ncphb_fast.log
+    - /tmp/nc_ncref_fast.log
+    - /tmp/nc_nclclb_fast.log
+    - /tmp/nc_wc_scrape.log
+  arls_boards:
+    nclbgc: "portal.nclbgc.org — general contractors — SCRAPING"
+    ncbeec: "arls-public.ncbeec.org — electrical — DONE (34,144)"
+    ncphb: "public.nclicensing.org — plumbing/HVAC — DONE (15,012)"
+    ncref: "ncrefrigerationboard.arlsys.com — refrigeration — DONE (0)"
+    nclclb: "public-nclclb.arlsys.com — landscape — DONE (0)"
+  wc_status: "Running, at letter J (~30% done)"
+  raleigh_permits: "INGESTED (21,202 contractors from 252K permit rows)"
+  ingest_script: "ingest_nc.py — 3 phases: arls, wc, permits"
+  fast_scraper_speed: "25+ records/s with 20 concurrent workers (vs 1.0/s sequential)"

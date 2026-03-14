@@ -1,0 +1,88 @@
+---
+session: general
+date: 2026-03-08
+status: in_progress
+outcome: PARTIAL
+---
+
+goal: Build parallel content scraping system for FatStud construction knowledge base — blog articles via Tor/DataImpulse, YouTube transcripts via proxy rotation, with thin-body/JS-shell detection for SPA sites
+now: All 3 scripts built and tested. Thin-body detection added. Ready for production scraping runs.
+test: "cd /var/www/fatstud.businesspress.dev/scripts/scrapers/content && python3 scrape-blogs.py --status"
+
+done_this_session:
+  - task: Added _is_thin_body() detection function to scrape-blogs.py
+    description: "Detects JS app shells (React/Next.js) that return HTTP 200 but only ~11KB shell. Checks: len(html) < 20_000, SPA div markers (__next, root, app) with >60% script content"
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-blogs.py]
+  - task: Updated fetch_html() tier 1-2 to escalate on thin bodies
+    description: "After challenge page check, added thin body check — breaks out of Tor loop to scrapling tiers"
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-blogs.py]
+  - task: Updated fetch_html() tier 3 (scrapling+Tor) to check thin bodies
+    description: "Added _is_thin_body(body) check so scrapling+Tor also falls through to tier 4 if shell detected"
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-blogs.py]
+  - task: Optimized tier 4 (DataImpulse) to minimize bandwidth cost
+    description: "Added Accept header restricting to text/html only + gzip/br compression. Prevents downloading images/CSS/JS — saves DataImpulse $/KB"
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-blogs.py]
+
+blockers: []
+
+decisions:
+  - thin_body_threshold: "20KB — pages under this are considered JS shells for article URLs. Sites like thisoldhouse.com return ~11KB React shell via Tor but 267KB server-rendered via residential proxy"
+  - tier4_bandwidth: "Accept: text/html,application/xhtml+xml only — no images/CSS/JS to minimize DataImpulse cost per KB"
+  - workers_default: "300 workers = 100 Tor ports × 3 concurrent tabs each"
+  - tier4_no_thin_check: "Tier 4 (DataImpulse) intentionally does NOT check _is_thin_body — it's last resort with residential IP, should always get full SSR page"
+
+findings:
+  - spa_shell_pattern: "Sites like thisoldhouse.com serve a ~11KB React/Next.js shell to Tor IPs (bot detection) but full 267KB SSR page to residential IPs"
+  - scrapling_fetcher_headers: "scrapling Fetcher.get() accepts headers={} kwarg to override request headers"
+
+files:
+  existing:
+    - path: /var/www/fatstud.businesspress.dev/scripts/scrapers/content/db_utils.py
+      description: "Shared module — thread-safe SQLite (WAL), proxy rotation (100 Tor ports + DataImpulse), domain config, clean_markdown(), content helpers"
+    - path: /var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-blogs.py
+      description: "Parallel blog scraper — 4-tier fetch (Tor×2 → scrapling+Tor → scrapling+DataImpulse), trafilatura/markdownify extraction, thin-body detection, 300 workers default"
+    - path: /var/www/fatstud.businesspress.dev/scripts/scrapers/content/scrape-youtube-transcripts.py
+      description: "Parallel YouTube transcript fetcher — youtube-transcript-api with Tor/DataImpulse proxy rotation, 15 workers default"
+
+infrastructure:
+  database:
+    path: /var/www/vibe-marketing/knowledge/construction/web-archives/url-inventory.db
+    journal_mode: WAL
+    tables:
+      urls: "url, domain, path, category, content_type, scrape_status, content, content_clean, word_count, content_hash, title, scraped_at"
+      youtube_videos: "video_id, channel, type, transcript_status, transcript, transcript_clean, transcript_words, scraped_at"
+  domain_config: /var/www/vibe-marketing/scripts/scraping/config/domains.json
+  tor_ports: "61000-61099 (100 SOCKS5 proxies)"
+  dataimpulse_proxy: "gw.dataimpulse.com:823 (residential, charged per KB)"
+
+fetch_tiers:
+  tier1: "requests via Tor port A — free, fast"
+  tier2: "requests via Tor port B — free, different circuit"
+  tier3: "scrapling Fetcher via Tor — handles CF JS challenges, free"
+  tier4: "scrapling Fetcher via DataImpulse — residential IP, costs $/KB, Accept: text/html only"
+
+cli_examples:
+  blog_scraper:
+    - "python3 scrape-blogs.py --domain thisoldhouse.com --limit 5 --workers 3  # test thin-body escalation"
+    - "python3 scrape-blogs.py --domain fixr.com --limit 50 --workers 30       # single domain batch"
+    - "python3 scrape-blogs.py --workers 300                                    # all domains, full speed"
+    - "python3 scrape-blogs.py --status                                         # progress report"
+    - "python3 scrape-blogs.py --retry-failed                                   # re-attempt failures"
+  youtube_scraper:
+    - "python3 scrape-youtube-transcripts.py --channel 'This Old House' --limit 10"
+    - "python3 scrape-youtube-transcripts.py --status"
+    - "python3 scrape-youtube-transcripts.py --workers 20"
+
+next:
+  - name: Test thisoldhouse.com thin-body escalation
+    description: "Run scrape-blogs.py --domain thisoldhouse.com --limit 5 --workers 3. Verify URLs escalate to tier 4 and return scrape_status='scraped' with real content"
+    priority: 1
+  - name: Production blog scrape run
+    description: "Run full scrape with --workers 300 across all domains. Monitor with --status. Expected ~906K URLs"
+    priority: 2
+  - name: YouTube transcript batch
+    description: "Run scrape-youtube-transcripts.py for all channels with --workers 15"
+    priority: 3
+  - name: Content quality audit
+    description: "Sample 20 scraped articles, verify content_clean is readable markdown without nav/footer/ads"
+    priority: 4

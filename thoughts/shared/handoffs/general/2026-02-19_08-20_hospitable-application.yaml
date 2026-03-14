@@ -1,0 +1,74 @@
+---
+session: general
+date: 2026-02-19
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Hospitable TSE job application - resume brief, application answers drafted and humanized
+now: User needs to finalize edited answers, submit Workable form, update LinkedIn, prep for async video interview
+
+done_this_session:
+  - task: Researched Hospitable company and TSE role thoroughly
+    files: [dashboard/.claude/cache/agents/oracle/output-20260218-hospitable-application.md]
+  - task: Deep-dived BusinessPress platform codebase (370K lines PHP, 124 models, 282 migrations)
+    files: [dashboard/.claude/cache/agents/scout/output-20260218-businesspress-platform.md]
+  - task: Created comprehensive resume/application brief with updated headline, about, experience sections
+    files: [projects/our-forever-stories/resume/hospitable-application-brief.md]
+  - task: Scraped actual Workable form questions via Playwright MCP
+    files: []
+  - task: Drafted answers for all 5 custom application questions
+    files: [projects/our-forever-stories/resume/hospitable-answers.md]
+  - task: Created humanized version of answers removing AI writing patterns
+    files: [projects/our-forever-stories/resume/hospitable-answers-humanized.md]
+  - task: User edited humanized answers with personal voice and corrections
+    files: [projects/our-forever-stories/resume/hospitable-answers-humanized.md]
+  - task: Verified BusinessPress metrics (370K lines legit, 124 models, 282 migrations, no bootstrap/cache counted)
+    files: []
+
+blockers: []
+
+questions:
+  - User has edited Q1-Q4 extensively with personal voice - Q5 and Q6 may also need user edits before submission
+  - Should LinkedIn be updated before or after submitting the application?
+  - Does user want help with async video interview prep (9-11 pre-recorded questions, 3 takes each)?
+
+decisions:
+  - resume_numbers: Verified 370K PHP lines across 5 packages (core 284K src+views+tests+migrations, page-builder 60K, stripe 17K, ai 6K, starter 7K). Core src/ alone is 185K. All legit code, no generated files.
+  - model_count: 124 Eloquent models (excluding base classes, casts, scopes, test files). Brief originally said 110+.
+  - migration_count: 282 migrations. Brief originally said 263.
+  - humanizer_approach: Used vibe-humanizer SKILL.md (Wikipedia AI Cleanup patterns) to remove AI-isms while preserving technical accuracy
+
+findings:
+  - workable_form_questions: 6 custom questions - (1) What excites you about TSE role/Hospitable, (2) Skills and experience fit, (3) Laravel experience YES/NO, (4) Meaningful PHP/Laravel project walkthrough, (5) Internal tool/automation example, (6) Remote work experience
+  - hospitable_hiring_process: Application form -> Async video (9-11 questions, 3 takes) -> Assessment (3 written support questions + Loom video) -> Live interviews. ~9.5 days avg.
+  - salary_range: $81K-$107K total. EMEA likely $3K-5K/mo. User floor $2K/mo, aim $3K-4K/mo.
+  - user_edited_answers: User rewrote Q1-Q4 extensively with personal voice - added honest takes about not having scaled systems, wanting to see how Hospitable handles scale, mentioned specific tech choices (EAV vs JSONB, Maizzle for emails, Vercel AI SDK plans). Much more authentic than AI-drafted versions.
+
+worked:
+  - Playwright MCP to scrape JS-rendered Workable form (had to kill stale browser lock first)
+  - Parallel scout agents for BusinessPress codebase + LinkedIn screenshots + application research
+  - xargs cat | wc -l for accurate line counts (xargs wc -l | tail -1 fails with many files due to batch splitting)
+
+failed:
+  - Perplexity MCP returned 401 - fell back to WebSearch/WebFetch
+  - Several WebFetch calls returned 403 (Glassdoor, Himalayas, DeepInfra) - used search snippets instead
+  - Initial line count via xargs wc -l gave wrong numbers for core (10K instead of 284K) due to xargs batch splitting
+
+next:
+  - Help user finalize Q5 and Q6 answers with personal edits (Q1-Q4 already done by user)
+  - Submit Workable application at https://apply.workable.com/hospitable/j/BE9898AAF6/apply/
+  - Update LinkedIn profile using new headline/about/experience from brief
+  - Prep async video interview answers (9-11 questions, scripted responses)
+  - Optionally create formatted CV/PDF resume
+
+files:
+  created:
+    - projects/our-forever-stories/resume/hospitable-application-brief.md
+    - projects/our-forever-stories/resume/hospitable-answers.md
+    - projects/our-forever-stories/resume/hospitable-answers-humanized.md
+    - dashboard/.claude/cache/agents/scout/output-20260218-businesspress-platform.md
+    - dashboard/.claude/cache/agents/oracle/output-20260218-hospitable-application.md
+  modified:
+    - projects/our-forever-stories/resume/hospitable-application-brief.md (updated model count 110->124, migrations 263->282)
+    - projects/our-forever-stories/resume/hospitable-answers-humanized.md (user edited Q1-Q4 with personal voice)

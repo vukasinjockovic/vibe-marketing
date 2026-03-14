@@ -1,0 +1,101 @@
+---
+session: general
+date: 2026-03-12
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: "Expand WC insurance + contractor data across 17 states — 2.86M contractors, 910K insurance records"
+now: "Run OH BWC scraper at scale, replenish proxy credits for ewccv.com (10 states), scrape remaining NC boards"
+test: "PGPASSWORD=phevasTAz7d2 psql -h localhost -p 5433 -U app -d us_contractors -c 'SELECT COUNT(*) FROM master.contractors; SELECT COUNT(*) FROM master.insurance_records;'"
+
+done_this_session:
+  - task: "Ingested NC WC insurance (52,964 records → 5,315 matched to contractors via exact+embedding)"
+    files: [data/gov/NC/ingest_nc_wc.py, data/gov/NC/match_nc_wc_embeddings.py]
+  - task: "Ingested NC ARLS boards (200K licenses, 175K new contractors — were scraped but never ingested)"
+    files: [data/gov/NC/ingest_nc.py]
+  - task: "Scraped + ingested MD DLLR (87,636 scraped → 68K contractors + 69K licenses + 51K tradespersons across 5 boards)"
+    files: [data/gov/MD/scrape_md_dllr.py, data/gov/MD/ingest_md.py, data/gov/MD/MD-README.md]
+  - task: "Ingested NJ bulk data (145K contractors + 189K licenses + 57K tradespersons + 45K WC from 6 phases)"
+    files: [data/gov/NJ/ingest_nj.py, data/gov/NJ/NJ-README.md]
+  - task: "Ingested TN data (96K contractors + 93K licenses + 27K tradespersons + 122K categories from 3 phases)"
+    files: [data/gov/TN/ingest_tn.py, data/gov/TN/TN-README.md]
+  - task: "Built ewccv.com Playwright mega-scraper (1,380 lines, 49 tests, covers 10 NCCI states)"
+    files: [data/gov/NCCI/scrape_ewccv.py, data/gov/NCCI/tests/test_scrape_ewccv.py]
+  - task: "Probed 14 state WC portals — documented which have own portals vs ewccv.com"
+    files: [data/gov/WC-PORTAL-PROBE-REPORT.md]
+  - task: "Built OH BWC, PA PCRB, MA WCRIBMA, CO CDLE scrapers"
+    files: [data/gov/OH/scrape_oh_bwc.py, data/gov/PA/scrape_pa_wc.py, data/gov/MA/scrape_ma_wc.py]
+  - task: "Updated OH README with WC strategy, GC gap analysis, coverage assessment"
+    files: [data/gov/OH/OH-README.md]
+  - task: "NC embedding-based WC matching (all-MiniLM-L6-v2, 287 employers matched → 3,568 insurance records linked)"
+    files: [data/gov/NC/match_nc_wc_embeddings.py]
+  - task: "Full database audit — 2.86M contractors across 17 natively ingested states"
+    files: []
+
+blockers:
+  - "ewccv.com unreachable from EU server — covers CT/IL/VA/VT/GA/AZ/TN/MD/SC/AL (10 states, 622K contractors)"
+  - "DataImpulse proxy credits exhausted (407 TRAFFIC_EXHAUSTED) — blocks all .gov scraping"
+  - "PA PCRB, MA WCRIBMA, CO CDLE all geo-blocked from EU server"
+  - "OH SOS WAF-blocked — cannot get entity type enrichment"
+
+questions:
+  - "Should we set up a US residential proxy (e.g., Mullvad) for the 10 ewccv.com states?"
+  - "Priority: run OH BWC scraper at scale (16.5K contractors) or focus on new state ingestion first?"
+
+decisions:
+  - nc_wc_match_rate: "2.9% is realistic ceiling — WC covers ALL employers not just construction (~7% construction-related)"
+  - oh_gc_gap: "Ohio doesn't license GCs at state level — structural gap, not a data gap. Only OCILB specialty trades."
+  - embedding_matching: "all-MiniLM-L6-v2 with 3-tier approach (exact→city-grouped→statewide) adds ~68% more matches over exact alone"
+  - nj_format: "NJ MyLicense bulk downloads are pipe-delimited .txt with trailing pipe — custom parser needed"
+
+findings:
+  - db_totals: "2,860,373 contractors | 2,932,695 licenses | 1,573,626 tradespersons | 910,174 insurance | 2,308,517 categories | 469,215 bonds | 1,079,908 officers | 21,221 violations"
+  - states_ingested: "17 states natively: WA, CA, CO, CT, FL, IL, MD, NC, NJ, NY, OH, OR, PA, TN, TX, VA, VT"
+  - top_states: "TX 462K, CT 405K, CA 254K, FL 235K, NC 201K, CO 187K, NY 168K, WA 154K, NJ 149K, IL 141K, TN 99K"
+  - scraper_patterns: "Pattern A (NC-style HTML form+requests), Pattern B (NJ-style JSON API), Pattern C (ewccv.com Playwright)"
+  - md_dllr_boards: "HIC 20K, ME 29K, PLM 12K, HVAC 22K, SE 3K — Perl CGI with no anti-bot"
+
+worked:
+  - "Parallel kraken agents for independent state ingestion (NJ + TN simultaneously)"
+  - "NC ARLS data was scraped months ago but never ingested — always check raw/ directory"
+  - "Embedding-based name matching adds ~68% more WC matches over exact match alone"
+  - "MD DLLR Perl CGI system has zero anti-bot — direct requests work perfectly"
+
+failed:
+  - "DataImpulse proxy blocked ALL .gov domains as blanket policy"
+  - "ewccv.com WAF blocks plain HTTP requests — needs Playwright with stealth headers"
+  - "OH SOS WAF aggressive bot protection blocks our IP completely"
+  - "Initial NC WC match rate 0.4% — caused by NC ARLS boards not being ingested yet"
+
+next:
+  - "Run OH BWC scraper at full scale: python3 scrape_oh_bwc.py (16.5K OH contractors)"
+  - "Replenish proxy credits or set up US residential proxy for ewccv.com mega-scraper"
+  - "Run ewccv.com scraper for 10 states (CT most valuable at 405K contractors)"
+  - "Re-scrape NC NCREF + NCLCLB (2 missing boards): python3 scrape_nc_arls_fast.py --board ncref/nclclb"
+  - "Run embedding-based WC matching for other states with WC data (FL, TX, NJ, etc.)"
+  - "Normalize insurance_type values across states (workers_compensation vs WC vs NULL)"
+  - "Ingest CA PersonnelData.csv into master.officers"
+  - "Research and scrape GA, AZ, SC, MA, IN, MO, WI, MI, MN contractor data"
+  - "Fix CA/CO source field blank on contractor records"
+  - "Consider county-level permits (Columbus, Cleveland, Cincinnati for OH GC gap)"
+
+files:
+  created:
+    - data/gov/NC/ingest_nc_wc.py
+    - data/gov/NC/match_nc_wc_embeddings.py
+    - data/gov/MD/scrape_md_dllr.py
+    - data/gov/MD/ingest_md.py
+    - data/gov/MD/MD-README.md
+    - data/gov/NJ/ingest_nj.py
+    - data/gov/TN/ingest_tn.py
+    - data/gov/TN/TN-README.md
+    - data/gov/NCCI/scrape_ewccv.py
+    - data/gov/NCCI/tests/test_scrape_ewccv.py
+    - data/gov/PA/scrape_pa_wc.py
+    - data/gov/MA/scrape_ma_wc.py
+    - data/gov/WC-PORTAL-PROBE-REPORT.md
+  modified:
+    - data/gov/NC/NC-README.md
+    - data/gov/OH/OH-README.md
+    - data/gov/NJ/NJ-README.md

@@ -1,0 +1,147 @@
+---
+session: general
+date: 2026-03-14
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: "WA contractor enrichment — imported permits + EPA ECHO + probed 12 new data sources + built L&I Verify scraper"
+now: "Run full L&I Verify scrape (170K UBIs), ingest AG complaints, build WSDOT PDF parser, set up GPU matching on laptop"
+test: "PGPASSWORD=phevasTAz7d2 psql -h localhost -p 5433 -U app -d contractor_hub -c \"SELECT issuing_authority, COUNT(*) FROM sources.building_permits GROUP BY issuing_authority; SELECT COUNT(*) FROM sources.epa_echo;\""
+
+done_this_session:
+  - task: "Investigated 3-source overlap (GMaps/BBB/Angi) — only 37 triple matches. Root cause: different business populations, Angi data is 55% spam/franchises"
+    files: []
+  - task: "Audited Angi WA data quality — 10K rows = only 742 usable construction businesses with phone. Decision: SKIP Angi for now"
+    files: []
+  - task: "Downloaded + imported Seattle building permits — 188,414 records into sources.building_permits"
+    files: [data/gov/scripts/import_seattle_permits.py]
+  - task: "Matched Seattle permits to WA contractors — 7,483 matches (4,666 HIGH, 2,374 MEDIUM, 443 LOW) → 5,982 unique contractors"
+    files: [data/gov/scripts/import_seattle_permits.py]
+  - task: "Downloaded + imported Tacoma permits — 105,795 records into sources.building_permits"
+    files: [data/gov/scripts/import_kc_tacoma_permits.py]
+  - task: "King County permits download FAILED — data.kingcounty.gov returns 403 from EU"
+    files: []
+  - task: "Downloaded EPA ECHO national data (417MB zip), filtered 267,574 construction facilities, ingested into sources.epa_echo table"
+    files: []
+  - task: "Matched EPA ECHO to contractors — 1,172 matches across all states (KY 307, TX 262, MO 70, WA 64, LA 58)"
+    files: []
+  - task: "Built GPU entity matcher script for laptop — FAISS + MiniLM-L6-v2, export/match/import workflow"
+    files: [data/gov/scripts/gpu_entity_matcher.py, data/gov/scripts/GPU_MATCHER_README.md]
+  - task: "Exported OSHA data for GPU matching — contractors_WA.csv (157K) + source_osha_WA.csv (59K) ready in data/enrichment/gpu-match/"
+    files: []
+  - task: "OMWBE directory probe FAILED — diversitycompliance.com returns 403 from EU (geo-blocked)"
+    files: []
+  - task: "SAM.gov legal analysis — documented D&B data restrictions. Post-April 2022 records NOT D&B-restricted. Government data (awards, NAICS, certs) always free"
+    files: [data/gov/FEDERAL/raw/sam/SAM-GOV-NOTES.md]
+  - task: "Comprehensive enrichment research — oracle agent found 48 data sources for WA contractor enrichment"
+    files: [.claude/cache/agents/oracle/output-2026-03-14-wa-enrichment-sources-comprehensive.md]
+  - task: "Probed WA AG Consumer Complaints — SUCCESS, downloaded 266K records via Socrata, 9,808 WA construction complaints"
+    files: [data/gov/WA/raw/wa_ag_consumer_complaints.csv]
+  - task: "Probed SBA Certifications — PARTIAL, API returns 500. Need browser automation or SAM.gov API"
+    files: []
+  - task: "Probed WSDOT Bid Results — SUCCESS, PDFs downloadable 2013-2025, ~1K projects, 200-300 unique contractors"
+    files: [data/gov/WA/raw/wsdot_bid_results_2025.pdf, data/gov/WA/raw/wsdot_bid_results_2024.pdf]
+  - task: "Probed King County Recorder liens — accessible from EU but reCAPTCHA v2 on every search. Full API reverse-engineered (140 doc types)"
+    files: [data/gov/WA/ENRICHMENT-PROBE-RESULTS.md]
+  - task: "Probed WA Courts Odyssey — completely geo-blocked from EU (all *.courts.wa.gov timeout)"
+    files: [data/gov/WA/ENRICHMENT-PROBE-RESULTS.md]
+  - task: "Probed L&I DOSH Safety Citations — JACKPOT! Unauthenticated JSON API at secure.lni.wa.gov/verify/ returns DOSH inspections, violations, infractions, strikes, debarments per UBI"
+    files: [data/gov/WA/ENRICHMENT-PROBE-RESULTS.md]
+  - task: "Built L&I Verify API scraper — checkpointed, rate-limited, extracts DOSH+enforcement data"
+    files: [data/gov/WA/scrape_li_verify.py]
+  - task: "Ran L&I Verify sample — 40 contractors scraped to wa_li_verify_enrichment.jsonl"
+    files: [data/gov/WA/raw/wa_li_verify_enrichment.jsonl]
+  - task: "Updated CLAUDE.md with Data Source Probing Protocol and Matching Protocol (no fuzzy on server, GPU only)"
+    files: [data/gov/CLAUDE.md]
+  - task: "Cancelled all stale pg_trgm fuzzy match runs (runs 16-18, 21). Decision: no more server-side fuzzy matching"
+    files: []
+
+blockers:
+  - "King County permits + OMWBE + WA Courts — geo-blocked from EU, need US IP/proxy"
+  - "King County liens — reCAPTCHA v2 on every search, need CAPTCHA solver or Scrapfly"
+  - "SBA Certifications API returns 500 — need browser automation or SAM.gov API key"
+  - "GPU matching not yet run — laptop setup needed (PyTorch + CUDA + sentence-transformers + FAISS)"
+  - "Tacoma permits NOT matched yet — waiting for GPU pipeline (9,912 unique names)"
+  - "L&I Electrical Permits — ASP.NET EventValidation blocks programmatic access, needs Playwright"
+  - "ewccv.com still unreachable from EU (WC data for 10 states)"
+
+questions:
+  - "Should L&I DOSH data go into osha.* schema (alongside federal) or get its own wa_dosh.* schema in lake?"
+  - "Should we invest in a CAPTCHA solving service for King County liens (~$3/1000 solves)?"
+  - "Which commercial sources to prioritize — Apollo.io (free tier for employee/revenue), OpenCorporates (SOS cross-ref), or BuildZoom (national permits)?"
+  - "Should WSDOT bid results go into master.projects or a new bids table?"
+
+decisions:
+  skip_angi: "Angi WA data too noisy — 55% spam/franchises, only 742 usable records. Skipped."
+  no_server_fuzzy: "No more pg_trgm fuzzy matching on server. All entity matching beyond exact goes through GPU pipeline (FAISS + MiniLM-L6-v2 on laptop)."
+  sam_gov_approach: "Use SAM.gov for matching only (find which contractors have fed contracts). Don't redistribute D&B-sourced name/address from pre-April 2022 records."
+  epa_echo_all_states: "Ingested EPA ECHO for ALL states (267K construction facilities), not just WA. Matched 1,172 to contractors."
+  ag_complaints_direct: "WA AG Consumer Complaints downloadable via Socrata API, no scraper needed."
+
+findings:
+  wa_state_plan: "WA is a state-plan state — DOSH handles most safety inspections, NOT federal OSHA. Our OSHA data likely misses most WA safety citations."
+  li_verify_api: "L&I Verify at secure.lni.wa.gov/verify/ has unauthenticated JSON API returning DOSH inspections, violations, infractions, strikes, debarments, coverage lapses per UBI. No CAPTCHA, no session needed."
+  seattle_permits_16pct: "Only 16% of Seattle permits have contractor names. 84% are owner-pulled with no contractor listed."
+  tacoma_permits_58pct: "58% of Tacoma permits have contractor names (much better than Seattle)."
+  epa_echo_low_wa: "EPA ECHO has only 76 WA facilities with construction NAICS. Better in KY (13,577), TX (52,097)."
+  ag_complaints_count: "9,808 WA construction complaints across 1,331 unique businesses. Top: Beacon Plumbing (117), Solgen Power (101)."
+  wsdot_bids: "WSDOT bid PDFs downloadable 2013-2025, ~1K projects, parseable with pdftotext + regex."
+  king_county_captcha: "King County LandmarkWeb has reCAPTCHA v2 sitekey 6LePF5clAAAAAHUGpyT_rrTZl48-STa5Rn6_PMTv on every search."
+  prevailing_wage_already_scraped: "L&I Prevailing Wage Intents already scraped (source #5, 1.26M records with prime/sub contractor names, emails, contract amounts)."
+  bond_claims_dont_exist: "Bond claims are not publicly available. But L&I Verify API covers enforcement actions, infractions, strikes as alternatives."
+
+worked:
+  - "Socrata API for data.wa.gov — globally accessible, no auth, bulk CSV downloads"
+  - "EPA ECHO lowercase URL (echo_exporter.zip not ECHO_EXPORTER.csv.zip)"
+  - "L&I Verify API — POST with UBI, get full enforcement history as JSON"
+  - "3 parallel probe agents — covered 12 sources efficiently"
+  - "match_runs tracking with total_candidates/auto_accepted/notes columns"
+
+failed:
+  - "pg_trgm fuzzy matching — too slow for 10K+ names against 157K contractors (10+ minutes)"
+  - "match_runs UPDATE with 'stats' column — doesn't exist, use total_candidates/auto_accepted/notes"
+  - "OMWBE diversitycompliance.com — 403 from EU, tried curl and Playwright"
+  - "King County data.kingcounty.gov — 403 from EU"
+  - "SBA certifications API — returns 500 for all payloads"
+  - "WA Courts *.courts.wa.gov — TCP connection timeout from EU"
+  - "L&I Electrical Permits — ASP.NET EventValidation blocks POST"
+
+next:
+  - "Run full L&I Verify scrape — 170K UBIs, will take several hours. Save to wa_li_verify_enrichment.jsonl"
+  - "Design DOSH storage schema in lake (pending analysis of sample data shape)"
+  - "Ingest WA AG Consumer Complaints (266K records) — match to contractors by business name"
+  - "Build WSDOT bid results PDF parser for 2013-2025 data"
+  - "Set up GPU matching on laptop — install PyTorch+CUDA, transfer exported CSVs, run OSHA matching first"
+  - "Match Tacoma permits via GPU pipeline (9,912 unique names)"
+  - "Match remaining Seattle permits (2,457 unmatched names) via GPU"
+  - "Export all unmatched source data as CSVs for laptop GPU matching"
+  - "Get US proxy for geo-blocked sources (OMWBE, King County permits, WA Courts)"
+  - "Explore King County liens via CAPTCHA solver (2captcha ~$3/1000)"
+  - "Complete SAM.gov registration (Login.gov) for entity API access"
+  - "Probe commercial sources — Apollo.io free tier for employee count/revenue estimates"
+  - "Ingest Source #10 (WA Public Works Project Details, 317K records — downloaded, no ingestion script yet)"
+
+files:
+  created:
+    - data/gov/scripts/import_seattle_permits.py
+    - data/gov/scripts/import_kc_tacoma_permits.py
+    - data/gov/scripts/gpu_entity_matcher.py
+    - data/gov/scripts/GPU_MATCHER_README.md
+    - data/gov/FEDERAL/raw/sam/SAM-GOV-NOTES.md
+    - data/gov/WA/scrape_li_verify.py
+    - data/gov/WA/raw/wa_ag_consumer_complaints.csv
+    - data/gov/WA/raw/wa_li_verify_enrichment.jsonl
+    - data/gov/WA/raw/wsdot_bid_results_2025.pdf
+    - data/gov/WA/raw/wsdot_bid_results_2024.pdf
+    - data/gov/WA/ENRICHMENT-PROBE-RESULTS.md
+    - data/enrichment/seattle-permits/seattle_building_permits.csv
+    - data/enrichment/seattle-permits/tacoma_permits.csv
+    - data/enrichment/epa-echo/echo_exporter.zip
+    - data/enrichment/epa-echo/echo_wa.csv
+    - data/enrichment/epa-echo/echo_construction_all_states.csv
+    - data/enrichment/gpu-match/contractors_WA.csv
+    - data/enrichment/gpu-match/source_osha_WA.csv
+  modified:
+    - data/gov/CLAUDE.md
+    - data/gov/WA/WA-README.md

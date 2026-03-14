@@ -1,0 +1,171 @@
+---
+session: general
+date: 2026-03-07
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Build FatStud brand identity, styleguide, homepage, CPTs, and plan massive content factory operation
+now: Review homepage at fatstud.businesspress.dev, then either start building first calculator OR begin content scraping pipeline from pre-plan doc
+test: curl -sk https://fatstud.businesspress.dev | grep -q "Construction Calculators" && echo "OK"
+
+done_this_session:
+  - task: Competitive research — analyzed top 14 construction calculator sites (Calculator.net, OmniCalculator, InchCalculator, Blocklayer, Homewyse, etc.)
+    files: [/var/www/vibe-marketing/.claude/cache/agents/oracle/output-2026-03-07-construction-calculators.md]
+  - task: Found 20+ Figma/Tailwind templates for design direction — recommended Structo (DeWalt vibe) + free construction estimating LP templates
+    files: [/var/www/vibe-marketing/.claude/cache/agents/oracle/output-2026-03-07-fatstud-templates.md]
+  - task: Full DeWalt-inspired styleguide — variables.css, fonts.css, typography.css, buttons.css, badges.css, forms.css, wysiwyg.css, custom.css
+    files:
+      - /var/www/fatstud.businesspress.dev/resources/css/variables.css
+      - /var/www/fatstud.businesspress.dev/resources/css/fonts.css
+      - /var/www/fatstud.businesspress.dev/resources/css/typography.css
+      - /var/www/fatstud.businesspress.dev/resources/css/buttons.css
+      - /var/www/fatstud.businesspress.dev/resources/css/badges.css
+      - /var/www/fatstud.businesspress.dev/resources/css/forms.css
+      - /var/www/fatstud.businesspress.dev/resources/css/wysiwyg.css
+      - /var/www/fatstud.businesspress.dev/resources/css/custom.css
+      - /var/www/fatstud.businesspress.dev/tailwind.config.mjs
+  - task: Self-hosted Google Sans fonts (8 woff2 weights, no CDN)
+    files: [/var/www/fatstud.businesspress.dev/resources/fonts/google-sans/]
+  - task: Logo SVGs — 7 variants (hazard stripe, stud+ruler, favicon), final versions use Inter Black converted to paths (6KB each, no font dependency)
+    files:
+      - /var/www/fatstud.businesspress.dev/public/images/logo-ruler-black.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-ruler-white.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-favicon.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-hazard-stripe.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-hazard-stripe-v2.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-stud-ruler.svg
+      - /var/www/fatstud.businesspress.dev/public/images/logo-stud-ruler-v2.svg
+  - task: HTTP basic auth enabled (admin/admin) for staging protection
+    files: [/var/www/fatstud.businesspress.dev/.env]
+  - task: Homepage — hero with search, 8 popular calc cards, 12 category grid, contractor directory teaser, blog posts section, newsletter CTA
+    files: [/var/www/fatstud.businesspress.dev/resources/views/frontend/page-templates/home.blade.php]
+  - task: FatStud-branded sticky header override with logo, nav, search, "Find a Pro" CTA, mobile drawer
+    files: [/var/www/fatstud.businesspress.dev/resources/views/components/header.blade.php]
+  - task: Dark footer with 4-column layout (brand, calculators, resources, company)
+    files: [/var/www/fatstud.businesspress.dev/resources/views/components/footer.blade.php]
+  - task: Calculator CPT + model (app-level, registered via bp:optimize)
+    files:
+      - /var/www/fatstud.businesspress.dev/definitions/cpts/calculator.php
+      - /var/www/fatstud.businesspress.dev/app/Models/Calculator.php
+  - task: Provider CPT + model (for contractor directory, app-level)
+    files:
+      - /var/www/fatstud.businesspress.dev/definitions/cpts/provider.php
+      - /var/www/fatstud.businesspress.dev/app/Models/Provider.php
+  - task: Calculator comparison — 104 unique non-cost calculators across OmniCalculator (74), InchCalculator (39), Blocklayer (65), with overlap matrix and reverse-engineering feasibility
+    files: [/var/www/vibe-marketing/rust/construction-calculators/calculator-comparison-analysis.md]
+  - task: Content factory pre-plan — 1,304-line comprehensive document covering scraping strategy, audience research, cross-referencing, blog post pipeline, YouTube transcripts, technical implementation
+    files: [/var/www/vibe-marketing/rust/construction-calculators/content-factory-preplan.md]
+
+blockers:
+  - fatstud.com domain not yet purchased
+  - Fal.ai MCP auth not configured (tried to generate logo images, got 401)
+  - Blocklayer SVG calculator deep analysis still running (identifying which are hardest to reverse-engineer)
+
+decisions:
+  - brand_palette: "DeWalt-inspired — primary yellow #FEBD17, secondary charcoal #2D2D2D, accent safety orange #FF6B00, light mode site"
+  - fonts: "Google Sans self-hosted (body), Inter Black for logo paths. NO Google Fonts CDN imports."
+  - logo_direction: "FATSTUD wordmark with yellow ruler bar underneath. Two variants — black text (light bg) and white text (dark bg). Converted to SVG paths via opentype.js for zero font dependency."
+  - css_architecture: "Follows GymZillaTribe pattern — variables.css (@theme block) → fonts.css → typography.css → buttons.css → badges.css → forms.css → wysiwyg.css, imported via custom.css"
+  - view_override: "App-level views override starter views (no namespace needed). BusinessPressViewFinder merges paths: app → starter → core."
+  - cpt_pattern: "App-level definitions/cpts/*.php + app/Models/*.php extending BusinessPress Core CPT model. Registered via bp:optimize."
+  - calculator_count: "104 unique non-cost calculators identified. 80 are simple Alpine.js arithmetic. 12 are complex SVG-generating (Blocklayer-style printable templates)."
+  - content_factory: "Massive scraping operation planned — scrape blogs, YouTube transcripts, Reddit/Quora via vibe-marketing agents, cross-reference with 16 keyword groups (40.6M monthly searches), generate thousands of blog posts"
+  - dropped_cost_calcs: "Skipping cost/price calculators for now (homewyse-style) — will add later with zip-code localized pricing"
+
+findings:
+  - yelp_pseo_goldmine: "Yelp 'Related Searches' = free pSEO keywords with city-level targeting. Pattern: '{Service} in {City}, {State}' — massive long-tail for directory phase."
+  - blocklayer_moat: "Blocklayer's printable full-scale cutting templates (pipe notching, dovetails, rafter birdsmouth) are unique — nobody has replicated these. All client-side JS, fully reverse-engineerable."
+  - calculator_sites_pattern: "White bg + single accent color, calculator above fold, real-time calc on input, long SEO content below, ads AROUND (never inside) calculator."
+  - build_estimate: "425 dev hours (~10 weeks) to build all 104 calculators. 55 are difficulty-1 (2hrs each), 25 difficulty-2, 15 difficulty-3, 12 difficulty-4."
+  - content_preplan: "1,304-line pre-plan doc ready for fresh session to convert into task-by-task implementation plan"
+
+worked:
+  - "Subagent delegation pattern — kraken for implementation, oracle for research, scout for exploration, spark for quick fixes"
+  - "GymZillaTribe CSS as reference — same @theme + typography + component pattern ported to light mode"
+  - "opentype.js for converting text to SVG paths — 631KB → 6KB logo files"
+  - "Inter Black font weight 900 for bold industrial logo feel"
+
+failed:
+  - "Fal.ai image generation — 401 auth error, API key not configured in MCP"
+  - "Embedding font as base64 in SVG — 631KB per file, ridiculous for a logo"
+  - "ESM import of opentype.js failed (node module resolution) — had to use CommonJS require()"
+
+next:
+  - name: Review Homepage
+    description: Check https://fatstud.businesspress.dev visually — header, hero, calculator cards, footer. Fix any styling issues with the DeWalt palette.
+    priority: 1
+  - name: Build First Calculator (Square Footage)
+    description: "Build square footage calculator as Alpine.js component. 500K/mo searches. L×W math. Template for all others. Create calculator.single route + blade template."
+    priority: 2
+  - name: Blocklayer SVG Analysis
+    description: "Oracle agent may still be running — check results at output file. Identifies which 12 Blocklayer calcs are SVG-generating and reverse-engineering difficulty."
+    priority: 3
+  - name: Content Factory Plan
+    description: "Feed content-factory-preplan.md to a new Claude Code session to create task-by-task implementation plan for scraping + blog generation pipeline"
+    priority: 4
+  - name: Concrete Slab Calculator
+    description: "Second calculator — L×W×D → cubic yards + bags. 500K/mo. Same component pattern."
+    priority: 5
+  - name: Calculator Single Page Template
+    description: "Create resources/views/frontend/page-templates/calculator-single.blade.php with calculator widget area, SEO content below, related calculators sidebar, ad placement zones"
+    priority: 6
+  - name: Provider Single Page Template
+    description: "Create provider/contractor profile page template for the directory"
+    priority: 7
+  - name: pSEO Page Seeding
+    description: "Use BusinessPress page-builder to seed 500+ variant pages from calculator templates with unique H1/meta/intro/FAQ per page"
+    priority: 8
+  - name: Yelp Scraping for Directory
+    description: "Scrape Yelp construction-related 'Related Searches' patterns for pSEO keyword expansion with city-level targeting"
+    priority: 9
+
+infrastructure:
+  server:
+    path: /var/www/fatstud.businesspress.dev
+    nginx: /etc/nginx/sites-available/fatstud.businesspress.dev
+    php: php8.3-fpm
+    db: PostgreSQL on port 5433, database "fatstud", user "app"
+    ssl: Wildcard businesspress.dev cert
+    url: https://fatstud.businesspress.dev
+    basic_auth: admin/admin
+  packages:
+    core: packages/businesspress/core (branch dev, symlinked)
+    ai: packages/businesspress/ai (branch main, symlinked)
+    page-builder: packages/businesspress/page-builder (branch main, symlinked)
+    starter: packages/businesspress/starter (branch main, symlinked)
+  keyword_research: rust/construction-calculators/keyword-research/
+  calculator_analysis: rust/construction-calculators/calculator-comparison-analysis.md
+  content_preplan: rust/construction-calculators/content-factory-preplan.md
+  master_summary: rust/construction-calculators/keyword-research/MASTER-SUMMARY.md
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/resources/css/variables.css (DeWalt palette @theme)
+    - /var/www/fatstud.businesspress.dev/resources/css/fonts.css (Google Sans self-hosted)
+    - /var/www/fatstud.businesspress.dev/resources/css/typography.css (h1-h6 + body sizes)
+    - /var/www/fatstud.businesspress.dev/resources/css/buttons.css (full button system)
+    - /var/www/fatstud.businesspress.dev/resources/css/badges.css (badges, chips, alerts)
+    - /var/www/fatstud.businesspress.dev/resources/css/forms.css (inputs + calculator-input)
+    - /var/www/fatstud.businesspress.dev/resources/css/wysiwyg.css (light mode blog content)
+    - /var/www/fatstud.businesspress.dev/resources/css/custom.css (import chain + base)
+    - /var/www/fatstud.businesspress.dev/resources/fonts/google-sans/ (8 woff2 files)
+    - /var/www/fatstud.businesspress.dev/public/images/logo-ruler-black.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-ruler-white.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-favicon.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-hazard-stripe.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-hazard-stripe-v2.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-stud-ruler.svg
+    - /var/www/fatstud.businesspress.dev/public/images/logo-stud-ruler-v2.svg
+    - /var/www/fatstud.businesspress.dev/resources/views/components/header.blade.php
+    - /var/www/fatstud.businesspress.dev/resources/views/components/footer.blade.php
+    - /var/www/fatstud.businesspress.dev/definitions/cpts/calculator.php
+    - /var/www/fatstud.businesspress.dev/definitions/cpts/provider.php
+    - /var/www/fatstud.businesspress.dev/app/Models/Calculator.php
+    - /var/www/fatstud.businesspress.dev/app/Models/Provider.php
+    - /var/www/vibe-marketing/rust/construction-calculators/calculator-comparison-analysis.md
+    - /var/www/vibe-marketing/rust/construction-calculators/content-factory-preplan.md
+  modified:
+    - /var/www/fatstud.businesspress.dev/resources/views/frontend/page-templates/home.blade.php (full homepage)
+    - /var/www/fatstud.businesspress.dev/tailwind.config.mjs (Google Sans fonts, color vars)
+    - /var/www/fatstud.businesspress.dev/.env (basic auth + realm)

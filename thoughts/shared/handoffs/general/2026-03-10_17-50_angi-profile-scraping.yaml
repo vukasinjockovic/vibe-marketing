@@ -1,0 +1,116 @@
+session: general
+date: 2026-03-10
+status: in-progress
+outcome: RUNNING
+
+goal: Scrape full Angi business profiles (name, phone, address, rating, reviews, categories, FAQ) from 648K discovered URLs using DataImpulse rotating proxy
+now: Scraper running in tmux "angi-scrape" — 33 req/s, ETA ~5.5h, ~98.6% success rate (session pool fix v2)
+
+test: |
+  # Check status
+  cd /var/www/fatstud.businesspress.dev/scripts/scrapers && python3 scrape-angi-profiles.py --status
+
+  # Check if running
+  tmux capture-pane -t angi-scrape -p -S -10
+
+  # Check log
+  tail -20 /var/www/fatstud.businesspress.dev/scripts/scrapers/gmaps/logs/angi-profiles-scrape.log
+
+done_this_session:
+  - task: Verified Google Maps scraping COMPLETE — 2,215,021 places across all 50 states (7.5h run)
+    files: []
+  - task: Verified Google Maps enrichment 99.7% COMPLETE — 2,209,093/2,215,021 enriched
+    files: []
+  - task: Verified BBB scraping 100% COMPLETE — 310,377 URLs processed, 208,922 live profiles
+    files: []
+  - task: Updated DataImpulse credentials (old account exhausted, new creds in new-dataimpulse-creds.txt)
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls-residential.py]
+  - task: Tested Angi RSC endpoint — discovered RSC payload is duplicated (desktop + hydration), optimal cutoff at 2nd "business-profile" saves 43% bandwidth
+    files: []
+  - task: Built scrape-angi-profiles.py — streaming scraper with curl_cffi Chrome TLS impersonation, fresh session per request (defeats CF fingerprinting), retry with backoff, batch SQLite writes
+    files: [/var/www/fatstud.businesspress.dev/scripts/scrapers/scrape-angi-profiles.py]
+  - task: Tested at 5/50/200 URLs — 98% success, 11.5 req/s at 50 workers, 0 errors
+    files: []
+  - task: Launched full scrape with 100 workers in tmux angi-scrape — running at 20+ req/s
+    files: []
+
+blockers:
+  - DataImpulse 40GB budget may not cover all 648K URLs (projected ~46GB at 75KB avg) — monitor bandwidth
+  - ~2% Cloudflare block rate — retried automatically but adds bandwidth overhead
+
+questions:
+  - If bandwidth runs out before all URLs scraped, should we prioritize remaining residential URLs or stop?
+  - Should we run a second pass for the "retry" (CF blocked) URLs after the main scrape completes?
+  - Thumbtack URLs (68K in DB) — scrape those next?
+
+decisions:
+  - session_pool_rotate_100: Fresh-per-request crashed (double-free at 700 URLs). Session pool with rotation every 100 requests per worker: 0-1.4% block rate, 33 req/s, no crashes
+  - stream_cutoff_2nd_bp: Abort stream at 2nd "business-profile" component — saves 43% bandwidth while keeping ALL useful data (reviews, FAQ, categories)
+  - chrome131_impersonation: chrome136 returns 403, chrome131 works consistently — CF checks TLS fingerprint validity
+  - batch_writes_20: Flush SQLite every 20 records or 5 seconds to minimize crash data loss
+  - retry_3x_backoff: 403s retried 3 times with 1s/3s/5s backoff; still-blocked URLs marked "retry" for next run
+  - priority_order: Residential URLs first (most recent), then Unknown/Old, then Common Crawl (oldest, highest dead rate)
+
+findings:
+  - rsc_payload_duplicated: Angi RSC response contains the entire page TWICE (desktop render + hydration copy) — second copy is pure waste
+  - rsc_reviews_before_list: Actual review text+cost data appears BEFORE the "pro-profiles-reviews-list" component, not inside it
+  - soft_404_detection: Angi returns HTTP 200 for dead pages but includes "NEXT_NOT_FOUND" in RSC payload
+  - dead_rate_low: Only ~7% of URLs are dead (tested across CC/residential/old sources) — much lower than expected for 2017+ URLs
+  - avg_profile_75kb: Average streamed profile is ~75KB (with cutoff), ranging from 62KB (small) to 173KB (review-heavy)
+  - cloudflare_no_head: CF blocks HEAD requests entirely and ignores Range headers — no cheap pre-check possible
+  - bandwidth_cost_404: Dead URLs cost only ~7.7KB each (soft 404 response) — negligible waste
+  - phone_fill_86pct: ~86% of profiles have phone numbers; some businesses simply don't list them
+  - review_fill_94pct: 94% of profiles have extractable review text
+  - homeadvisor_logo_urls: Logo URLs point to cdn.homeadvisor.com — confirms HA/Angi backend integration
+
+worked:
+  - curl_cffi chrome131 impersonation bypasses Cloudflare TLS fingerprinting
+  - Fresh session per request (not reused) — critical for avoiding CF session correlation
+  - RSC header trick (RSC:1 + Next-Router-State-Tree) returns structured data instead of HTML
+  - Streaming with early abort saves 43% bandwidth
+  - ThreadPoolExecutor with 100 workers sustains 20+ req/s through DataImpulse
+  - Batch SQLite writes with WAL mode handles concurrent inserts well
+
+failed:
+  - httpx with proxy gets 403 (no TLS impersonation)
+  - curl_cffi chrome136 gets 403 (fingerprint too new/not recognized)
+  - Session reuse causes 60% CF block rate (session correlation fingerprint)
+  - HEAD requests blocked by CF entirely
+  - Range header ignored by CF CDN
+
+next:
+  - Monitor scrape progress — check status periodically
+  - When complete, run retry pass for CF-blocked URLs
+  - Run --status to verify data quality (phone/review/address fill rates)
+  - Consider scraping Thumbtack 68K providers next
+  - When DataImpulse budget allows, resume residential URL discovery for remaining 151 Angi categories
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/scrape-angi-profiles.py
+  modified:
+    - /var/www/fatstud.businesspress.dev/scripts/scrapers/discover-angi-urls-residential.py
+    - /var/www/fatstud.businesspress.dev/database/angi_urls.sqlite
+
+context:
+  database_location: /var/www/fatstud.businesspress.dev/database/angi_urls.sqlite
+  scraper_script: /var/www/fatstud.businesspress.dev/scripts/scrapers/scrape-angi-profiles.py
+  log_file: /var/www/fatstud.businesspress.dev/scripts/scrapers/gmaps/logs/angi-profiles-scrape.log
+  tmux_session: angi-scrape
+  proxy_config: "DataImpulse gw.dataimpulse.com:823, user 9f5ddee92fcd6223cde4, 40GB budget"
+  new_creds_file: /var/www/vibe-marketing/new-dataimpulse-creds.txt
+  database_tables:
+    angi_profiles: "url, uuid, spid, business_name, phone, logo_url, street, city, state, zip, rating, review_count, in_business_since, is_advertiser, is_paid_pro, is_super_service, categories(JSON), services(JSON), reviews(JSON), faq(JSON), description, bytes_downloaded, scraped_at"
+    angi_scrape_progress: "url, status(ok/dead/retry/error), error, attempted_at"
+    angi_urls: "647,832 discovered URLs (source table)"
+    google_maps_places: "2,215,021 places (COMPLETE)"
+    bbb_details: "208,922 profiles (COMPLETE)"
+    homeadvisor_urls: "249,379 URLs"
+    thumbtack_providers: "68,273 providers"
+  total_contractor_records: "~3.7M across all sources"
+  scraper_performance:
+    throughput: "20+ req/s at 100 workers"
+    success_rate: "98-99%"
+    avg_bytes_per_profile: "~75KB (streamed)"
+    projected_bandwidth: "~46GB for 648K URLs"
+    projected_time: "~8-9 hours"

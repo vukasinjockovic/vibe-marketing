@@ -17,9 +17,10 @@
   "selfHosted": null,
   "auth": {
     "type": "api_key",
-    "envVars": ["HF_API_KEY", "HF_API_SECRET"],
-    "primaryEnvVar": "HF_API_KEY",
-    "docsUrl": "https://cloud.higgsfield.ai/"
+    "envVars": ["HF_API_KEY", "HF_API_SECRET", "HF_EMAIL", "HF_PASSWORD"],
+    "primaryEnvVar": "HF_EMAIL",
+    "docsUrl": "https://cloud.higgsfield.ai/",
+    "notes": "HF_EMAIL + HF_PASSWORD for browser automation (subscription rates). HF_API_KEY + HF_API_SECRET for direct API (per-call rates)."
   },
   "costInfo": {
     "summary": "API: ~$0.23/image (Nano Banana Pro). Web UI subscription cheaper but not usable via API. Segmind alternative: $0.12/image",

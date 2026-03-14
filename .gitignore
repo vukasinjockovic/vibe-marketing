@@ -13,3 +13,6 @@ logs/
 .playwright-mcp
 tests/unit
 .claude/cache
+dashboard/.claude/cache
+memory/*
+.tldr

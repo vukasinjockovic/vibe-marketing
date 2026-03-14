@@ -1,0 +1,104 @@
+---
+session: general
+date: 2026-03-10
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Ingested all 6 OSHA federal datasets (22.4M records) into PostgreSQL and built contractor matching pipeline for WA
+now: Run match_osha_contractors.py WITHOUT --dry-run to populate master.violations (83K violations, $34.3M penalties)
+
+test: |
+  cd /var/www/fatstud.businesspress.dev/data/gov/FEDERAL && python3 ingest_osha.py --status
+  cd /var/www/fatstud.businesspress.dev/data/gov/FEDERAL && python3 match_osha_contractors.py --dry-run --sample 5
+
+done_this_session:
+  - task: Completed WA L&I data ingestion (all 9 datasets) — re-ingested projects after accidental deletion
+    files: [/var/www/fatstud.businesspress.dev/data/gov/WA/ingest_projects_only.py, /var/www/fatstud.businesspress.dev/data/gov/WA/WA-README.md]
+  - task: Discovered OSHA bulk download URLs via Playwright navigation of DOL JS SPA portal
+    files: []
+  - task: Downloaded all 6 OSHA national datasets (3.6GB) and analyzed contents
+    files: [/var/www/fatstud.businesspress.dev/data/gov/FEDERAL/analyze_osha.py]
+  - task: Built multiprocess-parallel OSHA ingestion pipeline — 22.4M records in 2.4 minutes (12 workers, 452 CSV chunks)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/FEDERAL/ingest_osha.py]
+  - task: Created osha schema with 6 tables + 14 indexes + meta.osha_sync tracking table
+    files: [/var/www/fatstud.businesspress.dev/data/gov/FEDERAL/ingest_osha.py]
+  - task: Built OSHA→contractor fuzzy matching script using pg_trgm (3-tier — exact, fuzzy+city, fuzzy+zip)
+    files: [/var/www/fatstud.businesspress.dev/data/gov/FEDERAL/match_osha_contractors.py]
+  - task: Dry-run matching complete — 56,546/101,697 inspections matched (55.6%), 12,367 unique contractors, 83,450 violations, $34.3M penalties
+    files: []
+  - task: Deleted OSHA zip files (freed 3.6GB)
+    files: []
+
+blockers:
+  - business_name_normalized column in master.contractors is broken (strips "CO" from "CONSTRUCTION" → "NSTRUCTION"). Matching uses raw business_name instead.
+
+questions:
+  - Should we increase fuzzy threshold from 0.5 to reduce false positives (like "K C CONSTRUCTION" matching "AB & K CONSTRUCTION")?
+  - Some OSHA estab_names have prefixed license numbers (e.g. "WA317948116 - I 5 RESTORATION, INC.") — should we strip the prefix before matching?
+  - The 45K unmatched inspections — are those out-of-state companies working in WA, or name mismatches worth investigating?
+  - Should the matching script run automatically after each OSHA sync, or stay manual?
+
+decisions:
+  - multiprocessing_over_threading: Python GIL makes ThreadPoolExecutor useless for CPU-bound CSV parsing. Switched to multiprocessing.Pool — 7x speedup (130K rows/s vs 18K rows/s)
+  - bigint_all_integers: Changed all INTEGER columns to BIGINT after nr_in_estab overflow at 4M rows
+  - indexes_after_load: Create indexes AFTER bulk insert (not during) for much faster initial load
+  - three_tier_matching: Exact name+city → fuzzy+city (threshold 0.5) → fuzzy+zip (threshold 0.65). Balances precision vs recall.
+  - lateral_not_join: Use LATERAL subquery with LIMIT 1 instead of full cross-join for fuzzy matching. Still takes ~8min for 86K lookups but is a single SQL statement.
+  - operator_syntax: psycopg2 escapes % as format specifier. Use OPERATOR(public.%) syntax to reference pg_trgm % operator.
+  - dedup_before_fuzzy: Match on unique (name,city) combos (88K) then spread back to inspections (101K) — avoids redundant fuzzy lookups
+
+findings:
+  - osha_data_scope: 22.4M records total — 5.16M inspections, 13.2M violations, 165K accidents, 231K injuries, 1.15M abstracts, 2.46M related
+  - osha_wa_construction: 101,697 WA construction inspections (SIC 1500-1799, NAICS 236/237/238)
+  - osha_update_frequency: DOL updates OSHA data DAILY. LOAD_DT field tracks when records entered the system. History goes back to 1972.
+  - osha_download_pattern: "https://data.dol.gov/data-catalog/OSHA/{table}/OSHA_{table}.zip"
+  - zip_chunk_counts: inspection=104, violation=265, accident=4, injury=5, abstract=24, related=50 CSV chunks per zip
+  - match_rate_55pct: 55.6% of WA construction inspections matched to a contractor. 12,367 unique contractors have OSHA data.
+  - penalties_34m: $34.3M in total penalties across 83,450 matched violations
+  - multiline_csv_gotcha: WA CSV files have embedded newlines in quoted address fields — wc -l overcounts vs actual records
+
+worked:
+  - multiprocessing.Pool with 12 workers for CSV ingestion — 130K rows/s, 22.4M in 2.4min
+  - pg_trgm LATERAL + LIMIT 1 for fuzzy matching — single SQL statement, GIN index usage
+  - OPERATOR(public.%) syntax to bypass psycopg2 % escaping
+  - Deduplicating OSHA names before fuzzy matching (88K unique vs 101K total)
+  - Parallel curl downloads for all 6 OSHA files simultaneously
+  - ON CONFLICT upsert for inspections/accidents (safe for re-runs)
+
+failed:
+  - ThreadPoolExecutor for CSV parsing — GIL bottleneck, only 1 core utilized despite 16 threads
+  - enforcedata.dol.gov URLs — all redirect to data.dol.gov JS SPA returning HTML
+  - Pure JOIN with pg_trgm % operator — hangs indefinitely on 86K × 140K cross-join
+  - Per-row fuzzy queries (98K individual SELECT statements) — 24 queries/sec, would take 68 minutes
+  - business_name_normalized for matching — column has broken normalization (strips "CO")
+  - Bash tool timeout with long Python processes — returns output prematurely while process still runs
+
+next:
+  - Run match_osha_contractors.py WITHOUT --dry-run to populate master.violations
+  - Consider stripping license number prefixes from OSHA estab_names ("WA317948116 - ") before matching
+  - Fix or regenerate business_name_normalized in master.contractors
+  - Set up cron job for daily OSHA sync (ingest_osha.py --incremental + match_osha_contractors.py)
+  - Build contractor matching step 4 from user's original requirements — integrate matching into ingest_osha.py pipeline
+  - Update WA-README.md to mark OSHA as ingested and matched
+  - Consider EPA RRP, WA SOS, and AG complaints as next data sources (#11-13 in WA-README)
+
+files:
+  created:
+    - /var/www/fatstud.businesspress.dev/data/gov/WA/ingest_projects_only.py
+    - /var/www/fatstud.businesspress.dev/data/gov/FEDERAL/analyze_osha.py
+    - /var/www/fatstud.businesspress.dev/data/gov/FEDERAL/ingest_osha.py
+    - /var/www/fatstud.businesspress.dev/data/gov/FEDERAL/match_osha_contractors.py
+  modified:
+    - /var/www/fatstud.businesspress.dev/data/gov/WA/WA-README.md
+
+context:
+  database: "PostgreSQL localhost:5433, db=us_contractors, user=app, pw=phevasTAz7d2"
+  total_db_size: "11 GB"
+  schemas:
+    master: "6.1M rows (WA L&I data) — contractors, licenses, insurance, bonds, officers, categories, projects, tradespersons, violations(empty)"
+    osha: "22.4M rows (federal) — inspections, violations, accidents, injuries, abstracts, related_activity"
+    meta: "sync tracking — osha_sync, sources, ingestion_runs, states"
+  osha_download_url: "https://data.dol.gov/data-catalog/OSHA/{table}/OSHA_{table}.zip"
+  osha_tables: ["inspection", "violation", "accident", "accident_injury", "accident_abstract", "related_activity"]
+  angi_scrape: "Was running in tmux angi-scrape during session — check status separately"
